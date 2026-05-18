@@ -14,6 +14,13 @@ Arithmetic quiz with configurable number ranges, operators (+, −, ×, ÷), and
 
 **[▶ Open Rekentoets](https://mmalkus.github.io/Thuiswerk/rekentoets.html)**
 
+## Offline use
+
+Each app is a single self-contained HTML file and works fully offline. Download a file, save it anywhere, and open it directly in a browser — no internet connection needed (except for loading Google Fonts).
+
+- [Download dictee.html](https://github.com/mmalkus/Thuiswerk/raw/main/dictee.html)
+- [Download rekentoets.html](https://github.com/mmalkus/Thuiswerk/raw/main/rekentoets.html)
+
 ---
 
 MIT License © 2026 Maurits Malkus
