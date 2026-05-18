@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dictee Oefenen</title>
+<title>Dictee / Spelling</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -34,21 +34,96 @@
 <script type="text/babel">
 const { useState, useRef, useEffect } = React;
 
-// ── Standaard woordenlijst (wordt vervangen als je een JSON laadt) ───────────
-const STANDAARD = {"_level_labels":{"groep3":"Groep 3","groep4":"Groep 4","groep5":"Groep 5","groep6":"Groep 6","groep7":"Groep 7","groep8":"Groep 8"},"_labels":{"all":"Gemengd","ng":"ng-klank","nk":"nk-klank","cks":"c / k / s","ei_ij":"ei of ij","au_ou":"au of ou","sch":"sch","ch":"ch","dt":"d / dt / t","dbl":"Verdubbeling","aai":"aai / ooi / oei","open":"Open/gesloten lettergreep","leenwoord":"Leenwoorden"},"groep3":{"all":["bok","mes","lip","gat","net","pot","dak","vis","kan","weg","bed","bos","mok","rij","zak","hek","bak","kam","lap","mus","tap","wip","ton","pet","bus","map","bel","kip","rug","som","tol","bal","vos","pit","rem","bad","hut","rok","pil","rib","til","kin","pop","koe","mop","dam","dop","zon","pen","nul"],"ng":["ring","lang","zang","gang","wang","eng","jong","bang","hang","zing","long","ding","sing","tong","meng","sprong","zong","ving","dong","song"],"nk":["bank","rank","dank","tank","pink","wink","link","rink","sink","mink","denk","wenk","honk","blank","plank","klank","stank","drank","zonk","dronk"],"ei_ij":["bij","rij","wij","zij","mij","fijn","pijn","wijn","zijn","vrij","ei","hij","lei","mei","rei","wei","ijs","wijs","prijs","tijd"],"au_ou":["oud","bouw","dauw","gauw","kauw","lauw","rauw","koud","goud","hout","bout","fout","jouw","mouw","rouw","touw","blauw","nauw","pauw","dauw"],"sch":["schip","schop","schap","schat","schel","schil","schot","schuw","schok","schaal"]},"groep4":{"all":["bank","krat","vlam","stap","brug","gras","tram","klem","plek","slof","prop","spin","klad","zwam","krab","plot","druk","grap","trek","knal","slak","ster","klap","krop","snap","glad","plan","blok","drop","grof","stom","flat","slop","drol","pril","brom","draf","dras","brak","wrak"],"ng":["rang","gang","lang","wang","zang","sing","ring","ding","jong","long","song","bong","dong","tong","eng","streng","meng","zong","sprong","ving"],"nk":["denk","wenk","pink","link","wink","rink","sink","mink","tank","bank","rank","dank","honk","zonk","blank","plank","klank","stank","drank","dronk"],"cks":["sok","sap","zak","zon","zee","zes","zus","zit","sop","sel","kan","kat","kar","kap","kas","koe","kin","kip","kil","kim"],"ei_ij":["trein","klein","fijn","pijn","wijn","zijn","vrij","bij","rij","mij","zij","wij","hij","prijs","vijf","tijd","rijk","reis","wijs","spijs"],"au_ou":["goud","fout","bout","hout","blauw","dauw","gauw","kauw","lauw","rauw","bouw","jouw","mouw","rouw","touw","nauw","pauw","gouw","louw","douw"],"sch":["school","schip","schaar","schema","scherm","schets","schat","schade","schaal","schelp","schijn","schok","schrijven","schuif","schuld","schuur"],"dbl":["kommen","letten","ballen","zitten","rennen","bakken","pakken","zetten","lopen","zwemmen","spelen","slapen","eten","drinken","fietsen","rijden"]},"groep5":{"all":["fiets","huis","trein","goud","brood","feest","vlees","geest","beest","groot","groen","bloem","stoep","broek","hoek","koek","boek","vloed","gloed","voelt","loopt","woord","koord","boord","moest","roest","toets","stoel","zoekt","biedt","vloog","droog","vroeg","zweeg","dreef","bleef","knoop","stroom","troon","viool"],"ng":["lening","koning","woning","mening","honing","kenning","penning","benning","jenning","menning","renning","denning","lenning","senning","toning","roning","soning","voning","wening","zoning","boning","goning"],"nk":["drinken","denken","blanken","planken","klanken","tanken","ranken","danken","wanken","zanken","banken","wenken","lenken","menken","penken","renken","senken","tenken","zenken","fonken","gonken","honken","jonken"],"cks":["citroen","camera","centrum","cirkel","cijfer","cabine","celcius","cement","circa","code","concert","concept","contact","correct","crisis","cultuur","cursus","cylinder","sok","sap","zak","sel","kan","kat","kar","kap","kas","koe"],"ei_ij":["vrijdag","rijbewijs","tijdelijk","bijzonder","fijnste","pijnlijk","wijnfles","zijn","zijden","lijnbus","bijhouden","prijzen","lijsten","sijpelen","dijbeen","lijm","vijver","hijgen","rijzen","bijten","lijnrecht","ijsbeer","ijskoud","vijftien","tijger","krijgen","rijweg","bijkans","pijlen","ijs"],"au_ou":["goudvis","houtwerk","foutloos","dauwdruppel","gauwdief","rouwdienst","bouwkunde","vouwblad","pauwenveer","rouwen","bouwen","houwen","jouwen","kauwen","nauwen","rauwen","tauwen","zouwen","blauwdruk","goudsmid"],"sch":["school","schip","schaar","beschermen","verschil","schoonheid","scherp","schema","scherm","schets","schat","schade","schaal","schap","scharnier","schelp","schijn","schok","schrijven","schuif","schuld","schuur","schuw"],"ch":["chocolade","chauffeur","chef","chemie","echo","chirurg","chalet","champagne","chanson","chaos","charme","chroom","choraal","chemisch","chinees"],"aai":["mooi","groei","kooi","kraai","gooi","boei","aaien","mooie","groeien","strooien","tooien","rooien","looien","booien","kooien","dooien","hooien","ooievaar","mooiheid","groeikracht","kooivogel","kraaienspan","boeiend"],"dbl":["kapper","lapper","tapper","baller","haller","maller","batter","hatter","latter","natter","patter","kommen","letten","ballen","zitten","rennen","bakken","pakken","zetten"],"open":["mannen","bakker","rozen","bidden","varen","laden","malen","ramen","bomen","namen","taken","waken","baken","haken","laken","maken","raken","zaken","beter","meter","lopen","komen","boven","leven","geven","nemen","weten"]},"groep6":{"all":["vliegtuig","beschaving","kostbaar","onderwijs","verzorging","aanbieden","omgeving","dichtbij","gedachte","afgelopen","bijdragen","ervaringen","geweldig","begrijpen","tevreden","betrokken","gevolgen","afhankelijk","bespreken","vertrouwen","verkopen","besteden","deelnemen","opvangen","bereiken"],"ng":["streng","mengsel","lening","woning","mening","kenning","penning","aangenaam","aangeslagen","aanhangend","aanhanging","aansluiting","aansporing","aantekening","aanvulling","aanwijzing","afbakening","afhankelijkheid","afhandeling","afrekening","vergelijking","omgeving"],"nk":["koninklijk","dankbaar","plankenkoorts","klankkast","tankstation","dankzegging","wankeling","bankgebouw","mankement","kankeren","lankmoedig","vonk","mank","rank","dank","zank","dronken","blanken","drinken","denken","bedanken"],"cks":["citroen","camera","centrum","sok","kat","kar","kap","kan","kas","koe","koek","koel","koers","koffer","kogel","kok","koken","kool","kracht","kraan","krab","centraal","cyclus","cynisch","celcius"],"sch":["schoolgebouw","beschaving","verschrikkelijk","afschieten","afscheid","beschikbaar","beschrijven","geschenk","geschrift","geschikt","herschrijven","omschrijven","onderscheiden","opschrijven","overschrijven","uitschrijven","verschrikken","verschuiven","voorschriften","beschimmeld","verscholen"],"ch":["chocolade","chauffeur","chef","chemie","echo","chirurg","technisch","achter","achtergrond","achterhalen","lachen","kachel","wachten","rechten","machtig","prachtig","nachten","zuchten","vechten","zachten"],"dt":["hij loopt","hij werkt","hij bouwt","hij antwoordt","hij geeft","hij neemt","hij staat","hij gaat","hij komt","hij doet","hij ziet","hij hoort","hij voelt","hij denkt","hij weet","hij wil","hij mag","hij moet","jij fietst","jij rijdt","jij schrijft","jij leest","jij werkt","jij speelt"],"dbl":["kapper","lapper","tapper","bagger","baller","haller","maller","batter","hatter","latter","natter","patter","oppassen","aannemen","binnenkomen","afspreken","uitleggen","inpakken"],"leenwoord":["garage","bureau","politie","restaurant","parachute","balkon","beton","trottoir","sofa","matras","gordijn","parfum","portret","seizoen","bagage","piloot","fotografie","bibliotheek","theater","tramway"]},"groep7":{"all":["sneeuw","groei","konijn","pauw","ooievaar","meeuw","leeuw","eeuw","nieuw","nieuwsgierig","trouwdag","getrouwd","vertrouwd","betrouwbaar","naïef","ruïne","coördinatie","geïnteresseerd","beëindigen","geïsoleerd","zoölogie","reünie","coöperatie","naïviteit","geëerd","beëindigd"],"ng":["aandoenlijk","aaneengesloten","aangenaam","aangeslagen","aangetrokken","aanhangend","aanklopping","aanleuning","aanmaning","aanneming","aanraking","aansluiting","aansporing","aantekening","aanvulling","aanwijzing","afbakening","afhankelijkheid","afhandeling","afrekening"],"nk":["dankbaarheid","plankenkoorts","tankstation","dankzegging","wankeling","bankgebouw","mankement","kankeren","lankmoedig","vonkeling","blankaard","frank","slank","blank","klank","stank","drank","rank","bank","tank","dronken","bedanken","gedronken"],"ei_ij":["vrijwillig","bijzonder","tijdrovend","lijnrecht","rijvaardig","prijsbewust","wijsbegeerte","fijnzinnig","pijnstiller","wijnkelder","zijdezacht","eigenwijs","eigenlijk","eigenaardig","bijgeloof","bijhouden","bijkans","bijster","rijwiel","vrijheid","rijksweg","tijdstip","prijslijst"],"au_ou":["blauwdruk","goudkoorts","houtskool","foutgevoelig","dauwdruppel","gauwdief","rouwdienst","ouderwets","bouwkunde","vouwblad","pauwenveer","rouwen","bouwen","houwen","jouwen","kauwen","nauwen","rauwen","tauwen","zouwen","blauwachtig","goudsmid","houtbewerking"],"aai":["aaibaarheid","mooiheid","groeipijn","kooiverband","kraaienpoot","gooiafstand","boeiend","strooiend","tooiend","rooiend","looiend","aaienswaardig","mooienmaker","groeienspan","kooienmaker","kraaienspan","gooienspan","ooievaarsnest"],"dt":["hij antwoordt","hij beantwoordt","hij beschaamt","hij bestormt","hij betreft","hij bevalt","hij beweegt","hij bezit","hij bijdraagt","hij bindt","hij brengt","hij denkt","hij doorziet","hij draagt","hij erft","hij ervaart","hij geeft","hij gelooft","hij groeit","hij handelt","jij antwoordt","jij beantwoordt","jij beschaamt","jij bestormt"],"dbl":["verdubbeling","aanvulling","terugtrekking","opeenstapeling","samenvatting","toelichting","bijwerking","doorstroming","uitbreiding","verlenging","versterking","verzwakking","afzwakking","uitdunning","inkorting","oppervlakkig","onmiddellijk","onregelmatig","onvoldoende","onweerstaanbaar"],"open":["mannen","bakker","rozen","bidden","varen","laden","malen","ramen","bomen","namen","taken","waken","beter","meter","lopen","komen","boven","leven","geven","nemen","weten","beken","leken","teken","weken","deken","zomer","kamer"],"leenwoord":["garage","bureau","politie","restaurant","parachute","balkon","sofa","matras","gordijn","parfum","portret","seizoen","bagage","piloot","fotografie","bibliotheek","theater","museum","concert","ballet","opera"]},"groep8":{"all":["architect","gymnasium","politie","chocolade","computer","parachute","restaurant","fotografie","electriciteit","democratie","bureaucratie","filosofie","psychologie","technologie","archeologie","meteorologie","criminologie","epidemiologie","immunologie","neurologie","oncologie","cardiologie","dermatologie","endocrinologie","gastro-enterologie"],"cks":["centraal","circus","cyclus","cynisch","cytologie","caesar","cavalerie","celestiaal","celibaat","celluloid","centrifuge","ceremonieel","cervicaal","chaotisch","karakteristiek","charlatanisme","chauvinisme","chemisch","chocolaatje","chromosoom","chronologisch","chronometrisch","chirurgisch"],"ch":["psychiatrie","psychologie","psychisch","psychosomatisch","techniek","technicus","technologie","technologisch","chronologisch","chronometrisch","chirurgisch","chaotisch","karakteristiek","charlatanisme","chauvinisme","chemisch","chromosoom","chronologie"],"dt":["hij antwoordt","hij beantwoordt","hij beschaamt","hij bestormt","hij betreft","hij bevalt","hij beweegt","hij bezit","hij bijdraagt","hij bindt","hij brengt","hij denkt","hij doorziet","hij draagt","hij erft","hij geeft","hij gelooft","hij groeit","hij handelt","hij herinnert","jij antwoordt","jij beantwoordt","jij beschaamt","jij bestormt","jij betreft"],"dbl":["assassinatie","attribuut","attractie","accumulatie","accuraat","accusatie","accreditatie","accentueren","accommodatie","accorderen","affirmatie","affiliatie","affectief","aggravatie","aggressie","agglomeratie","aggregatie","agitatie"],"open":["mannen","bakker","rozen","bidden","varen","laden","malen","ramen","bomen","namen","beter","meter","lopen","komen","boven","leven","geven","nemen","weten","beken","leken","teken","weken","deken","zomer","kamer","vader","moeder"],"leenwoord":["amateur","ambiance","ambitie","ambulance","amputatie","analogie","analyse","anarchie","anekdote","antenne","antiquiteit","architect","arena","aristocratie","arrogantie","atelier","attitude","attractie","auditorium","avontuur","balans","barrière","boulevard","brochure"]}};
+// ── Word lists ────────────────────────────────────────────────────────────────
+const STANDAARD_NL = {"_level_labels":{"groep3":"Groep 3","groep4":"Groep 4","groep5":"Groep 5","groep6":"Groep 6","groep7":"Groep 7","groep8":"Groep 8"},"_labels":{"all":"Gemengd","ng":"ng-klank","nk":"nk-klank","cks":"c / k / s","ei_ij":"ei of ij","au_ou":"au of ou","sch":"sch","ch":"ch","dt":"d / dt / t","dbl":"Verdubbeling","aai":"aai / ooi / oei","open":"Open/gesloten lettergreep","leenwoord":"Leenwoorden"},"groep3":{"all":["bok","mes","lip","gat","net","pot","dak","vis","kan","weg","bed","bos","mok","rij","zak","hek","bak","kam","lap","mus","tap","wip","ton","pet","bus","map","bel","kip","rug","som","tol","bal","vos","pit","rem","bad","hut","rok","pil","rib","til","kin","pop","koe","mop","dam","dop","zon","pen","nul"],"ng":["ring","lang","zang","gang","wang","eng","jong","bang","hang","zing","long","ding","sing","tong","meng","sprong","zong","ving","dong","song"],"nk":["bank","rank","dank","tank","pink","wink","link","rink","sink","mink","denk","wenk","honk","blank","plank","klank","stank","drank","zonk","dronk"],"ei_ij":["bij","rij","wij","zij","mij","fijn","pijn","wijn","zijn","vrij","ei","hij","lei","mei","rei","wei","ijs","wijs","prijs","tijd"],"au_ou":["oud","bouw","dauw","gauw","kauw","lauw","rauw","koud","goud","hout","bout","fout","jouw","mouw","rouw","touw","blauw","nauw","pauw","dauw"],"sch":["schip","schop","schap","schat","schel","schil","schot","schuw","schok","schaal"]},"groep4":{"all":["bank","krat","vlam","stap","brug","gras","tram","klem","plek","slof","prop","spin","klad","zwam","krab","plot","druk","grap","trek","knal","slak","ster","klap","krop","snap","glad","plan","blok","drop","grof","stom","flat","slop","drol","pril","brom","draf","dras","brak","wrak"],"ng":["rang","gang","lang","wang","zang","sing","ring","ding","jong","long","song","bong","dong","tong","eng","streng","meng","zong","sprong","ving"],"nk":["denk","wenk","pink","link","wink","rink","sink","mink","tank","bank","rank","dank","honk","zonk","blank","plank","klank","stank","drank","dronk"],"cks":["sok","sap","zak","zon","zee","zes","zus","zit","sop","sel","kan","kat","kar","kap","kas","koe","kin","kip","kil","kim"],"ei_ij":["trein","klein","fijn","pijn","wijn","zijn","vrij","bij","rij","mij","zij","wij","hij","prijs","vijf","tijd","rijk","reis","wijs","spijs"],"au_ou":["goud","fout","bout","hout","blauw","dauw","gauw","kauw","lauw","rauw","bouw","jouw","mouw","rouw","touw","nauw","pauw","gouw","louw","douw"],"sch":["school","schip","schaar","schema","scherm","schets","schat","schade","schaal","schelp","schijn","schok","schrijven","schuif","schuld","schuur"],"dbl":["kommen","letten","ballen","zitten","rennen","bakken","pakken","zetten","lopen","zwemmen","spelen","slapen","eten","drinken","fietsen","rijden"]},"groep5":{"all":["fiets","huis","trein","goud","brood","feest","vlees","geest","beest","groot","groen","bloem","stoep","broek","hoek","koek","boek","vloed","gloed","voelt","loopt","woord","koord","boord","moest","roest","toets","stoel","zoekt","biedt","vloog","droog","vroeg","zweeg","dreef","bleef","knoop","stroom","troon","viool"],"ng":["lening","koning","woning","mening","honing","kenning","penning","benning","jenning","menning","renning","denning","lenning","senning","toning","roning","soning","voning","wening","zoning","boning","goning"],"nk":["drinken","denken","blanken","planken","klanken","tanken","ranken","danken","wanken","zanken","banken","wenken","lenken","menken","penken","renken","senken","tenken","zenken","fonken","gonken","honken","jonken"],"cks":["citroen","camera","centrum","cirkel","cijfer","cabine","celcius","cement","circa","code","concert","concept","contact","correct","crisis","cultuur","cursus","cylinder","sok","sap","zak","sel","kan","kat","kar","kap","kas","koe"],"ei_ij":["vrijdag","rijbewijs","tijdelijk","bijzonder","fijnste","pijnlijk","wijnfles","zijn","zijden","lijnbus","bijhouden","prijzen","lijsten","sijpelen","dijbeen","lijm","vijver","hijgen","rijzen","bijten","lijnrecht","ijsbeer","ijskoud","vijftien","tijger","krijgen","rijweg","bijkans","pijlen","ijs"],"au_ou":["goudvis","houtwerk","foutloos","dauwdruppel","gauwdief","rouwdienst","bouwkunde","vouwblad","pauwenveer","rouwen","bouwen","houwen","jouwen","kauwen","nauwen","rauwen","tauwen","zouwen","blauwdruk","goudsmid"],"sch":["school","schip","schaar","beschermen","verschil","schoonheid","scherp","schema","scherm","schets","schat","schade","schaal","schap","scharnier","schelp","schijn","schok","schrijven","schuif","schuld","schuur","schuw"],"ch":["chocolade","chauffeur","chef","chemie","echo","chirurg","chalet","champagne","chanson","chaos","charme","chroom","choraal","chemisch","chinees"],"aai":["mooi","groei","kooi","kraai","gooi","boei","aaien","mooie","groeien","strooien","tooien","rooien","looien","booien","kooien","dooien","hooien","ooievaar","mooiheid","groeikracht","kooivogel","kraaienspan","boeiend"],"dbl":["kapper","lapper","tapper","baller","haller","maller","batter","hatter","latter","natter","patter","kommen","letten","ballen","zitten","rennen","bakken","pakken","zetten"],"open":["mannen","bakker","rozen","bidden","varen","laden","malen","ramen","bomen","namen","taken","waken","baken","haken","laken","maken","raken","zaken","beter","meter","lopen","komen","boven","leven","geven","nemen","weten"]},"groep6":{"all":["vliegtuig","beschaving","kostbaar","onderwijs","verzorging","aanbieden","omgeving","dichtbij","gedachte","afgelopen","bijdragen","ervaringen","geweldig","begrijpen","tevreden","betrokken","gevolgen","afhankelijk","bespreken","vertrouwen","verkopen","besteden","deelnemen","opvangen","bereiken"],"ng":["streng","mengsel","lening","woning","mening","kenning","penning","aangenaam","aangeslagen","aanhangend","aanhanging","aansluiting","aansporing","aantekening","aanvulling","aanwijzing","afbakening","afhankelijkheid","afhandeling","afrekening","vergelijking","omgeving"],"nk":["koninklijk","dankbaar","plankenkoorts","klankkast","tankstation","dankzegging","wankeling","bankgebouw","mankement","kankeren","lankmoedig","vonk","mank","rank","dank","zank","dronken","blanken","drinken","denken","bedanken"],"cks":["citroen","camera","centrum","sok","kat","kar","kap","kan","kas","koe","koek","koel","koers","koffer","kogel","kok","koken","kool","kracht","kraan","krab","centraal","cyclus","cynisch","celcius"],"sch":["schoolgebouw","beschaving","verschrikkelijk","afschieten","afscheid","beschikbaar","beschrijven","geschenk","geschrift","geschikt","herschrijven","omschrijven","onderscheiden","opschrijven","overschrijven","uitschrijven","verschrikken","verschuiven","voorschriften","beschimmeld","verscholen"],"ch":["chocolade","chauffeur","chef","chemie","echo","chirurg","technisch","achter","achtergrond","achterhalen","lachen","kachel","wachten","rechten","machtig","prachtig","nachten","zuchten","vechten","zachten"],"dt":["hij loopt","hij werkt","hij bouwt","hij antwoordt","hij geeft","hij neemt","hij staat","hij gaat","hij komt","hij doet","hij ziet","hij hoort","hij voelt","hij denkt","hij weet","hij wil","hij mag","hij moet","jij fietst","jij rijdt","jij schrijft","jij leest","jij werkt","jij speelt"],"dbl":["kapper","lapper","tapper","bagger","baller","haller","maller","batter","hatter","latter","natter","patter","oppassen","aannemen","binnenkomen","afspreken","uitleggen","inpakken"],"leenwoord":["garage","bureau","politie","restaurant","parachute","balkon","beton","trottoir","sofa","matras","gordijn","parfum","portret","seizoen","bagage","piloot","fotografie","bibliotheek","theater","tramway"]},"groep7":{"all":["sneeuw","groei","konijn","pauw","ooievaar","meeuw","leeuw","eeuw","nieuw","nieuwsgierig","trouwdag","getrouwd","vertrouwd","betrouwbaar","naïef","ruïne","coördinatie","geïnteresseerd","beëindigen","geïsoleerd","zoölogie","reünie","coöperatie","naïviteit","geëerd","beëindigd"],"ng":["aandoenlijk","aaneengesloten","aangenaam","aangeslagen","aangetrokken","aanhangend","aanklopping","aanleuning","aanmaning","aanneming","aanraking","aansluiting","aansporing","aantekening","aanvulling","aanwijzing","afbakening","afhankelijkheid","afhandeling","afrekening"],"nk":["dankbaarheid","plankenkoorts","tankstation","dankzegging","wankeling","bankgebouw","mankement","kankeren","lankmoedig","vonkeling","blankaard","frank","slank","blank","klank","stank","drank","rank","bank","tank","dronken","bedanken","gedronken"],"ei_ij":["vrijwillig","bijzonder","tijdrovend","lijnrecht","rijvaardig","prijsbewust","wijsbegeerte","fijnzinnig","pijnstiller","wijnkelder","zijdezacht","eigenwijs","eigenlijk","eigenaardig","bijgeloof","bijhouden","bijkans","bijster","rijwiel","vrijheid","rijksweg","tijdstip","prijslijst"],"au_ou":["blauwdruk","goudkoorts","houtskool","foutgevoelig","dauwdruppel","gauwdief","rouwdienst","ouderwets","bouwkunde","vouwblad","pauwenveer","rouwen","bouwen","houwen","jouwen","kauwen","nauwen","rauwen","tauwen","zouwen","blauwachtig","goudsmid","houtbewerking"],"aai":["aaibaarheid","mooiheid","groeipijn","kooiverband","kraaienpoot","gooiafstand","boeiend","strooiend","tooiend","rooiend","looiend","aaienswaardig","mooienmaker","groeienspan","kooienmaker","kraaienspan","gooienspan","ooievaarsnest"],"dt":["hij antwoordt","hij beantwoordt","hij beschaamt","hij bestormt","hij betreft","hij bevalt","hij beweegt","hij bezit","hij bijdraagt","hij bindt","hij brengt","hij denkt","hij doorziet","hij draagt","hij erft","hij ervaart","hij geeft","hij gelooft","hij groeit","hij handelt","jij antwoordt","jij beantwoordt","jij beschaamt","jij bestormt"],"dbl":["verdubbeling","aanvulling","terugtrekking","opeenstapeling","samenvatting","toelichting","bijwerking","doorstroming","uitbreiding","verlenging","versterking","verzwakking","afzwakking","uitdunning","inkorting","oppervlakkig","onmiddellijk","onregelmatig","onvoldoende","onweerstaanbaar"],"open":["mannen","bakker","rozen","bidden","varen","laden","malen","ramen","bomen","namen","taken","waken","beter","meter","lopen","komen","boven","leven","geven","nemen","weten","beken","leken","teken","weken","deken","zomer","kamer"],"leenwoord":["garage","bureau","politie","restaurant","parachute","balkon","sofa","matras","gordijn","parfum","portret","seizoen","bagage","piloot","fotografie","bibliotheek","theater","museum","concert","ballet","opera"]},"groep8":{"all":["architect","gymnasium","politie","chocolade","computer","parachute","restaurant","fotografie","electriciteit","democratie","bureaucratie","filosofie","psychologie","technologie","archeologie","meteorologie","criminologie","epidemiologie","immunologie","neurologie","oncologie","cardiologie","dermatologie","endocrinologie","gastro-enterologie"],"cks":["centraal","circus","cyclus","cynisch","cytologie","caesar","cavalerie","celestiaal","celibaat","celluloid","centrifuge","ceremonieel","cervicaal","chaotisch","karakteristiek","charlatanisme","chauvinisme","chemisch","chocolaatje","chromosoom","chronologisch","chronometrisch","chirurgisch"],"ch":["psychiatrie","psychologie","psychisch","psychosomatisch","techniek","technicus","technologie","technologisch","chronologisch","chronometrisch","chirurgisch","chaotisch","karakteristiek","charlatanisme","chauvinisme","chemisch","chromosoom","chronologie"],"dt":["hij antwoordt","hij beantwoordt","hij beschaamt","hij bestormt","hij betreft","hij bevalt","hij beweegt","hij bezit","hij bijdraagt","hij bindt","hij brengt","hij denkt","hij doorziet","hij draagt","hij erft","hij geeft","hij gelooft","hij groeit","hij handelt","hij herinnert","jij antwoordt","jij beantwoordt","jij beschaamt","jij bestormt","jij betreft"],"dbl":["assassinatie","attribuut","attractie","accumulatie","accuraat","accusatie","accreditatie","accentueren","accommodatie","accorderen","affirmatie","affiliatie","affectief","aggravatie","aggressie","agglomeratie","aggregatie","agitatie"],"open":["mannen","bakker","rozen","bidden","varen","laden","malen","ramen","bomen","namen","beter","meter","lopen","komen","boven","leven","geven","nemen","weten","beken","leken","teken","weken","deken","zomer","kamer","vader","moeder"],"leenwoord":["amateur","ambiance","ambitie","ambulance","amputatie","analogie","analyse","anarchie","anekdote","antenne","antiquiteit","architect","arena","aristocratie","arrogantie","atelier","attitude","attractie","auditorium","avontuur","balans","barrière","boulevard","brochure"]}};
 
-// ── Gewichten configuratie ────────────────────────────────────────────────────
-// Kans-vermenigvuldiger per aantal fouten
-const WEIGHT_MODES = {
-  uit:    { label: "Uit",           weights: [1, 1, 1, 1] },
-  licht:  { label: "Licht (×2/×3)",weights: [1, 2, 3, 3] },
-  normaal:{ label: "Normaal (×3/×6)",weights: [1, 3, 6, 6] },
-  zwaar:  { label: "Zwaar (×5/×15)",weights: [1, 5, 10, 15] },
+const STANDAARD_EN = {"_level_labels":{"year1":"Year 1","year2":"Year 2","year3":"Year 3","year4":"Year 4","year5":"Year 5","year6":"Year 6"},"_labels":{"all":"Mixed","cvc":"Short vowels","digraphs":"Digraphs (ch/sh/th)","blends":"Consonant blends","silent_e":"Magic e","long_vowels":"Long vowels","double":"Double letters","prefixes":"Prefixes","suffixes":"Suffixes","homophones":"Homophones","tricky":"Tricky words"},"year1":{"all":["cat","dog","big","run","hot","sit","can","let","did","hop","man","red","cut","bit","pop","pig","hen","cup","bed","sun","map","wet","box","hat","bus","log","fin","dip","pat","beg"],"cvc":["cat","dog","big","run","hot","sit","can","let","did","hop","man","red","cut","bit","pop","pig","hen","cup","bed","sun","map","wet","box","hat","bus","log","fin","dip","pat","beg"],"digraphs":["ship","chip","thin","then","when","shop","chop","chat","chin","that","this","fish","wish","rush","dash","path","bath","mesh","shed","shut","shot","thud","thick","check","chess","shred","shell","shelf","shift","shaft"],"blends":["clap","drop","flip","grab","plan","slim","spin","trap","frog","plug","snip","step","swim","sled","crab","drum","flag","glad","grip","plop","skip","snap","drip","clip","flat","slam","slip","trip","stop","crop"]},"year2":{"all":["cake","make","like","hope","time","home","came","gave","ride","game","name","face","safe","hole","tune","bone","nice","mice","race","rice","late","line","mine","note","cute","huge","save","wake","wave","wine"],"silent_e":["cake","make","like","hope","time","home","came","gave","ride","game","name","face","safe","hole","tune","bone","nice","mice","race","rice","late","line","mine","note","cute","huge","save","wake","wave","wine"],"digraphs":["chain","chair","beach","teach","reach","peach","coach","speech","patch","match","watch","catch","fetch","witch","ditch","pitch","batch","much","rich","which","wheat","wheel","white","whale","while","whip","graph","phone","photo","phase"],"blends":["black","blank","blast","blend","blind","block","brave","breed","brick","bring","broke","brown","brush","clash","class","clean","clear","climb","clock","close","crash","crawl","cream","crisp","cross","press","dress","frill","grill","spell"]},"year3":{"all":["rain","boat","feet","seat","road","read","meat","seal","deal","beam","dream","steam","cream","speak","treat","bead","load","foam","soap","coat","goat","float","sleep","sweet","stream","trail","snail","plain","train","brain"],"long_vowels":["rain","boat","feet","seat","road","read","meat","seal","deal","beam","dream","steam","cream","speak","treat","bead","load","foam","soap","coat","goat","float","sleep","sweet","stream","trail","snail","plain","train","brain"],"double":["butter","running","sitting","hopping","clapping","swimming","putting","getting","letting","hitting","cutting","shopping","dropping","stopping","tripping","spinning","skipping","dripping","betting","setting","fitting","knitting","splitting","spitting","trotting","spotted","dotted","blotted","knotted","plotted"],"suffixes":["jumped","looked","played","called","walked","talked","laughed","pushed","pulled","fixed","mixed","picked","kicked","packed","tracked","helped","asked","passed","missed","kissed","dressed","pressed","guessed","crossed","slower","fastest","running","singing","dancing"]},"year4":{"all":["station","nation","fraction","action","section","motion","mention","tension","pension","fashion","passion","mission","session","vision","division","revision","occasion","invasion","explosion","confusion","conclusion","persuasion","erosion","collision","decision","provision","television","expression","impression","possession"],"prefixes":["unhappy","unkind","unfair","unsafe","unclear","unable","unlock","undo","unpack","return","reuse","redo","reopen","rebuild","recycle","rewrite","replace","replay","disagree","dislike","disobey","disconnect","disappear","misbehave","misplace","misuse","mislead","misspell","preview","precaution"],"suffixes":["happily","angrily","greedily","easily","heavily","nastily","clumsily","hungrily","lazily","busily","noisily","luckily","messily","sleepily","happiest","angrier","greedier","easier","heavier","nastier","clumsier","hungrier","lazier","busier","noisier","luckier","messier","sleepier","noisier"],"homophones":["there","their","to","two","too","hear","here","wear","where","bare","bear","fair","fare","hair","hare","knight","night","knot","not","know","no","write","right","flour","flower","plane","plain","weather","whether"]},"year5":{"all":["accommodate","accompany","aggressive","amateur","ancient","apparent","appreciate","attached","available","average","awkward","bargain","bruise","category","cemetery","committee","communicate","competition","conscience","conscious","convenience","correspond","criticise","curiosity","definite","desperate","determined","develop","environment","equipped"],"prefixes":["autobiography","autograph","automatic","bicycle","bilingual","circumference","international","interchangeable","interrupt","intervene","submarine","submerge","substandard","subtitle","subway","supermarket","supernatural","supervise","microphone","microscope","multimedia","multitude","multiply","antibiotic","antibody","anticlockwise","antiseptic","antidote"],"suffixes":["comfortable","adorable","readable","believable","achievable","acceptable","considerable","manageable","desirable","enjoyable","possible","responsible","terrible","sensible","visible","horrible","flexible","audible","eligible","legible","capable","reliable","suitable","valuable","charitable","memorable","admirable","preferable","remarkable","reasonable"],"homophones":["aloud","allowed","altar","alter","ascent","assent","cereal","serial","council","counsel","current","currant","desert","dessert","gorilla","guerrilla","heard","herd","idle","idol","principal","principle","profit","prophet","stationary","stationery","complement","compliment","practice","practise"],"tricky":["necessary","occasion","occurred","possession","professional","programme","pronunciation","queue","recognise","recommend","relevant","restaurant","rhyme","rhythm","sacrifice","secretary","shoulder","signature","significant","sincerely","soldier","stomach","sufficient","suggest","symbol","system","temperature","thorough","twelfth","variety"]},"year6":{"all":["absence","acknowledge","acquire","adequate","adolescent","advantage","adversity","aggressive","alleviate","ambiguous","ambivalent","anticipate","appreciate","approximate","arbitrary","architect","arithmetic","arrogant","assessment","associate","atmosphere","authentic","beneficial","catastrophe","chronological","circumstance","coincidence","collaborate","commemorate","communicate"],"prefixes":["counteract","counterbalance","counterpart","decompose","deforestation","demolish","democracy","demonstrate","exaggerate","exceed","excellent","exception","exclusive","existence","exhibition","exhausted","experience","experiment","explanation","exploration","comprehensive","comprehend","concentrate","conclusion","contradiction","convenience","correspond","enthusiasm","equivalent","exquisite"],"suffixes":["advertisement","announcement","arrangement","astonishment","attachment","bewilderment","commitment","compartment","contentment","disappointment","encouragement","enjoyment","entertainment","environment","establishment","excitement","improvement","involvement","measurement","nourishment","punishment","refreshment","replacement","requirement","resentment","achievement","development","acknowledgement"],"homophones":["precedence","precedents","principal","principle","profit","prophet","stationary","stationery","complement","compliment","affect","effect","accept","except","eminent","imminent","ensure","insure","enquire","inquire","formally","formerly","licence","license","practise","practice","advice","advise","device","devise"],"tricky":["accommodate","conscience","conscientious","controversy","correspondence","discrepancy","embarrass","exaggerate","existence","extraordinary","familiar","foreign","guarantee","immediately","independent","innocence","irrelevant","mischievous","necessary","noticeable","occasionally","occurrence","parliament","perseverance","prejudice","privilege","pronunciation","questionnaire","relevant","responsibility"]}};
+
+// ── Language config ───────────────────────────────────────────────────────────
+const LANGUAGES = {
+  nl: {label:"NL", standaard:STANDAARD_NL, voiceLang:"nl"},
+  en: {label:"EN", standaard:STANDAARD_EN, voiceLang:"en"},
 };
 
-const PRAISE = ["Super goed! 🌟","Geweldig! 🎉","Top! ✨","Bravo! 🦄","Perfect! 🏆"];
-const C = {sky:"#e0f4ff",blue:"#3b9eff",navy:"#1a3a5c",yellow:"#ffd94a",green:"#4ecb71",red:"#ff5c6a",white:"#fff",orange:"#ff8c42"};
+// ── UI strings ────────────────────────────────────────────────────────────────
+const UI = {
+  nl: {
+    appTitle:"✏️ Dictee",appSubtitle:"Oefenen met woorden schrijven",
+    tabs:{oefenen:"📝 Oefenen",woordenbank:"📚 Woordenbank",fouten:"❌ Fouten"},
+    levelLabel:"📚 Niveau",catsLabel:"🏷️ Categorieën",catsHint:"(meerdere mogelijk)",
+    clearBtn:"✕ wis",wordCountLabel:"🔢 Aantal woorden",
+    weightLabel:"⚖️ Weging op fouten",
+    weightHint:"Woorden met meer fouten krijgen een hogere kans om te verschijnen.",
+    weightModes:{uit:"Uit",licht:"Licht (×2/×3)",normaal:"Normaal (×3/×6)",zwaar:"Zwaar (×5/×15)"},
+    voiceLabel:"🔊 Stem",voiceAuto:"Automatisch (Nederlands)",voicesLoading:"Stemmen laden...",
+    testVoiceBtn:"🔊 Testzin afspelen",testSentence:"Dit is een testje van de geselecteerde stem.",
+    customLabel:"✏️ Of gebruik eigen woorden (één per regel)",
+    customPlaceholder:"Laat leeg voor woorden uit de woordenbank\nOf typ eigen woorden:\nboot\nfiets\nschool",
+    startBtn:"▶ Start dictee",
+    wbHint:"Klik op een categorie om woorden te bekijken, toe te voegen of te verwijderen. Woorden met fouten worden oranje/rood gemarkeerd.",
+    wbLevelLabel:"Niveau",wbAddBtn:"+ Voeg toe",wbAddPlaceholder:"Woord toevoegen (Enter of +)",
+    wbCollapse:"inklappen",wbExpand:"uitklappen",wbNoWords:"Geen woorden",
+    foutHint:"Woorden gesorteerd op aantal fouten. Woorden die goed gaan verdwijnen hier automatisch.",
+    foutNone:"Nog geen fouten geregistreerd.",
+    foutWrongSuffix:"× fout",foutRightSuffix:"× goed",
+    foutClearBtn:"🗑 Wis alle fouthistorie",foutClearConfirm:"Alle fouthistorie wissen?",
+    fileTitle:"📂 Woordenlijst beheren",fileHint:"Importeer of exporteer",fileCode:"woordenlijst.json",
+    fileActive:"✅ Aangepaste woordenlijst actief",
+    fileImportBtn:"📁 Importeer JSON",fileExportBtn:"⬇ Exporteer JSON",fileResetBtn:"↺ Herstel standaard",
+    fileErrorPrefix:"Kon JSON niet laden: ",fileErrorFormat:"Geen geldig formaat (verwacht ten minste één niveau)",
+    errorNoWords:"Geen woorden gevonden. Kies een andere categorie of voeg woorden toe.",
+    dicteeWord:"Woord",dicteeOf:"van",dicteeHint:"Klik op 🔊 om het woord te horen",
+    dicteeInputPlaceholder:"Typ hier het woord...",
+    dicteeCheckBtn:"✓ Controleer",dicteeNextBtn:"Volgende →",dicteeStopBtn:"✕ Stoppen en terug naar menu",
+    praise:["Super goed! 🌟","Geweldig! 🎉","Top! ✨","Bravo! 🦄","Perfect! 🏆"],
+    wellDone:"Goed gedaan!",wrongMsg:w=>`Het goede woord is: "${w}"`,
+    resultsPct:"% goed",resultsRetryBtn:"↺ Opnieuw",resultsWrongBtn:"🔄 Foute woorden",resultsYou:"jij:",
+    wordsCount:n=>`${n} woorden`,
+  },
+  en: {
+    appTitle:"✏️ Spelling",appSubtitle:"Practice spelling words",
+    tabs:{oefenen:"📝 Practice",woordenbank:"📚 Word Bank",fouten:"❌ Mistakes"},
+    levelLabel:"📚 Year group",catsLabel:"🏷️ Categories",catsHint:"(multiple allowed)",
+    clearBtn:"✕ clear",wordCountLabel:"🔢 Number of words",
+    weightLabel:"⚖️ Weight on mistakes",
+    weightHint:"Words with more mistakes will appear more often.",
+    weightModes:{uit:"Off",licht:"Light (×2/×3)",normaal:"Normal (×3/×6)",zwaar:"Heavy (×5/×15)"},
+    voiceLabel:"🔊 Voice",voiceAuto:"Automatic (English)",voicesLoading:"Loading voices...",
+    testVoiceBtn:"🔊 Play test sentence",testSentence:"This is a test of the selected voice.",
+    customLabel:"✏️ Or use your own words (one per line)",
+    customPlaceholder:"Leave empty for words from the word bank\nOr type your own:\ncat\ndog\nschool",
+    startBtn:"▶ Start spelling",
+    wbHint:"Click a category to view, add or remove words. Words with mistakes are highlighted in orange/red.",
+    wbLevelLabel:"Year group",wbAddBtn:"+ Add",wbAddPlaceholder:"Add word (Enter or +)",
+    wbCollapse:"collapse",wbExpand:"expand",wbNoWords:"No words",
+    foutHint:"Words sorted by number of mistakes. Words you get right will disappear automatically.",
+    foutNone:"No mistakes recorded yet.",
+    foutWrongSuffix:"× wrong",foutRightSuffix:"× correct",
+    foutClearBtn:"🗑 Clear all mistake history",foutClearConfirm:"Clear all mistake history?",
+    fileTitle:"📂 Word list management",fileHint:"Import or export",fileCode:"wordlist.json",
+    fileActive:"✅ Custom word list active",
+    fileImportBtn:"📁 Import JSON",fileExportBtn:"⬇ Export JSON",fileResetBtn:"↺ Restore default",
+    fileErrorPrefix:"Could not load JSON: ",fileErrorFormat:"Invalid format (expected at least one level)",
+    errorNoWords:"No words found. Choose another category or add words.",
+    dicteeWord:"Word",dicteeOf:"of",dicteeHint:"Click 🔊 to hear the word",
+    dicteeInputPlaceholder:"Type the word here...",
+    dicteeCheckBtn:"✓ Check",dicteeNextBtn:"Next →",dicteeStopBtn:"✕ Stop and back to menu",
+    praise:["Excellent! 🌟","Amazing! 🎉","Great! ✨","Brilliant! 🦄","Perfect! 🏆"],
+    wellDone:"Well done!",wrongMsg:w=>`The correct word is: "${w}"`,
+    resultsPct:"% correct",resultsRetryBtn:"↺ Again",resultsWrongBtn:"🔄 Wrong words",resultsYou:"you:",
+    wordsCount:n=>`${n} words`,
+  },
+};
 
+// ── Gewichten ─────────────────────────────────────────────────────────────────
+const WEIGHT_MODES = {
+  uit:    { weights: [1, 1, 1, 1] },
+  licht:  { weights: [1, 2, 3, 3] },
+  normaal:{ weights: [1, 3, 6, 6] },
+  zwaar:  { weights: [1, 5, 10, 15] },
+};
+
+const C = {sky:"#e0f4ff",blue:"#3b9eff",navy:"#1a3a5c",yellow:"#ffd94a",green:"#4ecb71",red:"#ff5c6a",white:"#fff",orange:"#ff8c42"};
 
 // ── Fouthistorie via localStorage ─────────────────────────────────────────────
 function loadHistory() {
@@ -95,8 +170,7 @@ function shuffle(arr) {
   for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
   return a;
 }
-// voiceName: SpeechSynthesisVoice.name, or null/undefined for auto-Dutch
-function speak(text, onEnd, voiceName) {
+function speak(text, onEnd, voiceName, langCode) {
   try {
     if(!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
@@ -104,8 +178,8 @@ function speak(text, onEnd, voiceName) {
     utt.rate=0.82; utt.pitch=1.05;
     const voices=window.speechSynthesis.getVoices();
     let voice = voiceName ? voices.find(v=>v.name===voiceName)||null : null;
-    if(!voice) voice = voices.find(v=>v.lang.startsWith("nl"))||null;
-    if(voice){ utt.voice=voice; utt.lang=voice.lang; } else { utt.lang="nl-NL"; }
+    if(!voice) voice = voices.find(v=>v.lang.startsWith(langCode||"nl"))||null;
+    if(voice){ utt.voice=voice; utt.lang=voice.lang; } else { utt.lang=langCode==="en"?"en-US":"nl-NL"; }
     if(onEnd) utt.onend=onEnd;
     window.speechSynthesis.speak(utt);
   } catch(e){if(onEnd)onEnd();}
@@ -142,7 +216,7 @@ const S = {
 };
 
 // ── Woordenbank tab ───────────────────────────────────────────────────────────
-function WoordenBankTab({ woorden, setWoorden, labels, levelLabels, wbLevel, setWbLevel, history }) {
+function WoordenBankTab({ woorden, setWoorden, labels, levelLabels, wbLevel, setWbLevel, history, ui }) {
   const [open, setOpen]     = useState({});
   const [inputs, setInputs] = useState({});
   const data = woorden[wbLevel] || {};
@@ -171,10 +245,9 @@ function WoordenBankTab({ woorden, setWoorden, labels, levelLabels, wbLevel, set
 
   return (<>
     <p style={{fontSize:"0.82rem",fontWeight:700,color:"#7fb8e0",marginBottom:11,lineHeight:1.5}}>
-      Klik op een categorie om woorden te bekijken, toe te voegen of te verwijderen.
-      Woorden met fouten worden oranje/rood gemarkeerd.
+      {ui.wbHint}
     </p>
-    <label style={S.lbl}>Niveau</label>
+    <label style={S.lbl}>{ui.wbLevelLabel}</label>
     <select style={S.sel} value={wbLevel} onChange={e=>setWbLevel(e.target.value)}>
       {Object.keys(woorden).filter(k=>!k.startsWith('_')).map(l=><option key={l} value={l}>{levelLabels[l]||l}</option>)}
     </select>
@@ -186,16 +259,16 @@ function WoordenBankTab({ woorden, setWoorden, labels, levelLabels, wbLevel, set
               {open[cat]?"▾":"▸"} {labels[cat]||cat}
               <span style={{color:"#aac8e8",fontWeight:600,marginLeft:6}}>({lijst.length})</span>
             </span>
-            <span className="wb-tog">{open[cat]?"inklappen":"uitklappen"}</span>
+            <span className="wb-tog">{open[cat]?ui.wbCollapse:ui.wbExpand}</span>
           </div>
           {open[cat] && (<>
             <div style={{marginTop:4,lineHeight:2}}>
               {lijst.length===0
-                ? <span style={{color:"#bbb",fontSize:"0.8rem",fontStyle:"italic"}}>Geen woorden</span>
+                ? <span style={{color:"#bbb",fontSize:"0.8rem",fontStyle:"italic"}}>{ui.wbNoWords}</span>
                 : lijst.map(w=>(
-                  <span key={w} className={errClass(w)} title={errorCount(history,w)>0?`${errorCount(history,w)}× fout`:""}>
+                  <span key={w} className={errClass(w)} title={errorCount(history,w)>0?`${errorCount(history,w)}${ui.foutWrongSuffix}`:""}>
                     {w}
-                    <button onClick={()=>removeWord(cat,w)} title="Verwijder">✕</button>
+                    <button onClick={()=>removeWord(cat,w)} title="✕">✕</button>
                   </span>
                 ))
               }
@@ -203,8 +276,8 @@ function WoordenBankTab({ woorden, setWoorden, labels, levelLabels, wbLevel, set
             <div className="add-row">
               <input value={inputs[cat]||""} onChange={e=>setInputs(p=>({...p,[cat]:e.target.value}))}
                 onKeyDown={e=>{if(e.key==="Enter")addWord(cat);}}
-                placeholder="Woord toevoegen (Enter of +)" autoCapitalize="none" autoCorrect="off" spellCheck={false}/>
-              <button style={S.btn(C.blue,"#fff",true)} onClick={()=>addWord(cat)}>+ Voeg toe</button>
+                placeholder={ui.wbAddPlaceholder} autoCapitalize="none" autoCorrect="off" spellCheck={false}/>
+              <button style={S.btn(C.blue,"#fff",true)} onClick={()=>addWord(cat)}>{ui.wbAddBtn}</button>
             </div>
           </>)}
         </div>
@@ -214,7 +287,7 @@ function WoordenBankTab({ woorden, setWoorden, labels, levelLabels, wbLevel, set
 }
 
 // ── Fouthistorie tab ──────────────────────────────────────────────────────────
-function FoutTab({ history, setHistory }) {
+function FoutTab({ history, setHistory, ui }) {
   const entries = Object.entries(history)
     .filter(([,v])=>v.wrong>0)
     .sort((a,b)=>b[1].wrong-a[1].wrong);
@@ -226,20 +299,18 @@ function FoutTab({ history, setHistory }) {
   }
 
   return (<>
-    <p style={{fontSize:"0.82rem",fontWeight:700,color:"#7fb8e0",marginBottom:11}}>
-      Woorden gesorteerd op aantal fouten. Woorden die goed gaan verdwijnen hier automatisch.
-    </p>
+    <p style={{fontSize:"0.82rem",fontWeight:700,color:"#7fb8e0",marginBottom:11}}>{ui.foutHint}</p>
     {entries.length===0
-      ? <p style={{color:"#aaa",fontWeight:700,fontSize:"0.87rem",padding:"14px 0",textAlign:"center"}}>Nog geen fouten geregistreerd.</p>
+      ? <p style={{color:"#aaa",fontWeight:700,fontSize:"0.87rem",padding:"14px 0",textAlign:"center"}}>{ui.foutNone}</p>
       : (<>
           <div style={{maxHeight:320,overflowY:"auto"}}>
             {entries.map(([word,{correct,wrong}])=>(
               <div key={word} style={{display:"flex",alignItems:"center",gap:8,padding:"7px 0",borderBottom:"2px dashed #e0f0ff",fontSize:"0.88rem",fontWeight:700}}>
                 <span style={{flex:1,color:C.navy}}>{word}</span>
                 <span style={{background:errColor(wrong),borderRadius:99,padding:"2px 9px",fontSize:"0.78rem",fontWeight:800,color:wrong>=2?C.white:C.navy}}>
-                  {wrong}× fout
+                  {wrong}{ui.foutWrongSuffix}
                 </span>
-                <span style={{color:"#4ecb71",fontSize:"0.78rem",fontWeight:700}}>{correct}× goed</span>
+                <span style={{color:"#4ecb71",fontSize:"0.78rem",fontWeight:700}}>{correct}{ui.foutRightSuffix}</span>
                 <button onClick={()=>setHistory(h=>{const n={...h};delete n[word];saveHistory(n);return n;})}
                   style={{background:"none",border:"none",cursor:"pointer",color:"#ccc",fontSize:"0.9rem",padding:"2px 4px"}}>✕</button>
               </div>
@@ -247,8 +318,8 @@ function FoutTab({ history, setHistory }) {
           </div>
           <div style={{marginTop:12}}>
             <button style={S.btn("#fff0f1",C.red,true)}
-              onClick={()=>{if(confirm("Alle fouthistorie wissen?")){{setHistory({});saveHistory({})}}}}>
-              🗑 Wis alle fouthistorie
+              onClick={()=>{if(confirm(ui.foutClearConfirm)){{setHistory({});saveHistory({})}}}}>
+              {ui.foutClearBtn}
             </button>
           </div>
         </>)
@@ -258,7 +329,8 @@ function FoutTab({ history, setHistory }) {
 
 // ── Hoofdapp ──────────────────────────────────────────────────────────────────
 function App() {
-  const [woorden, setWoorden]       = useState(STANDAARD);
+  const [lang, setLang]             = useState("nl");
+  const [woorden, setWoorden]       = useState(STANDAARD_NL);
   const [geladen, setGeladen]       = useState(false);
   const [history, setHistoryState]  = useState(loadHistory);
   const [screen, setScreen]         = useState("setup");
@@ -268,7 +340,7 @@ function App() {
   const [selCats, setSelCats]       = useState([]);
   const [wordCount, setWordCount]   = useState(10);
   const [weightMode, setWeightMode] = useState("normaal");
-  const [selectedVoice, setSelectedVoice] = useState(""); // "" = auto
+  const [selectedVoice, setSelectedVoice] = useState("");
   const [customText, setCustomText] = useState("");
   const [error, setError]           = useState("");
   const [words, setWords]           = useState([]);
@@ -284,20 +356,31 @@ function App() {
   const fileRef  = useRef(null);
   const voices   = useVoices();
 
-  // Labels: uit de JSON, anders leeg object
-  const labels = woorden._labels || {};
+  const ui         = UI[lang];
+  const labels     = woorden._labels || {};
   const levelLabels = woorden._level_labels || {};
-
-  // Levels aanwezig in huidige woordenlijst
   const availLevels = Object.keys(woorden).filter(k => !k.startsWith('_'));
-
-  // Categorieën voor huidig niveau (zonder 'all')
-  const availCats = Object.keys(woorden[level] || {}).filter(k => k !== "all");
+  const availCats   = Object.keys(woorden[level] || {}).filter(k => k !== "all");
 
   function catLabel(id) { return labels[id] || id; }
 
   function setHistory(fn) {
     setHistoryState(prev => { const next = typeof fn==="function"?fn(prev):fn; saveHistory(next); return next; });
+  }
+
+  function switchLang(lc) {
+    const cfg = LANGUAGES[lc];
+    const firstLevel = Object.keys(cfg.standaard).filter(k => !k.startsWith('_'))[0];
+    setLang(lc);
+    setWoorden(cfg.standaard);
+    setGeladen(false);
+    setLevel(firstLevel);
+    setWbLevel(firstLevel);
+    setSelCats([]);
+    setError("");
+    setSelectedVoice("");
+    setScreen("setup");
+    setTab("oefenen");
   }
 
   function toggleCat(id) {
@@ -311,10 +394,10 @@ function App() {
       try {
         const parsed=JSON.parse(ev.target.result);
         const levelKeys=Object.keys(parsed).filter(k=>!k.startsWith('_'));
-        if(levelKeys.length===0) throw new Error("Geen geldig formaat (verwacht ten minste één niveau)");
+        if(levelKeys.length===0) throw new Error(ui.fileErrorFormat);
         setWoorden(parsed); setSelCats([]); setGeladen(true); setError("");
         setLevel(levelKeys[0]); setWbLevel(levelKeys[0]);
-      } catch(err){setError("Kon JSON niet laden: "+err.message);}
+      } catch(err){setError(ui.fileErrorPrefix+err.message);}
     };
     reader.readAsText(file); e.target.value="";
   }
@@ -334,33 +417,33 @@ function App() {
       wl=customText.trim().split("\n").map(w=>w.trim().toLowerCase()).filter(Boolean).slice(0,wordCount);
     } else {
       const pool=getPool(level,selCats);
-      if(pool.length===0){setError("Geen woorden gevonden. Kies een andere categorie of voeg woorden toe.");return;}
+      if(pool.length===0){setError(ui.errorNoWords);return;}
       wl=weightedSample(pool,wordCount,history,weightMode);
     }
     setWords(wl);setIdx(0);setResults([]);
     setAnswer("");setAnsState("idle");setFbMsg("");setShowNext(false);
     setScreen("dictee");
-    setTimeout(()=>{setSpeaking(true);speak(wl[0],()=>setSpeaking(false),selectedVoice);},350);
+    setTimeout(()=>{setSpeaking(true);speak(wl[0],()=>setSpeaking(false),selectedVoice,lang);},350);
   }
 
   function checkAnswer() {
-    if(!answer.trim()){speak(words[idx],null,selectedVoice);return;}
+    if(!answer.trim()){speak(words[idx],null,selectedVoice,lang);return;}
     const correct=words[idx];
     const ok=answer.trim().toLowerCase()===correct;
     setResults(prev=>[...prev,{word:correct,answer:answer.trim().toLowerCase(),correct:ok}]);
     setHistory(h=>recordResult(h,correct,ok));
     setAnsState(ok?"correct":"wrong");
-    setFbMsg(ok?PRAISE[Math.floor(Math.random()*PRAISE.length)]:`Het goede woord is: "${correct}"`);
+    setFbMsg(ok?ui.praise[Math.floor(Math.random()*ui.praise.length)]:ui.wrongMsg(correct));
     setShowNext(true);
-    if(ok) speak("Goed gedaan!",null,selectedVoice);
-    else setTimeout(()=>speak(correct,null,selectedVoice),300);
+    if(ok) speak(ui.wellDone,null,selectedVoice,lang);
+    else setTimeout(()=>speak(correct,null,selectedVoice,lang),300);
   }
 
   function nextWord() {
     const next=idx+1;
     if(next>=words.length){setScreen("results");return;}
     setIdx(next);setAnswer("");setAnsState("idle");setFbMsg("");setShowNext(false);
-    setTimeout(()=>{setSpeaking(true);speak(words[next],()=>setSpeaking(false),selectedVoice);},300);
+    setTimeout(()=>{setSpeaking(true);speak(words[next],()=>setSpeaking(false),selectedVoice,lang);},300);
     setTimeout(()=>inputRef.current?.focus(),100);
   }
 
@@ -369,7 +452,7 @@ function App() {
     setWords(wrong);setIdx(0);setResults([]);
     setAnswer("");setAnsState("idle");setFbMsg("");setShowNext(false);
     setScreen("dictee");
-    setTimeout(()=>{setSpeaking(true);speak(wrong[0],()=>setSpeaking(false),selectedVoice);},350);
+    setTimeout(()=>{setSpeaking(true);speak(wrong[0],()=>setSpeaking(false),selectedVoice,lang);},350);
   }
 
   function stopDictee() { window.speechSynthesis?.cancel(); setScreen("setup"); }
@@ -379,64 +462,65 @@ function App() {
   const finalPct=results.length?Math.round(finalOk/results.length*100):0;
 
   const TABS = ["oefenen","woordenbank","fouten"];
-  const TAB_LABELS = {"oefenen":"📝 Oefenen","woordenbank":"📚 Woordenbank","fouten":"❌ Fouten"};
 
   return (
     <div style={S.page}>
-      <div style={{fontFamily:"'Fredoka One',cursive",fontSize:"2.5rem",color:C.navy,textShadow:`3px 3px 0 ${C.yellow}`,marginBottom:3,textAlign:"center"}}>✏️ Dictee</div>
-      <div style={{fontSize:"0.92rem",color:C.blue,fontWeight:800,marginBottom:20,textAlign:"center"}}>Oefenen met woorden schrijven</div>
+      <div style={{fontFamily:"'Fredoka One',cursive",fontSize:"2.5rem",color:C.navy,textShadow:`3px 3px 0 ${C.yellow}`,marginBottom:3,textAlign:"center"}}>{ui.appTitle}</div>
+      <div style={{fontSize:"0.92rem",color:C.blue,fontWeight:800,marginBottom:8,textAlign:"center"}}>{ui.appSubtitle}</div>
+      <div style={{display:"flex",gap:5,marginBottom:14}}>
+        {Object.keys(LANGUAGES).map(lc=>(
+          <button key={lc} style={S.chip(lang===lc)} onClick={()=>switchLang(lc)}>{LANGUAGES[lc].label}</button>
+        ))}
+      </div>
 
       {/* ── SETUP ── */}
       {screen==="setup" && <>
         <div style={S.card}>
           <div style={{display:"flex",gap:4,marginBottom:13,borderBottom:"2.5px solid #e0f0ff"}}>
             {TABS.map(t=>(
-              <button key={t} style={S.tabB(tab===t)} onClick={()=>setTab(t)}>{TAB_LABELS[t]}</button>
+              <button key={t} style={S.tabB(tab===t)} onClick={()=>setTab(t)}>{ui.tabs[t]}</button>
             ))}
           </div>
 
-          {/* ── Tab: Oefenen ── */}
           {tab==="oefenen" && <>
             {error && <div style={{background:"#fff0f1",border:"2px solid #ff5c6a",borderRadius:10,padding:"9px 12px",marginBottom:11,fontSize:"0.83rem",fontWeight:700,color:C.red}}>⚠️ {error}</div>}
 
-            <label style={S.lbl}>📚 Niveau</label>
+            <label style={S.lbl}>{ui.levelLabel}</label>
             <select style={S.sel} value={level} onChange={e=>{setLevel(e.target.value);setSelCats([]);}}>
               {availLevels.map(l=><option key={l} value={l}>{levelLabels[l]||l}</option>)}
             </select>
 
-            <label style={S.lbl}>🏷️ Categorieën <span style={{fontWeight:600,color:"#aac8e8",fontSize:"0.79rem"}}>(meerdere mogelijk)</span></label>
+            <label style={S.lbl}>{ui.catsLabel} <span style={{fontWeight:600,color:"#aac8e8",fontSize:"0.79rem"}}>{ui.catsHint}</span></label>
             <div style={{display:"flex",flexWrap:"wrap",gap:6,marginTop:4}}>
               {availCats.map(cat=>(
                 <button key={cat} style={S.chip(selCats.includes(cat))} onClick={()=>toggleCat(cat)}>
                   {catLabel(cat)}
                 </button>
               ))}
-              {selCats.length>0 && <button style={{...S.chip(false),color:"#bbb",fontSize:"0.76rem"}} onClick={()=>setSelCats([])}>✕ wis</button>}
+              {selCats.length>0 && <button style={{...S.chip(false),color:"#bbb",fontSize:"0.76rem"}} onClick={()=>setSelCats([])}>{ui.clearBtn}</button>}
             </div>
 
-            <label style={S.lbl}>🔢 Aantal woorden</label>
+            <label style={S.lbl}>{ui.wordCountLabel}</label>
             <select style={S.sel} value={wordCount} onChange={e=>setWordCount(+e.target.value)}>
-              {[5,10,15,20].map(n=><option key={n} value={n}>{n} woorden</option>)}
+              {[5,10,15,20].map(n=><option key={n} value={n}>{ui.wordsCount(n)}</option>)}
             </select>
 
-            <label style={S.lbl}>⚖️ Weging op fouten</label>
+            <label style={S.lbl}>{ui.weightLabel}</label>
             <div style={{display:"flex",flexWrap:"wrap",gap:6,marginTop:4}}>
-              {Object.entries(WEIGHT_MODES).map(([k,v])=>(
+              {Object.keys(WEIGHT_MODES).map(k=>(
                 <button key={k} style={S.chip(weightMode===k)} onClick={()=>setWeightMode(k)}>
-                  {v.label}
+                  {ui.weightModes[k]}
                 </button>
               ))}
             </div>
             {weightMode!=="uit" && (
-              <div style={{fontSize:"0.78rem",fontWeight:700,color:"#7fb8e0",marginTop:5}}>
-                Woorden met meer fouten krijgen een hogere kans om te verschijnen.
-              </div>
+              <div style={{fontSize:"0.78rem",fontWeight:700,color:"#7fb8e0",marginTop:5}}>{ui.weightHint}</div>
             )}
 
-            <label style={S.lbl}>🔊 Stem</label>
+            <label style={S.lbl}>{ui.voiceLabel}</label>
             <select style={S.sel} value={selectedVoice} onChange={e=>setSelectedVoice(e.target.value)}>
-              <option value="">Automatisch (Nederlands)</option>
-              {voices.length===0 && <option disabled>Stemmen laden...</option>}
+              <option value="">{ui.voiceAuto}</option>
+              {voices.length===0 && <option disabled>{ui.voicesLoading}</option>}
               {voices.map(v=>(
                 <option key={v.name} value={v.name}>
                   {v.name} ({v.lang}){v.localService?" 📴":""}
@@ -445,43 +529,43 @@ function App() {
             </select>
             {selectedVoice && (
               <button style={{marginTop:6,fontSize:"0.78rem",fontWeight:700,color:C.blue,background:"none",border:"none",cursor:"pointer",padding:0,textDecoration:"underline"}}
-                onClick={()=>speak("Dit is een testje van de geselecteerde stem.",null,selectedVoice)}>
-                🔊 Testzin afspelen
+                onClick={()=>speak(ui.testSentence,null,selectedVoice,lang)}>
+                {ui.testVoiceBtn}
               </button>
             )}
 
             <div style={{borderTop:"2px dashed #e0f0ff",margin:"13px 0"}}/>
-            <label style={{...S.lbl,marginTop:0}}>✏️ Of gebruik eigen woorden (één per regel)</label>
+            <label style={{...S.lbl,marginTop:0}}>{ui.customLabel}</label>
             <textarea style={{...S.sel,height:76,resize:"vertical",fontSize:"0.86rem"}}
               value={customText} onChange={e=>setCustomText(e.target.value)}
-              placeholder={"Laat leeg voor woorden uit de woordenbank\nOf typ eigen woorden:\nboot\nfiets\nschool"}/>
+              placeholder={ui.customPlaceholder}/>
 
             <div style={{display:"flex",gap:9,marginTop:14}}>
-              <button style={S.btn(C.blue)} onClick={startDictee}>▶ Start dictee</button>
+              <button style={S.btn(C.blue)} onClick={startDictee}>{ui.startBtn}</button>
             </div>
           </>}
 
           {tab==="woordenbank" && (
             <WoordenBankTab woorden={woorden} setWoorden={setWoorden} labels={labels} levelLabels={levelLabels}
-              wbLevel={wbLevel} setWbLevel={setWbLevel} history={history}/>
+              wbLevel={wbLevel} setWbLevel={setWbLevel} history={history} ui={ui}/>
           )}
 
           {tab==="fouten" && (
-            <FoutTab history={history} setHistory={setHistory}/>
+            <FoutTab history={history} setHistory={setHistory} ui={ui}/>
           )}
         </div>
 
         {/* ── Bestandsbeheer ── */}
         <div style={{...S.card,padding:"16px 18px"}}>
-          <div style={{fontFamily:"'Fredoka One',cursive",fontSize:"1rem",color:C.navy,marginBottom:8}}>📂 Woordenlijst beheren</div>
-          {geladen && <div style={{fontSize:"0.8rem",fontWeight:700,background:"#edfff3",color:"#2a8a4a",padding:"5px 9px",borderRadius:8,marginBottom:10,display:"inline-flex",gap:4}}>✅ Aangepaste woordenlijst actief</div>}
+          <div style={{fontFamily:"'Fredoka One',cursive",fontSize:"1rem",color:C.navy,marginBottom:8}}>{ui.fileTitle}</div>
+          {geladen && <div style={{fontSize:"0.8rem",fontWeight:700,background:"#edfff3",color:"#2a8a4a",padding:"5px 9px",borderRadius:8,marginBottom:10,display:"inline-flex",gap:4}}>{ui.fileActive}</div>}
           <p style={{fontSize:"0.82rem",fontWeight:700,color:"#7fb8e0",marginBottom:11,lineHeight:1.5}}>
-            Importeer of exporteer <code style={{background:"#f0f0f0",padding:"1px 4px",borderRadius:4}}>woordenlijst.json</code>. Categorienamen worden gelezen uit het <code style={{background:"#f0f0f0",padding:"1px 4px",borderRadius:4}}>_labels</code> blok.
+            {ui.fileHint} <code style={{background:"#f0f0f0",padding:"1px 4px",borderRadius:4}}>{ui.fileCode}</code>.
           </p>
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-            <button style={S.btn("#e8f4ff",C.blue,true)} onClick={()=>fileRef.current?.click()}>📁 Importeer JSON</button>
-            <button style={S.btn("#edfff3","#2a8a4a",true)} onClick={()=>exportJSON(woorden)}>⬇ Exporteer JSON</button>
-            {geladen && <button style={S.btn("#fff0f1",C.red,true)} onClick={()=>{setWoorden(STANDAARD);setGeladen(false);setSelCats([]);}}>↺ Herstel standaard</button>}
+            <button style={S.btn("#e8f4ff",C.blue,true)} onClick={()=>fileRef.current?.click()}>{ui.fileImportBtn}</button>
+            <button style={S.btn("#edfff3","#2a8a4a",true)} onClick={()=>exportJSON(woorden)}>{ui.fileExportBtn}</button>
+            {geladen && <button style={S.btn("#fff0f1",C.red,true)} onClick={()=>{setWoorden(LANGUAGES[lang].standaard);setGeladen(false);setSelCats([]);}}>{ui.fileResetBtn}</button>}
           </div>
           <input ref={fileRef} type="file" accept=".json" style={{display:"none"}} onChange={handleFileLoad}/>
         </div>
@@ -494,29 +578,29 @@ function App() {
             <div style={S.prog(pct)}/>
           </div>
           <div style={{fontSize:"0.83rem",fontWeight:800,color:C.blue,marginBottom:9,textAlign:"center"}}>
-            Woord {idx+1} van {words.length}
+            {ui.dicteeWord} {idx+1} {ui.dicteeOf} {words.length}
           </div>
-          <button onClick={()=>{setSpeaking(true);speak(words[idx],()=>setSpeaking(false),selectedVoice);}}
+          <button onClick={()=>{setSpeaking(true);speak(words[idx],()=>setSpeaking(false),selectedVoice,lang);}}
             style={{display:"block",margin:"0 auto 13px",width:82,height:82,borderRadius:"50%",border:"none",background:C.yellow,boxShadow:"0 6px 0 #e6ba00",cursor:"pointer",fontSize:"2.2rem",animation:speaking?"none":"pulse 2.5s ease-in-out infinite",transform:speaking?"scale(1.07)":"none"}}>
             🔊
           </button>
-          <p style={{textAlign:"center",fontSize:"0.79rem",color:"#7fb8e0",fontWeight:700,marginBottom:13}}>Klik op 🔊 om het woord te horen</p>
+          <p style={{textAlign:"center",fontSize:"0.79rem",color:"#7fb8e0",fontWeight:700,marginBottom:13}}>{ui.dicteeHint}</p>
           <input ref={inputRef} style={S.inp(ansState)} value={answer}
             onChange={e=>setAnswer(e.target.value)}
             onKeyDown={e=>{if(e.key==="Enter") showNext?nextWord():checkAnswer();}}
-            placeholder="Typ hier het woord..."
+            placeholder={ui.dicteeInputPlaceholder}
             autoComplete="off" autoCorrect="off" autoCapitalize="none" spellCheck={false}
             disabled={showNext}/>
           <div style={{textAlign:"center",marginTop:10,fontSize:"0.97rem",fontWeight:800,minHeight:22,color:ansState==="correct"?C.green:ansState==="wrong"?C.red:"transparent"}}>
             {fbMsg||" "}
           </div>
           <div style={{display:"flex",gap:9,justifyContent:"center",marginTop:11}}>
-            {!showNext && <button style={S.btn(C.green)} onClick={checkAnswer}>✓ Controleer</button>}
-            {showNext  && <button style={S.btn(C.navy)}  onClick={nextWord}>Volgende →</button>}
+            {!showNext && <button style={S.btn(C.green)} onClick={checkAnswer}>{ui.dicteeCheckBtn}</button>}
+            {showNext  && <button style={S.btn(C.navy)}  onClick={nextWord}>{ui.dicteeNextBtn}</button>}
           </div>
           <div style={{textAlign:"center",marginTop:12}}>
             <button style={{background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",fontSize:"0.8rem",fontWeight:700,color:"#aac8e8",textDecoration:"underline"}}
-              onClick={stopDictee}>✕ Stoppen en terug naar menu</button>
+              onClick={stopDictee}>{ui.dicteeStopBtn}</button>
           </div>
         </div>
       )}
@@ -527,22 +611,27 @@ function App() {
           <div style={{fontSize:"2.5rem",textAlign:"center",marginBottom:5}}>{finalPct>=90?"🏆":finalPct>=70?"🎉":finalPct>=50?"💪":"📚"}</div>
           <div style={{textAlign:"center",fontSize:"1.8rem",letterSpacing:4,marginBottom:5}}>{finalPct>=90?"⭐⭐⭐":finalPct>=70?"⭐⭐":finalPct>=50?"⭐":""}</div>
           <div style={{fontFamily:"'Fredoka One',cursive",fontSize:"3.4rem",color:C.navy,textAlign:"center",lineHeight:1,marginBottom:4}}>{finalOk} / {results.length}</div>
-          <div style={{textAlign:"center",fontWeight:800,color:C.blue,marginBottom:15,fontSize:"0.9rem"}}>{finalPct}% goed</div>
+          <div style={{textAlign:"center",fontWeight:800,color:C.blue,marginBottom:15,fontSize:"0.9rem"}}>{finalPct}{ui.resultsPct}</div>
           <div style={{maxHeight:270,overflowY:"auto"}}>
             {results.map((r,i)=>(
               <div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"7px 0",borderBottom:i===results.length-1?"none":"2px dashed #e0f0ff",fontSize:"0.9rem",fontWeight:700}}>
                 <span>{r.correct?"✅":"❌"}</span>
                 <span style={{flex:1,color:C.navy}}>{r.word}</span>
-                {!r.correct && <span style={{color:C.red,fontSize:"0.82rem"}}>jij: "{r.answer}"</span>}
+                {!r.correct && <span style={{color:C.red,fontSize:"0.82rem"}}>{ui.resultsYou} "{r.answer}"</span>}
               </div>
             ))}
           </div>
           <div style={{display:"flex",gap:9,justifyContent:"center",marginTop:15}}>
-            <button style={S.btn(C.yellow,C.navy)} onClick={()=>setScreen("setup")}>↺ Opnieuw</button>
-            {results.some(r=>!r.correct) && <button style={S.btn(C.blue)} onClick={retryWrong}>🔄 Foute woorden</button>}
+            <button style={S.btn(C.yellow,C.navy)} onClick={()=>setScreen("setup")}>{ui.resultsRetryBtn}</button>
+            {results.some(r=>!r.correct) && <button style={S.btn(C.blue)} onClick={retryWrong}>{ui.resultsWrongBtn}</button>}
           </div>
         </div>
       )}
+
+      <div style={{textAlign:"center",marginTop:4,fontSize:"0.72rem",color:"#aac8e8",fontWeight:600,lineHeight:2}}>
+        <a href="https://github.com/mmalkus/Thuiswerk" target="_blank" rel="noopener" style={{color:"#3b9eff",textDecoration:"none"}}>GitHub</a>
+        {" · "}MIT License © 2026 Maurits Malkus
+      </div>
     </div>
   );
 }

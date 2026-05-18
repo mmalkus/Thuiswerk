@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="nl" id="htmlRoot">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,7 +15,7 @@
     --accent: #e8ff47;
     --accent2: #ff6b35;
     --text: #f0f0f0;
-    --muted: #555;
+    --muted: #888;
     --good: #47ff8a;
     --bad: #ff4747;
     --key-bg: #1e1e1e;
@@ -373,6 +373,14 @@
     100% { transform: scale(1); opacity: 1; }
   }
   .pop { animation: pop-in 0.2s ease-out; }
+
+  /* footer */
+  .page-footer {
+    text-align: center; margin-top: 8px; padding-bottom: 8px;
+    font-size: 11px; color: var(--muted);
+  }
+  .page-footer a { color: var(--muted); text-decoration: none; }
+  .page-footer a:hover { color: var(--accent); }
 </style>
 </head>
 <body>
@@ -383,8 +391,14 @@
     <div class="card" style="padding:28px 24px 24px;">
 
       <div class="start-top">
-        <div class="start-title">Rekentoets<br><span id="startSubtitle">⚡ 60 sec</span></div>
-        <button class="settings-toggle" id="settingsToggle" onclick="toggleSettings()" title="Instellingen">⚙</button>
+        <div class="start-title"><span id="startTitleText">Rekentoets</span><br><span id="startSubtitle">⚡ 60 sec</span></div>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+          <div style="display:flex; gap:6px;">
+            <button class="lang-chip op-chip selected" data-lc="nl" onclick="switchLang('nl')" style="padding:6px 12px; font-size:12px;">NL</button>
+            <button class="lang-chip op-chip" data-lc="en" onclick="switchLang('en')" style="padding:6px 12px; font-size:12px;">EN</button>
+          </div>
+          <button class="settings-toggle" id="settingsToggle" onclick="toggleSettings()" title="Instellingen">⚙</button>
+        </div>
       </div>
 
       <!-- SETTINGS PANEL -->
@@ -392,37 +406,37 @@
         <div class="settings-inner">
 
           <div class="settings-row">
-            <div class="settings-label">Eerste getal (bereik)</div>
+            <div class="settings-label" id="labelFirst">Eerste getal (bereik)</div>
             <div class="range-group">
               <input class="num-input" type="number" id="a1" value="10" min="0" max="999">
-              <span>t/m</span>
+              <span class="range-to" style="color:var(--muted);font-size:12px;">t/m</span>
               <input class="num-input" type="number" id="a2" value="29" min="0" max="999">
             </div>
           </div>
 
           <div class="settings-row">
-            <div class="settings-label">Tweede getal (bereik)</div>
+            <div class="settings-label" id="labelSecond">Tweede getal (bereik)</div>
             <div class="range-group">
               <input class="num-input" type="number" id="b1" value="1" min="0" max="999">
-              <span>t/m</span>
+              <span class="range-to" style="color:var(--muted);font-size:12px;">t/m</span>
               <input class="num-input" type="number" id="b2" value="9" min="0" max="999">
             </div>
           </div>
 
           <div class="settings-row">
-            <div class="settings-label">Timer</div>
+            <div class="settings-label" id="labelTimer">Timer</div>
             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
               <div class="op-chip selected" id="timerOnChip" onclick="setTimerMode(true)">⏱ Aan</div>
               <div class="op-chip" id="timerOffChip" onclick="setTimerMode(false)">∞ Uit</div>
               <div id="timerInputWrap" style="display:flex; gap:6px; align-items:center; margin-left:4px;">
                 <input class="num-input" type="number" id="timerSecs" value="60" min="10" max="600" style="width:60px;">
-                <span style="color:var(--muted);font-size:12px;">sec</span>
+                <span class="timer-sec-label" style="color:var(--muted);font-size:12px;">sec</span>
               </div>
             </div>
           </div>
 
           <div class="settings-row">
-            <div class="settings-label">Bewerkingen (meerdere mogelijk)</div>
+            <div class="settings-label" id="labelOps">Bewerkingen (meerdere mogelijk)</div>
             <div class="op-group">
               <div class="op-chip selected" data-op="+" onclick="toggleOp(this)">+</div>
               <div class="op-chip" data-op="−" onclick="toggleOp(this)">−</div>
@@ -436,20 +450,20 @@
 
       <!-- HISTORY -->
       <div class="history-strip" id="historyStrip" style="display:none;">
-        <div class="history-label">Laatste pogingen</div>
+        <div class="history-label" id="historyLabel">Laatste pogingen</div>
         <div class="history-bars" id="historyBars"></div>
       </div>
 
-      <button class="start-btn" onclick="startQuiz()">Start toets →</button>
+      <button class="start-btn" id="startBtn" onclick="startQuiz()">Start toets →</button>
     </div>
   </div>
 
   <!-- ══ QUIZ SCREEN ══ -->
   <div class="screen" id="quizScreen">
     <div class="quiz-header">
-      <span class="quiz-title">Rekentoets</span>
+      <span class="quiz-title" id="quizTitleText">Rekentoets</span>
       <span class="progress-label" id="progressLabel">1 / 20</span>
-      <button onclick="stopQuiz()" style="background:transparent;border:1px solid var(--border);border-radius:5px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;padding:4px 10px;cursor:pointer;transition:color .15s,border-color .15s;" onmouseover="this.style.color='var(--bad)';this.style.borderColor='var(--bad)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">✕ stop</button>
+      <button id="stopBtn" onclick="stopQuiz()" style="background:transparent;border:1px solid var(--border);border-radius:5px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;padding:4px 10px;cursor:pointer;transition:color .15s,border-color .15s;" onmouseover="this.style.color='var(--bad)';this.style.borderColor='var(--bad)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">✕ stop</button>
     </div>
 
     <div class="timer-wrap">
@@ -492,23 +506,112 @@
       <div class="result-top">
         <div class="result-score" id="resultScore"></div>
         <div class="result-meta">
-          <div class="result-label">van de 20 goed</div>
+          <div class="result-label" id="resultLabel">van de 20 goed</div>
           <div class="result-ops" id="resultOps"></div>
         </div>
       </div>
       <ul class="result-list" id="resultList"></ul>
       <div class="result-btns">
-        <button class="btn-outline" onclick="resetQuiz()">⚙ Instellingen</button>
-        <button class="btn-solid" onclick="startQuiz()">↩ Opnieuw</button>
+        <button class="btn-outline" id="settingsResultBtn" onclick="resetQuiz()">⚙ Instellingen</button>
+        <button class="btn-solid" id="retryBtn" onclick="startQuiz()">↩ Opnieuw</button>
       </div>
     </div>
+  </div>
+
+  <div class="page-footer">
+    <a href="https://github.com/mmalkus/Thuiswerk" target="_blank">GitHub</a>
+    · MIT License © 2026 Maurits Malkus
   </div>
 
 </div>
 
 <script>
   const TOTAL = 20;
-  const TIME  = 60;
+
+  // ── UI strings ────────────────────────────────────────────────────────────
+  const UI_STRINGS = {
+    nl: {
+      title:        'Rekentoets',
+      appTitle:     'Rekentoets',
+      noTimer:      '∞ Geen timer',
+      timerSec:     s => `⚡ ${s} sec`,
+      firstNum:     'Eerste getal (bereik)',
+      secondNum:    'Tweede getal (bereik)',
+      rangeToText:  't/m',
+      timerLabel:   'Timer',
+      timerOn:      '⏱ Aan',
+      timerOff:     '∞ Uit',
+      secLabel:     'sec',
+      opsLabel:     'Bewerkingen (meerdere mogelijk)',
+      lastAttempts: 'Laatste pogingen',
+      startBtn:     'Start toets →',
+      quizTitle:    'Rekentoets',
+      stopBtn:      '✕ stop',
+      outOf:        'van de 20 goed',
+      settingsBtn:  '⚙ Instellingen',
+      retryBtn:     '↩ Opnieuw',
+      correct:      '✓ Goed!',
+      wrong:        ans => `✗ Fout — antwoord was ${ans}`,
+      settingsTitle:'Instellingen',
+    },
+    en: {
+      title:        'Maths Quiz',
+      appTitle:     'Maths Quiz',
+      noTimer:      '∞ No timer',
+      timerSec:     s => `⚡ ${s} sec`,
+      firstNum:     'First number (range)',
+      secondNum:    'Second number (range)',
+      rangeToText:  'to',
+      timerLabel:   'Timer',
+      timerOn:      '⏱ On',
+      timerOff:     '∞ Off',
+      secLabel:     'sec',
+      opsLabel:     'Operations (multiple allowed)',
+      lastAttempts: 'Last attempts',
+      startBtn:     'Start quiz →',
+      quizTitle:    'Maths Quiz',
+      stopBtn:      '✕ stop',
+      outOf:        'out of 20 correct',
+      settingsBtn:  '⚙ Settings',
+      retryBtn:     '↩ Again',
+      correct:      '✓ Correct!',
+      wrong:        ans => `✗ Wrong — answer was ${ans}`,
+      settingsTitle:'Settings',
+    },
+  };
+
+  let lang = localStorage.getItem('rekentoets_lang') || 'nl';
+
+  function switchLang(lc) { applyLanguage(lc); }
+
+  function applyLanguage(lc) {
+    lang = lc;
+    localStorage.setItem('rekentoets_lang', lc);
+    const u = UI_STRINGS[lc];
+    document.title = u.title;
+    document.getElementById('htmlRoot').lang = lc === 'en' ? 'en' : 'nl';
+    document.getElementById('startTitleText').textContent = u.appTitle;
+    document.getElementById('settingsToggle').title = u.settingsTitle;
+    document.getElementById('labelFirst').textContent = u.firstNum;
+    document.getElementById('labelSecond').textContent = u.secondNum;
+    document.querySelectorAll('.range-to').forEach(el => el.textContent = u.rangeToText);
+    document.getElementById('labelTimer').textContent = u.timerLabel;
+    document.getElementById('timerOnChip').textContent = u.timerOn;
+    document.getElementById('timerOffChip').textContent = u.timerOff;
+    document.querySelector('.timer-sec-label').textContent = u.secLabel;
+    document.getElementById('labelOps').textContent = u.opsLabel;
+    document.getElementById('historyLabel').textContent = u.lastAttempts;
+    document.getElementById('startBtn').textContent = u.startBtn;
+    document.getElementById('quizTitleText').textContent = u.quizTitle;
+    document.getElementById('stopBtn').textContent = u.stopBtn;
+    document.getElementById('resultLabel').textContent = u.outOf;
+    document.getElementById('settingsResultBtn').textContent = u.settingsBtn;
+    document.getElementById('retryBtn').textContent = u.retryBtn;
+    document.querySelectorAll('.lang-chip').forEach(el => {
+      el.classList.toggle('selected', el.dataset.lc === lc);
+    });
+    updateStartSubtitle();
+  }
 
   // ── settings state ────────────────────────────────────────────────────────
   let settings = {
@@ -521,7 +624,7 @@
 
   // ── quiz state ────────────────────────────────────────────────────────────
   let questions = [], current = 0, score = 0, results = [];
-  let timerInterval = null, timeLeft = TIME, answered = false;
+  let timerInterval = null, timeLeft = 60, answered = false;
   let currentValue = '';
 
   // ── history (last 10 attempts) ────────────────────────────────────────────
@@ -537,7 +640,7 @@
 
   function toggleOp(el) {
     const selected = document.querySelectorAll('.op-chip.selected');
-    if (el.classList.contains('selected') && selected.length === 1) return; // keep at least 1
+    if (el.classList.contains('selected') && selected.length === 1) return;
     el.classList.toggle('selected');
   }
 
@@ -552,8 +655,8 @@
 
   function updateStartSubtitle() {
     const el = document.getElementById('startSubtitle');
-    if (!settings.timerEnabled) { el.textContent = '∞ Geen timer'; }
-    else { el.textContent = `⚡ ${settings.timerSecs} sec`; }
+    const u = UI_STRINGS[lang];
+    el.textContent = settings.timerEnabled ? u.timerSec(settings.timerSecs) : u.noTimer;
   }
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -589,20 +692,15 @@
   // ── question generation ───────────────────────────────────────────────────
   function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-  const OP_SYMBOLS = { '+': '+', '−': '−', '×': '×', '÷': '÷' };
-
   function generateQuestion() {
     const op = settings.ops[Math.floor(Math.random() * settings.ops.length)];
     let a, b, answer;
 
     if (op === '÷') {
-      // guarantee integer answer: pick b first, then pick a multiple of b
       b = rand(Math.max(1, settings.b1), Math.max(1, settings.b2));
-      // find multiples of b within [a1..a2]
       const loQ = Math.ceil(settings.a1 / b);
       const hiQ = Math.floor(settings.a2 / b);
       if (loQ > hiQ) {
-        // fallback: use b as divisor, make a = b * random small int
         const q = rand(1, 10);
         a = b * q; answer = q;
       } else {
@@ -610,7 +708,6 @@
         a = b * q; answer = q;
       }
     } else if (op === '−') {
-      // ensure a >= b so result >= 0
       a = rand(settings.a1, settings.a2);
       const bMax = Math.min(settings.b2, a);
       b = rand(Math.min(settings.b1, bMax), bMax);
@@ -713,9 +810,10 @@
     const userAns = parseInt(currentValue, 10);
     const q = questions[current];
     const correct = userAns === q.answer;
+    const u = UI_STRINGS[lang];
     results.push({ q, userAns, correct });
-    if (correct) { score++; setDisplayState('correct'); setFeedback('✓ Goed!', 'var(--good)'); updateDot(current, 'correct'); }
-    else         { setDisplayState('wrong'); setFeedback(`✗ Fout — antwoord was ${q.answer}`, 'var(--bad)'); updateDot(current, 'wrong'); }
+    if (correct) { score++; setDisplayState('correct'); setFeedback(u.correct, 'var(--good)'); updateDot(current, 'correct'); }
+    else         { setDisplayState('wrong'); setFeedback(u.wrong(q.answer), 'var(--bad)'); updateDot(current, 'wrong'); }
     current++;
     if (current >= TOTAL) setTimeout(endQuiz, 500);
     else setTimeout(showQuestion, 500);
@@ -769,7 +867,6 @@
   function endQuiz() {
     clearInterval(timerInterval);
 
-    // save to history
     history.push({ score, ops: settings.ops.join(''), date: Date.now() });
     if (history.length > 10) history = history.slice(-10);
     localStorage.setItem('rekentoets_history', JSON.stringify(history));
@@ -835,6 +932,7 @@
   const savedSettings = JSON.parse(localStorage.getItem('rekentoets_settings') || 'null');
   if (savedSettings) Object.assign(settings, savedSettings);
   applySettingsToUI();
+  applyLanguage(lang);
   renderHistory();
 </script>
 </body>
