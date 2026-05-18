@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rekentoets</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Unbounded:wght@400;700;900&display=swap');
+
+  :root {
+    --bg: #0d0d0d;
+    --surface: #161616;
+    --surface2: #1c1c1c;
+    --border: #2a2a2a;
+    --accent: #e8ff47;
+    --accent2: #ff6b35;
+    --text: #f0f0f0;
+    --muted: #555;
+    --good: #47ff8a;
+    --bad: #ff4747;
+    --key-bg: #1e1e1e;
+    --key-border: #333;
+    --key-hover: #2a2a2a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 16px 0 40px;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 50% 0%, #1a2a00 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .container {
+    width: 100%; max-width: 440px;
+    padding: 20px;
+    position: relative; z-index: 1;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── SHARED CARD ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    position: relative; overflow: hidden;
+  }
+  .card::after {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.4;
+  }
+
+  /* ── START SCREEN ── */
+  #startScreen .card { padding: 36px 28px 28px; }
+
+  .start-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 24px;
+  }
+  .start-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 22px; font-weight: 900; line-height: 1.2;
+  }
+  .start-title span { color: var(--accent); }
+
+  .settings-toggle {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--muted);
+    font-size: 18px; cursor: pointer;
+    padding: 8px 12px;
+    transition: color 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+  .settings-toggle:hover { color: var(--accent); border-color: var(--accent); }
+  .settings-toggle.active { color: var(--accent); border-color: var(--accent); background: #1e2000; }
+
+  /* SETTINGS PANEL */
+  .settings-panel {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.35s ease;
+  }
+  .settings-panel.open { max-height: 700px; }
+
+  .settings-inner {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface2);
+    padding: 18px;
+    margin-bottom: 18px;
+  }
+
+  .settings-row {
+    margin-bottom: 16px;
+  }
+  .settings-row:last-child { margin-bottom: 0; }
+
+  .settings-label {
+    font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  /* Range inputs */
+  .range-group {
+    display: flex; gap: 8px; align-items: center;
+  }
+  .range-group span { color: var(--muted); font-size: 12px; }
+  .num-input {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 5px; color: var(--text);
+    font-family: 'DM Mono', monospace; font-size: 14px;
+    padding: 7px 10px; width: 68px; text-align: center;
+    outline: none;
+    -moz-appearance: textfield;
+  }
+  .num-input::-webkit-outer-spin-button,
+  .num-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .num-input:focus { border-color: var(--accent); }
+
+  /* Operator chips */
+  .op-group {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .op-chip {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--muted);
+    font-family: 'Unbounded', sans-serif; font-size: 15px; font-weight: 700;
+    padding: 8px 16px; cursor: pointer;
+    transition: all 0.15s; user-select: none;
+  }
+  .op-chip:hover { border-color: #444; color: var(--text); }
+  .op-chip.selected {
+    background: #1e2000; border-color: var(--accent); color: var(--accent);
+  }
+
+  /* history strip */
+  .history-strip {
+    margin-bottom: 18px;
+  }
+  .history-label {
+    font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 8px;
+  }
+  .history-bars {
+    display: flex; gap: 5px; align-items: flex-end; height: 44px;
+  }
+  .h-bar-wrap {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; gap: 3px;
+  }
+  .h-bar {
+    width: 100%; border-radius: 3px 3px 0 0;
+    min-height: 4px;
+    transition: height 0.4s ease;
+  }
+  .h-bar-label {
+    font-size: 9px; color: var(--muted); text-align: center;
+  }
+
+  .start-btn {
+    background: var(--accent); color: #000;
+    border: none; border-radius: 7px;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 14px; font-weight: 700;
+    padding: 16px; cursor: pointer;
+    width: 100%; letter-spacing: 0.04em;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .start-btn:hover  { opacity: 0.85; }
+  .start-btn:active { transform: scale(0.97); }
+
+  /* ── QUIZ SCREEN ── */
+  .quiz-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 16px;
+  }
+  .quiz-title {
+    font-family: 'Unbounded', sans-serif; font-size: 10px;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted);
+  }
+  .progress-label { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; }
+
+  .timer-wrap { margin-bottom: 16px; }
+  .timer-bar-bg {
+    width: 100%; height: 3px; background: var(--border);
+    border-radius: 2px; overflow: hidden; margin-bottom: 6px;
+  }
+  .timer-bar-fill {
+    height: 100%; background: var(--accent); border-radius: 2px; width: 100%;
+    transition: width 0.1s linear, background 0.5s;
+  }
+  .timer-bar-fill.warning { background: var(--accent2); }
+  .timer-bar-fill.danger  { background: var(--bad); }
+  .timer-num {
+    font-family: 'Unbounded', sans-serif; font-size: 13px;
+    color: var(--accent); transition: color 0.5s;
+  }
+  .timer-num.warning { color: var(--accent2); }
+  .timer-num.danger  { color: var(--bad); }
+
+  .question-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 24px 20px 20px;
+    margin-bottom: 12px; position: relative; overflow: hidden;
+  }
+  .question-card::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.4;
+  }
+  .question {
+    font-family: 'Unbounded', sans-serif; font-size: 42px; font-weight: 900;
+    text-align: center; letter-spacing: -1px;
+    color: var(--text); margin-bottom: 18px; line-height: 1;
+  }
+  .question .op { color: var(--accent); }
+
+  .display-row { display: flex; gap: 10px; align-items: center; }
+  .answer-display {
+    flex: 1; background: var(--bg); border: 2px solid var(--border);
+    border-radius: 6px; color: var(--text);
+    font-family: 'Unbounded', sans-serif; font-size: 26px; font-weight: 700;
+    text-align: center; padding: 12px;
+    min-height: 58px;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.15s, background 0.15s;
+    letter-spacing: 2px; user-select: none;
+  }
+  .answer-display.focused { border-color: var(--accent); }
+  .answer-display.correct { border-color: var(--good); background: #0a1f10; }
+  .answer-display.wrong   { border-color: var(--bad);  background: #1f0a0a; }
+  .answer-display .placeholder { color: var(--muted); font-size: 18px; }
+
+  .ok-btn {
+    background: var(--accent); color: #000;
+    border: none; border-radius: 6px;
+    font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 700;
+    padding: 12px 16px; cursor: pointer; white-space: nowrap; min-height: 58px;
+    transition: transform 0.1s, opacity 0.1s;
+  }
+  .ok-btn:hover  { opacity: 0.85; }
+  .ok-btn:active { transform: scale(0.95); }
+
+  .feedback {
+    text-align: center; font-size: 12px; font-weight: 500;
+    height: 16px; color: var(--muted);
+    letter-spacing: 0.05em; transition: color 0.2s; margin-bottom: 12px;
+  }
+
+  /* NUMPAD */
+  .numpad {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 7px; margin-bottom: 12px;
+  }
+  .key {
+    background: var(--key-bg); border: 1px solid var(--key-border);
+    border-radius: 8px; color: var(--text);
+    font-family: 'Unbounded', sans-serif; font-size: 19px; font-weight: 700;
+    padding: 16px 8px; cursor: pointer; text-align: center;
+    transition: background 0.1s, transform 0.08s, border-color 0.1s;
+    user-select: none; -webkit-tap-highlight-color: transparent;
+    position: relative; overflow: hidden;
+  }
+  .key:hover  { background: var(--key-hover); border-color: #444; }
+  .key:active, .key.pressed {
+    background: #2e2e0a; border-color: var(--accent); transform: scale(0.93);
+  }
+  .key.key-zero { grid-column: span 2; }
+  .key.key-del {
+    background: #1a1010; border-color: #3a2020; font-size: 17px; color: var(--bad);
+  }
+  .key.key-del:hover { background: #221515; }
+  .key.key-del:active, .key.key-del.pressed {
+    background: #2e1010; border-color: var(--bad); transform: scale(0.93);
+  }
+  .ripple {
+    position: absolute; border-radius: 50%;
+    background: rgba(232,255,71,0.18);
+    transform: scale(0); animation: ripple-anim 0.35s linear;
+    pointer-events: none;
+  }
+  @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
+
+  /* DOTS */
+  .dots { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
+  .dot {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--border);
+    transition: background 0.3s;
+  }
+  .dot.correct { background: var(--good); }
+  .dot.wrong   { background: var(--bad); }
+  .dot.active  { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+
+  /* ── RESULT SCREEN ── */
+  .result-card { padding: 32px 24px; }
+  .result-top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .result-score {
+    font-family: 'Unbounded', sans-serif; font-size: 64px; font-weight: 900;
+    color: var(--accent); line-height: 1;
+  }
+  .result-meta { text-align: right; }
+  .result-label {
+    color: var(--muted); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  .result-ops {
+    font-size: 13px; color: var(--text);
+  }
+
+  .result-list {
+    list-style: none; max-height: 240px;
+    overflow-y: auto; margin-bottom: 20px;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  }
+  .result-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 10px; border-radius: 4px; margin-bottom: 3px; font-size: 13px;
+  }
+  .result-item.correct-row { background: #0a1f10; }
+  .result-item.wrong-row   { background: #1f0a0a; }
+  .result-item .sum    { color: var(--text); min-width: 110px; }
+  .result-item .your   { font-weight: 700; }
+  .result-item .actual { color: var(--muted); font-size: 11px; }
+
+  .result-btns { display: flex; gap: 8px; }
+  .btn-outline {
+    flex: 1; background: transparent; color: var(--accent);
+    border: 2px solid var(--accent); border-radius: 6px;
+    font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 700;
+    padding: 14px 8px; cursor: pointer; letter-spacing: 0.04em;
+    transition: background 0.15s, color 0.15s;
+  }
+  .btn-outline:hover { background: var(--accent); color: #000; }
+  .btn-solid {
+    flex: 1; background: var(--accent); color: #000;
+    border: 2px solid var(--accent); border-radius: 6px;
+    font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 700;
+    padding: 14px 8px; cursor: pointer; letter-spacing: 0.04em;
+    transition: opacity 0.15s;
+  }
+  .btn-solid:hover { opacity: 0.85; }
+
+  @keyframes flash-red {
+    0%   { background: rgba(255,71,71,0.15); }
+    100% { background: transparent; }
+  }
+  .flash { animation: flash-red 0.4s ease-out; }
+
+  @keyframes pop-in {
+    0%   { transform: scale(0.93); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .pop { animation: pop-in 0.2s ease-out; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ══ START SCREEN ══ -->
+  <div class="screen active" id="startScreen">
+    <div class="card" style="padding:28px 24px 24px;">
+
+      <div class="start-top">
+        <div class="start-title">Rekentoets<br><span id="startSubtitle">⚡ 60 sec</span></div>
+        <button class="settings-toggle" id="settingsToggle" onclick="toggleSettings()" title="Instellingen">⚙</button>
+      </div>
+
+      <!-- SETTINGS PANEL -->
+      <div class="settings-panel" id="settingsPanel">
+        <div class="settings-inner">
+
+          <div class="settings-row">
+            <div class="settings-label">Eerste getal (bereik)</div>
+            <div class="range-group">
+              <input class="num-input" type="number" id="a1" value="10" min="0" max="999">
+              <span>t/m</span>
+              <input class="num-input" type="number" id="a2" value="29" min="0" max="999">
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-label">Tweede getal (bereik)</div>
+            <div class="range-group">
+              <input class="num-input" type="number" id="b1" value="1" min="0" max="999">
+              <span>t/m</span>
+              <input class="num-input" type="number" id="b2" value="9" min="0" max="999">
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-label">Timer</div>
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <div class="op-chip selected" id="timerOnChip" onclick="setTimerMode(true)">⏱ Aan</div>
+              <div class="op-chip" id="timerOffChip" onclick="setTimerMode(false)">∞ Uit</div>
+              <div id="timerInputWrap" style="display:flex; gap:6px; align-items:center; margin-left:4px;">
+                <input class="num-input" type="number" id="timerSecs" value="60" min="10" max="600" style="width:60px;">
+                <span style="color:var(--muted);font-size:12px;">sec</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-label">Bewerkingen (meerdere mogelijk)</div>
+            <div class="op-group">
+              <div class="op-chip selected" data-op="+" onclick="toggleOp(this)">+</div>
+              <div class="op-chip" data-op="−" onclick="toggleOp(this)">−</div>
+              <div class="op-chip" data-op="×" onclick="toggleOp(this)">×</div>
+              <div class="op-chip" data-op="÷" onclick="toggleOp(this)">÷</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- HISTORY -->
+      <div class="history-strip" id="historyStrip" style="display:none;">
+        <div class="history-label">Laatste pogingen</div>
+        <div class="history-bars" id="historyBars"></div>
+      </div>
+
+      <button class="start-btn" onclick="startQuiz()">Start toets →</button>
+    </div>
+  </div>
+
+  <!-- ══ QUIZ SCREEN ══ -->
+  <div class="screen" id="quizScreen">
+    <div class="quiz-header">
+      <span class="quiz-title">Rekentoets</span>
+      <span class="progress-label" id="progressLabel">1 / 20</span>
+      <button onclick="stopQuiz()" style="background:transparent;border:1px solid var(--border);border-radius:5px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;padding:4px 10px;cursor:pointer;transition:color .15s,border-color .15s;" onmouseover="this.style.color='var(--bad)';this.style.borderColor='var(--bad)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">✕ stop</button>
+    </div>
+
+    <div class="timer-wrap">
+      <div class="timer-bar-bg"><div class="timer-bar-fill" id="timerBar"></div></div>
+      <span class="timer-num" id="timerNum">60</span>
+    </div>
+
+    <div class="question-card" id="questionCard">
+      <div class="question" id="questionText"></div>
+      <div class="display-row">
+        <div class="answer-display focused" id="answerDisplay">
+          <span class="placeholder">?</span>
+        </div>
+        <button class="ok-btn" onclick="submitAnswer()">OK ↵</button>
+      </div>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="numpad">
+      <button class="key" data-val="7" onclick="numpadPress('7')">7</button>
+      <button class="key" data-val="8" onclick="numpadPress('8')">8</button>
+      <button class="key" data-val="9" onclick="numpadPress('9')">9</button>
+      <button class="key" data-val="4" onclick="numpadPress('4')">4</button>
+      <button class="key" data-val="5" onclick="numpadPress('5')">5</button>
+      <button class="key" data-val="6" onclick="numpadPress('6')">6</button>
+      <button class="key" data-val="1" onclick="numpadPress('1')">1</button>
+      <button class="key" data-val="2" onclick="numpadPress('2')">2</button>
+      <button class="key" data-val="3" onclick="numpadPress('3')">3</button>
+      <button class="key key-zero" data-val="0" onclick="numpadPress('0')">0</button>
+      <button class="key key-del" onclick="numpadDel()">⌫</button>
+    </div>
+
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <!-- ══ RESULT SCREEN ══ -->
+  <div class="screen" id="resultScreen">
+    <div class="card result-card">
+      <div class="result-top">
+        <div class="result-score" id="resultScore"></div>
+        <div class="result-meta">
+          <div class="result-label">van de 20 goed</div>
+          <div class="result-ops" id="resultOps"></div>
+        </div>
+      </div>
+      <ul class="result-list" id="resultList"></ul>
+      <div class="result-btns">
+        <button class="btn-outline" onclick="resetQuiz()">⚙ Instellingen</button>
+        <button class="btn-solid" onclick="startQuiz()">↩ Opnieuw</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const TOTAL = 20;
+  const TIME  = 60;
+
+  // ── settings state ────────────────────────────────────────────────────────
+  let settings = {
+    a1: 10, a2: 29,
+    b1: 1,  b2: 9,
+    ops: ['+'],
+    timerEnabled: true,
+    timerSecs: 60
+  };
+
+  // ── quiz state ────────────────────────────────────────────────────────────
+  let questions = [], current = 0, score = 0, results = [];
+  let timerInterval = null, timeLeft = TIME, answered = false;
+  let currentValue = '';
+
+  // ── history (last 10 attempts) ────────────────────────────────────────────
+  let history = JSON.parse(localStorage.getItem('rekentoets_history') || '[]');
+
+  // ── settings panel ────────────────────────────────────────────────────────
+  function toggleSettings() {
+    const panel = document.getElementById('settingsPanel');
+    const btn   = document.getElementById('settingsToggle');
+    panel.classList.toggle('open');
+    btn.classList.toggle('active');
+  }
+
+  function toggleOp(el) {
+    const selected = document.querySelectorAll('.op-chip.selected');
+    if (el.classList.contains('selected') && selected.length === 1) return; // keep at least 1
+    el.classList.toggle('selected');
+  }
+
+  function setTimerMode(enabled) {
+    settings.timerEnabled = enabled;
+    document.getElementById('timerOnChip').classList.toggle('selected', enabled);
+    document.getElementById('timerOffChip').classList.toggle('selected', !enabled);
+    document.getElementById('timerInputWrap').style.opacity = enabled ? '1' : '0.3';
+    document.getElementById('timerInputWrap').style.pointerEvents = enabled ? 'auto' : 'none';
+    updateStartSubtitle();
+  }
+
+  function updateStartSubtitle() {
+    const el = document.getElementById('startSubtitle');
+    if (!settings.timerEnabled) { el.textContent = '∞ Geen timer'; }
+    else { el.textContent = `⚡ ${settings.timerSecs} sec`; }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('timerSecs').addEventListener('input', () => {
+      settings.timerSecs = Math.max(10, parseInt(document.getElementById('timerSecs').value) || 60);
+      updateStartSubtitle();
+    });
+  });
+
+  function readSettings() {
+    settings.a1 = Math.max(0, parseInt(document.getElementById('a1').value) || 0);
+    settings.a2 = Math.max(settings.a1, parseInt(document.getElementById('a2').value) || 0);
+    settings.b1 = Math.max(0, parseInt(document.getElementById('b1').value) || 0);
+    settings.b2 = Math.max(settings.b1, parseInt(document.getElementById('b2').value) || 0);
+    settings.ops = [...document.querySelectorAll('.op-chip.selected')].map(e => e.dataset.op).filter(Boolean);
+    settings.timerSecs = Math.max(10, parseInt(document.getElementById('timerSecs').value) || 60);
+    localStorage.setItem('rekentoets_settings', JSON.stringify(settings));
+    updateStartSubtitle();
+  }
+
+  function applySettingsToUI() {
+    document.getElementById('a1').value = settings.a1;
+    document.getElementById('a2').value = settings.a2;
+    document.getElementById('b1').value = settings.b1;
+    document.getElementById('b2').value = settings.b2;
+    document.getElementById('timerSecs').value = settings.timerSecs;
+    document.querySelectorAll('.op-chip[data-op]').forEach(el => {
+      el.classList.toggle('selected', settings.ops.includes(el.dataset.op));
+    });
+    setTimerMode(settings.timerEnabled);
+  }
+
+  // ── question generation ───────────────────────────────────────────────────
+  function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+  const OP_SYMBOLS = { '+': '+', '−': '−', '×': '×', '÷': '÷' };
+
+  function generateQuestion() {
+    const op = settings.ops[Math.floor(Math.random() * settings.ops.length)];
+    let a, b, answer;
+
+    if (op === '÷') {
+      // guarantee integer answer: pick b first, then pick a multiple of b
+      b = rand(Math.max(1, settings.b1), Math.max(1, settings.b2));
+      // find multiples of b within [a1..a2]
+      const loQ = Math.ceil(settings.a1 / b);
+      const hiQ = Math.floor(settings.a2 / b);
+      if (loQ > hiQ) {
+        // fallback: use b as divisor, make a = b * random small int
+        const q = rand(1, 10);
+        a = b * q; answer = q;
+      } else {
+        const q = rand(loQ, hiQ);
+        a = b * q; answer = q;
+      }
+    } else if (op === '−') {
+      // ensure a >= b so result >= 0
+      a = rand(settings.a1, settings.a2);
+      const bMax = Math.min(settings.b2, a);
+      b = rand(Math.min(settings.b1, bMax), bMax);
+      answer = a - b;
+    } else if (op === '×') {
+      a = rand(settings.a1, settings.a2);
+      b = rand(settings.b1, settings.b2);
+      answer = a * b;
+    } else {
+      a = rand(settings.a1, settings.a2);
+      b = rand(settings.b1, settings.b2);
+      answer = a + b;
+    }
+    return { a, b, op, answer };
+  }
+
+  function generateQuestions() {
+    const qs = [];
+    for (let i = 0; i < TOTAL; i++) qs.push(generateQuestion());
+    return qs;
+  }
+
+  // ── display ───────────────────────────────────────────────────────────────
+  function updateDisplay() {
+    const el = document.getElementById('answerDisplay');
+    el.innerHTML = currentValue === '' ? '<span class="placeholder">?</span>' : currentValue;
+  }
+  function setDisplayState(cls) {
+    document.getElementById('answerDisplay').className = 'answer-display ' + cls;
+  }
+
+  // ── numpad ────────────────────────────────────────────────────────────────
+  function numpadPress(digit) {
+    if (answered) return;
+    if (currentValue.length >= 4) return;
+    currentValue += digit;
+    updateDisplay();
+  }
+  function numpadDel() {
+    if (answered) return;
+    currentValue = currentValue.slice(0, -1);
+    updateDisplay();
+  }
+  function flashKey(val) {
+    const btn = val === 'del'
+      ? document.querySelector('.key-del')
+      : document.querySelector(`.key[data-val="${val}"]`);
+    if (!btn) return;
+    btn.classList.add('pressed');
+    setTimeout(() => btn.classList.remove('pressed'), 160);
+    const r = document.createElement('span');
+    r.className = 'ripple';
+    const bw = btn.offsetWidth, bh = btn.offsetHeight, size = Math.max(bw, bh);
+    r.style.cssText = `width:${size}px;height:${size}px;left:${bw/2-size/2}px;top:${bh/2-size/2}px`;
+    btn.appendChild(r);
+    setTimeout(() => r.remove(), 400);
+  }
+
+  // ── keyboard ──────────────────────────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (!document.getElementById('quizScreen').classList.contains('active')) return;
+    if (e.key >= '0' && e.key <= '9') { e.preventDefault(); flashKey(e.key); numpadPress(e.key); }
+    else if (e.key === 'Backspace' || e.key === 'Delete') { e.preventDefault(); flashKey('del'); numpadDel(); }
+    else if (e.key === 'Enter') { e.preventDefault(); submitAnswer(); }
+  });
+
+  // ── quiz flow ─────────────────────────────────────────────────────────────
+  function buildDots() {
+    const wrap = document.getElementById('dots');
+    wrap.innerHTML = '';
+    for (let i = 0; i < TOTAL; i++) {
+      const d = document.createElement('div');
+      d.className = 'dot' + (i === 0 ? ' active' : '');
+      d.id = 'dot-' + i;
+      wrap.appendChild(d);
+    }
+  }
+  function updateDot(idx, cls) {
+    const d = document.getElementById('dot-' + idx);
+    if (d) d.className = 'dot ' + cls;
+    const next = document.getElementById('dot-' + (idx + 1));
+    if (next) next.classList.add('active');
+  }
+
+  function showQuestion() {
+    answered = false; currentValue = '';
+    const q = questions[current];
+    document.getElementById('questionText').innerHTML =
+      `${q.a} <span class="op">${q.op}</span> ${q.b} <span class="op">=</span>`;
+    document.getElementById('progressLabel').textContent = `${current + 1} / ${TOTAL}`;
+    setDisplayState('focused'); updateDisplay();
+    document.getElementById('feedback').textContent = '';
+    const card = document.getElementById('questionCard');
+    card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop');
+  }
+
+  function submitAnswer() {
+    if (answered || currentValue === '') return;
+    answered = true;
+    const userAns = parseInt(currentValue, 10);
+    const q = questions[current];
+    const correct = userAns === q.answer;
+    results.push({ q, userAns, correct });
+    if (correct) { score++; setDisplayState('correct'); setFeedback('✓ Goed!', 'var(--good)'); updateDot(current, 'correct'); }
+    else         { setDisplayState('wrong'); setFeedback(`✗ Fout — antwoord was ${q.answer}`, 'var(--bad)'); updateDot(current, 'wrong'); }
+    current++;
+    if (current >= TOTAL) setTimeout(endQuiz, 500);
+    else setTimeout(showQuestion, 500);
+  }
+
+  function setFeedback(msg, color) {
+    const el = document.getElementById('feedback');
+    el.textContent = msg; el.style.color = color;
+  }
+
+  function startTimer() {
+    if (!settings.timerEnabled) {
+      document.getElementById('timerBar').style.width = '100%';
+      document.getElementById('timerNum').textContent = '∞';
+      document.getElementById('timerNum').className = 'timer-num';
+      return;
+    }
+    timeLeft = settings.timerSecs; updateTimerUI();
+    timerInterval = setInterval(() => {
+      timeLeft -= 0.1;
+      if (timeLeft <= 0) {
+        timeLeft = 0; updateTimerUI(); clearInterval(timerInterval);
+        while (results.length < TOTAL)
+          results.push({ q: questions[results.length], userAns: null, correct: false });
+        document.body.classList.add('flash');
+        setTimeout(() => document.body.classList.remove('flash'), 400);
+        setTimeout(endQuiz, 400);
+      } else { updateTimerUI(); }
+    }, 100);
+  }
+
+  function updateTimerUI() {
+    const pct = (timeLeft / settings.timerSecs) * 100;
+    const bar = document.getElementById('timerBar'), num = document.getElementById('timerNum');
+    bar.style.width = pct + '%';
+    num.textContent = Math.ceil(timeLeft);
+    bar.className = 'timer-bar-fill'; num.className = 'timer-num';
+    const warn = settings.timerSecs * 1/3, danger = settings.timerSecs * 1/6;
+    if (timeLeft <= danger)      { bar.classList.add('danger');  num.classList.add('danger');  }
+    else if (timeLeft <= warn)   { bar.classList.add('warning'); num.classList.add('warning'); }
+  }
+
+  function startQuiz() {
+    readSettings();
+    questions = generateQuestions();
+    current = 0; score = 0; results = [];
+    showScreen('quizScreen');
+    buildDots(); showQuestion(); startTimer();
+  }
+
+  function endQuiz() {
+    clearInterval(timerInterval);
+
+    // save to history
+    history.push({ score, ops: settings.ops.join(''), date: Date.now() });
+    if (history.length > 10) history = history.slice(-10);
+    localStorage.setItem('rekentoets_history', JSON.stringify(history));
+
+    showScreen('resultScreen');
+    document.getElementById('resultScore').textContent = score;
+    document.getElementById('resultOps').textContent = settings.ops.join(' ');
+
+    const list = document.getElementById('resultList');
+    list.innerHTML = '';
+    results.forEach(r => {
+      const li = document.createElement('li');
+      li.className = 'result-item ' + (r.correct ? 'correct-row' : 'wrong-row');
+      const userTxt = r.userAns !== null ? r.userAns : '—';
+      const extra   = r.correct ? '' : `<span class="actual">✓ ${r.q.answer}</span>`;
+      li.innerHTML = `
+        <span class="sum">${r.q.a} ${r.q.op} ${r.q.b} =</span>
+        <span class="your" style="color:${r.correct ? 'var(--good)' : 'var(--bad)'}">${userTxt}</span>
+        ${extra}
+        <span>${r.correct ? '✓' : '✗'}</span>
+      `;
+      list.appendChild(li);
+    });
+  }
+
+  function stopQuiz() {
+    clearInterval(timerInterval);
+    showScreen('startScreen');
+    renderHistory();
+  }
+
+  function resetQuiz() {
+    showScreen('startScreen');
+    renderHistory();
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // ── history chart ─────────────────────────────────────────────────────────
+  function renderHistory() {
+    const strip = document.getElementById('historyStrip');
+    const bars  = document.getElementById('historyBars');
+    if (history.length === 0) { strip.style.display = 'none'; return; }
+    strip.style.display = 'block';
+    bars.innerHTML = '';
+    history.forEach(h => {
+      const pct = (h.score / TOTAL) * 100;
+      const color = h.score >= 18 ? 'var(--good)' : h.score >= 12 ? 'var(--accent)' : 'var(--bad)';
+      const wrap = document.createElement('div');
+      wrap.className = 'h-bar-wrap';
+      wrap.innerHTML = `
+        <div class="h-bar" style="height:${Math.max(4, pct * 0.36)}px; background:${color};"></div>
+        <div class="h-bar-label">${h.score}</div>
+      `;
+      bars.appendChild(wrap);
+    });
+  }
+
+  // ── init ──────────────────────────────────────────────────────────────────
+  const savedSettings = JSON.parse(localStorage.getItem('rekentoets_settings') || 'null');
+  if (savedSettings) Object.assign(settings, savedSettings);
+  applySettingsToUI();
+  renderHistory();
+</script>
+</body>
+</html>
