@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dictee Oefenen</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#e0f4ff; }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+  input:focus { border-color:#3b9eff !important; background:#fff !important; outline:none; }
+  .wt { display:inline-flex; align-items:center; gap:3px; background:#e0f4ff; border:1.5px solid #b8d8f5; border-radius:99px; padding:2px 7px 2px 9px; font-size:0.79rem; font-weight:800; color:#1a3a5c; margin:2px; }
+  .wt button { background:none; border:none; cursor:pointer; color:#aac8e8; font-size:0.85rem; padding:0 1px; line-height:1; }
+  .wt button:hover { color:#ff5c6a; }
+  .wt.err1 { background:#fff8e0; border-color:#ffd94a; }
+  .wt.err2 { background:#ffe8e0; border-color:#ffaa80; }
+  .wt.err3 { background:#ffd0d0; border-color:#ff5c6a; color:#cc2200; }
+  .add-row { display:flex; gap:6px; margin-top:8px; }
+  .add-row input { flex:1; border:2px solid #b8d8f5; border-radius:9px; padding:6px 10px; font-family:inherit; font-size:0.87rem; font-weight:700; color:#1a3a5c; background:#e0f4ff; outline:none; }
+  .add-row input:focus { border-color:#3b9eff; background:#fff; }
+  .wb-sec { border-bottom:2px dashed #e0f0ff; padding:10px 0; }
+  .wb-sec:last-child { border-bottom:none; }
+  .wb-hd { display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none; margin-bottom:4px; }
+  .wb-lbl { color:#3b9eff; font-size:0.82rem; font-weight:800; }
+  .wb-tog { color:#aac8e8; font-size:0.75rem; font-weight:700; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useRef, useEffect } = React;
+
+// ── Standaard woordenlijst (wordt vervangen als je een JSON laadt) ───────────
+const STANDAARD = {"_labels":{"all":"Gemengd","ng":"ng-klank","nk":"nk-klank","cks":"c / k / s","ei_ij":"ei of ij","au_ou":"au of ou","sch":"sch","ch":"ch","dt":"d / dt / t","dbl":"Verdubbeling","aai":"aai / ooi / oei","open":"Open/gesloten lettergreep","leenwoord":"Leenwoorden"},"groep3":{"all":["bok","mes","lip","gat","net","pot","dak","vis","kan","weg","bed","bos","mok","rij","zak","hek","bak","kam","lap","mus","tap","wip","ton","pet","bus","map","bel","kip","rug","som","tol","bal","vos","pit","rem","bad","hut","rok","pil","rib","til","kin","pop","koe","mop","dam","dop","zon","pen","nul"],"ng":["ring","lang","zang","gang","wang","eng","jong","bang","hang","zing","long","ding","sing","tong","meng","sprong","zong","ving","dong","song"],"nk":["bank","rank","dank","tank","pink","wink","link","rink","sink","mink","denk","wenk","honk","blank","plank","klank","stank","drank","zonk","dronk"],"ei_ij":["bij","rij","wij","zij","mij","fijn","pijn","wijn","zijn","vrij","ei","hij","lei","mei","rei","wei","ijs","wijs","prijs","tijd"],"au_ou":["oud","bouw","dauw","gauw","kauw","lauw","rauw","koud","goud","hout","bout","fout","jouw","mouw","rouw","touw","blauw","nauw","pauw","dauw"],"sch":["schip","schop","schap","schat","schel","schil","schot","schuw","schok","schaal"]},"groep4":{"all":["bank","krat","vlam","stap","brug","gras","tram","klem","plek","slof","prop","spin","klad","zwam","krab","plot","druk","grap","trek","knal","slak","ster","klap","krop","snap","glad","plan","blok","drop","grof","stom","flat","slop","drol","pril","brom","draf","dras","brak","wrak"],"ng":["rang","gang","lang","wang","zang","sing","ring","ding","jong","long","song","bong","dong","tong","eng","streng","meng","zong","sprong","ving"],"nk":["denk","wenk","pink","link","wink","rink","sink","mink","tank","bank","rank","dank","honk","zonk","blank","plank","klank","stank","drank","dronk"],"cks":["sok","sap","zak","zon","zee","zes","zus","zit","sop","sel","kan","kat","kar","kap","kas","koe","kin","kip","kil","kim"],"ei_ij":["trein","klein","fijn","pijn","wijn","zijn","vrij","bij","rij","mij","zij","wij","hij","prijs","vijf","tijd","rijk","reis","wijs","spijs"],"au_ou":["goud","fout","bout","hout","blauw","dauw","gauw","kauw","lauw","rauw","bouw","jouw","mouw","rouw","touw","nauw","pauw","gouw","louw","douw"],"sch":["school","schip","schaar","schema","scherm","schets","schat","schade","schaal","schelp","schijn","schok","schrijven","schuif","schuld","schuur"],"dbl":["kommen","letten","ballen","zitten","rennen","bakken","pakken","zetten","lopen","zwemmen","spelen","slapen","eten","drinken","fietsen","rijden"]},"groep5":{"all":["fiets","huis","trein","goud","brood","feest","vlees","geest","beest","groot","groen","bloem","stoep","broek","hoek","koek","boek","vloed","gloed","voelt","loopt","woord","koord","boord","moest","roest","toets","stoel","zoekt","biedt","vloog","droog","vroeg","zweeg","dreef","bleef","knoop","stroom","troon","viool"],"ng":["lening","koning","woning","mening","honing","kenning","penning","benning","jenning","menning","renning","denning","lenning","senning","toning","roning","soning","voning","wening","zoning","boning","goning"],"nk":["drinken","denken","blanken","planken","klanken","tanken","ranken","danken","wanken","zanken","banken","wenken","lenken","menken","penken","renken","senken","tenken","zenken","fonken","gonken","honken","jonken"],"cks":["citroen","camera","centrum","cirkel","cijfer","cabine","celcius","cement","circa","code","concert","concept","contact","correct","crisis","cultuur","cursus","cylinder","sok","sap","zak","sel","kan","kat","kar","kap","kas","koe"],"ei_ij":["vrijdag","rijbewijs","tijdelijk","bijzonder","fijnste","pijnlijk","wijnfles","zijn","zijden","lijnbus","bijhouden","prijzen","lijsten","sijpelen","dijbeen","lijm","vijver","hijgen","rijzen","bijten","lijnrecht","ijsbeer","ijskoud","vijftien","tijger","krijgen","rijweg","bijkans","pijlen","ijs"],"au_ou":["goudvis","houtwerk","foutloos","dauwdruppel","gauwdief","rouwdienst","bouwkunde","vouwblad","pauwenveer","rouwen","bouwen","houwen","jouwen","kauwen","nauwen","rauwen","tauwen","zouwen","blauwdruk","goudsmid"],"sch":["school","schip","schaar","beschermen","verschil","schoonheid","scherp","schema","scherm","schets","schat","schade","schaal","schap","scharnier","schelp","schijn","schok","schrijven","schuif","schuld","schuur","schuw"],"ch":["chocolade","chauffeur","chef","chemie","echo","chirurg","chalet","champagne","chanson","chaos","charme","chroom","choraal","chemisch","chinees"],"aai":["mooi","groei","kooi","kraai","gooi","boei","aaien","mooie","groeien","strooien","tooien","rooien","looien","booien","kooien","dooien","hooien","ooievaar","mooiheid","groeikracht","kooivogel","kraaienspan","boeiend"],"dbl":["kapper","lapper","tapper","baller","haller","maller","batter","hatter","latter","natter","patter","kommen","letten","ballen","zitten","rennen","bakken","pakken","zetten"],"open":["mannen","bakker","rozen","bidden","varen","laden","malen","ramen","bomen","namen","taken","waken","baken","haken","laken","maken","raken","zaken","beter","meter","lopen","komen","boven","leven","geven","nemen","weten"]},"groep6":{"all":["vliegtuig","beschaving","kostbaar","onderwijs","verzorging","aanbieden","omgeving","dichtbij","gedachte","afgelopen","bijdragen","ervaringen","geweldig","begrijpen","tevreden","betrokken","gevolgen","afhankelijk","bespreken","vertrouwen","verkopen","besteden","deelnemen","opvangen","bereiken"],"ng":["streng","mengsel","lening","woning","mening","kenning","penning","aangenaam","aangeslagen","aanhangend","aanhanging","aansluiting","aansporing","aantekening","aanvulling","aanwijzing","afbakening","afhankelijkheid","afhandeling","afrekening","vergelijking","omgeving"],"nk":["koninklijk","dankbaar","plankenkoorts","klankkast","tankstation","dankzegging","wankeling","bankgebouw","mankement","kankeren","lankmoedig","vonk","mank","rank","dank","zank","dronken","blanken","drinken","denken","bedanken"],"cks":["citroen","camera","centrum","sok","kat","kar","kap","kan","kas","koe","koek","koel","koers","koffer","kogel","kok","koken","kool","kracht","kraan","krab","centraal","cyclus","cynisch","celcius"],"sch":["schoolgebouw","beschaving","verschrikkelijk","afschieten","afscheid","beschikbaar","beschrijven","geschenk","geschrift","geschikt","herschrijven","omschrijven","onderscheiden","opschrijven","overschrijven","uitschrijven","verschrikken","verschuiven","voorschriften","beschimmeld","verscholen"],"ch":["chocolade","chauffeur","chef","chemie","echo","chirurg","technisch","achter","achtergrond","achterhalen","lachen","kachel","wachten","rechten","machtig","prachtig","nachten","zuchten","vechten","zachten"],"dt":["hij loopt","hij werkt","hij bouwt","hij antwoordt","hij geeft","hij neemt","hij staat","hij gaat","hij komt","hij doet","hij ziet","hij hoort","hij voelt","hij denkt","hij weet","hij wil","hij mag","hij moet","jij fietst","jij rijdt","jij schrijft","jij leest","jij werkt","jij speelt"],"dbl":["kapper","lapper","tapper","bagger","baller","haller","maller","batter","hatter","latter","natter","patter","oppassen","aannemen","binnenkomen","afspreken","uitleggen","inpakken"],"leenwoord":["garage","bureau","politie","restaurant","parachute","balkon","beton","trottoir","sofa","matras","gordijn","parfum","portret","seizoen","bagage","piloot","fotografie","bibliotheek","theater","tramway"]},"groep7":{"all":["sneeuw","groei","konijn","pauw","ooievaar","meeuw","leeuw","eeuw","nieuw","nieuwsgierig","trouwdag","getrouwd","vertrouwd","betrouwbaar","naïef","ruïne","coördinatie","geïnteresseerd","beëindigen","geïsoleerd","zoölogie","reünie","coöperatie","naïviteit","geëerd","beëindigd"],"ng":["aandoenlijk","aaneengesloten","aangenaam","aangeslagen","aangetrokken","aanhangend","aanklopping","aanleuning","aanmaning","aanneming","aanraking","aansluiting","aansporing","aantekening","aanvulling","aanwijzing","afbakening","afhankelijkheid","afhandeling","afrekening"],"nk":["dankbaarheid","plankenkoorts","tankstation","dankzegging","wankeling","bankgebouw","mankement","kankeren","lankmoedig","vonkeling","blankaard","frank","slank","blank","klank","stank","drank","rank","bank","tank","dronken","bedanken","gedronken"],"ei_ij":["vrijwillig","bijzonder","tijdrovend","lijnrecht","rijvaardig","prijsbewust","wijsbegeerte","fijnzinnig","pijnstiller","wijnkelder","zijdezacht","eigenwijs","eigenlijk","eigenaardig","bijgeloof","bijhouden","bijkans","bijster","rijwiel","vrijheid","rijksweg","tijdstip","prijslijst"],"au_ou":["blauwdruk","goudkoorts","houtskool","foutgevoelig","dauwdruppel","gauwdief","rouwdienst","ouderwets","bouwkunde","vouwblad","pauwenveer","rouwen","bouwen","houwen","jouwen","kauwen","nauwen","rauwen","tauwen","zouwen","blauwachtig","goudsmid","houtbewerking"],"aai":["aaibaarheid","mooiheid","groeipijn","kooiverband","kraaienpoot","gooiafstand","boeiend","strooiend","tooiend","rooiend","looiend","aaienswaardig","mooienmaker","groeienspan","kooienmaker","kraaienspan","gooienspan","ooievaarsnest"],"dt":["hij antwoordt","hij beantwoordt","hij beschaamt","hij bestormt","hij betreft","hij bevalt","hij beweegt","hij bezit","hij bijdraagt","hij bindt","hij brengt","hij denkt","hij doorziet","hij draagt","hij erft","hij ervaart","hij geeft","hij gelooft","hij groeit","hij handelt","jij antwoordt","jij beantwoordt","jij beschaamt","jij bestormt"],"dbl":["verdubbeling","aanvulling","terugtrekking","opeenstapeling","samenvatting","toelichting","bijwerking","doorstroming","uitbreiding","verlenging","versterking","verzwakking","afzwakking","uitdunning","inkorting","oppervlakkig","onmiddellijk","onregelmatig","onvoldoende","onweerstaanbaar"],"open":["mannen","bakker","rozen","bidden","varen","laden","malen","ramen","bomen","namen","taken","waken","beter","meter","lopen","komen","boven","leven","geven","nemen","weten","beken","leken","teken","weken","deken","zomer","kamer"],"leenwoord":["garage","bureau","politie","restaurant","parachute","balkon","sofa","matras","gordijn","parfum","portret","seizoen","bagage","piloot","fotografie","bibliotheek","theater","museum","concert","ballet","opera"]},"groep8":{"all":["architect","gymnasium","politie","chocolade","computer","parachute","restaurant","fotografie","electriciteit","democratie","bureaucratie","filosofie","psychologie","technologie","archeologie","meteorologie","criminologie","epidemiologie","immunologie","neurologie","oncologie","cardiologie","dermatologie","endocrinologie","gastro-enterologie"],"cks":["centraal","circus","cyclus","cynisch","cytologie","caesar","cavalerie","celestiaal","celibaat","celluloid","centrifuge","ceremonieel","cervicaal","chaotisch","karakteristiek","charlatanisme","chauvinisme","chemisch","chocolaatje","chromosoom","chronologisch","chronometrisch","chirurgisch"],"ch":["psychiatrie","psychologie","psychisch","psychosomatisch","techniek","technicus","technologie","technologisch","chronologisch","chronometrisch","chirurgisch","chaotisch","karakteristiek","charlatanisme","chauvinisme","chemisch","chromosoom","chronologie"],"dt":["hij antwoordt","hij beantwoordt","hij beschaamt","hij bestormt","hij betreft","hij bevalt","hij beweegt","hij bezit","hij bijdraagt","hij bindt","hij brengt","hij denkt","hij doorziet","hij draagt","hij erft","hij geeft","hij gelooft","hij groeit","hij handelt","hij herinnert","jij antwoordt","jij beantwoordt","jij beschaamt","jij bestormt","jij betreft"],"dbl":["assassinatie","attribuut","attractie","accumulatie","accuraat","accusatie","accreditatie","accentueren","accommodatie","accorderen","affirmatie","affiliatie","affectief","aggravatie","aggressie","agglomeratie","aggregatie","agitatie"],"open":["mannen","bakker","rozen","bidden","varen","laden","malen","ramen","bomen","namen","beter","meter","lopen","komen","boven","leven","geven","nemen","weten","beken","leken","teken","weken","deken","zomer","kamer","vader","moeder"],"leenwoord":["amateur","ambiance","ambitie","ambulance","amputatie","analogie","analyse","anarchie","anekdote","antenne","antiquiteit","architect","arena","aristocratie","arrogantie","atelier","attitude","attractie","auditorium","avontuur","balans","barrière","boulevard","brochure"]}};
+
+// ── Gewichten configuratie ────────────────────────────────────────────────────
+// Kans-vermenigvuldiger per aantal fouten
+const WEIGHT_MODES = {
+  uit:    { label: "Uit",           weights: [1, 1, 1, 1] },
+  licht:  { label: "Licht (×2/×3)",weights: [1, 2, 3, 3] },
+  normaal:{ label: "Normaal (×3/×6)",weights: [1, 3, 6, 6] },
+  zwaar:  { label: "Zwaar (×5/×15)",weights: [1, 5, 10, 15] },
+};
+
+const PRAISE = ["Super goed! 🌟","Geweldig! 🎉","Top! ✨","Bravo! 🦄","Perfect! 🏆"];
+const C = {sky:"#e0f4ff",blue:"#3b9eff",navy:"#1a3a5c",yellow:"#ffd94a",green:"#4ecb71",red:"#ff5c6a",white:"#fff",orange:"#ff8c42"};
+
+const LEVELS = ["groep3","groep4","groep5","groep6","groep7","groep8"];
+const LEVEL_LABELS = {groep3:"Groep 3",groep4:"Groep 4",groep5:"Groep 5",groep6:"Groep 6",groep7:"Groep 7",groep8:"Groep 8"};
+
+// ── Fouthistorie via localStorage ─────────────────────────────────────────────
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem("dictee_history") || "{}"); } catch { return {}; }
+}
+function saveHistory(h) {
+  try { localStorage.setItem("dictee_history", JSON.stringify(h)); } catch {}
+}
+function recordResult(history, word, correct) {
+  const h = { ...history };
+  if (!h[word]) h[word] = { correct: 0, wrong: 0 };
+  if (correct) h[word].correct++;
+  else h[word].wrong++;
+  return h;
+}
+function errorCount(history, word) {
+  return history[word]?.wrong || 0;
+}
+
+// ── Gewogen steekproef ─────────────────────────────────────────────────────────
+function weightedSample(pool, n, history, mode) {
+  const wts = WEIGHT_MODES[mode]?.weights || [1,1,1,1];
+  const weighted = pool.map(w => {
+    const errs = Math.min(errorCount(history, w), wts.length - 1);
+    return { w, weight: wts[errs] };
+  });
+  const result = [];
+  const used = new Set();
+  const total = () => weighted.filter(x => !used.has(x.w)).reduce((s, x) => s + x.weight, 0);
+  for (let i = 0; i < Math.min(n, pool.length); i++) {
+    let r = Math.random() * total();
+    for (const item of weighted) {
+      if (used.has(item.w)) continue;
+      r -= item.weight;
+      if (r <= 0) { result.push(item.w); used.add(item.w); break; }
+    }
+  }
+  return result;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function shuffle(arr) {
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+// voiceName: SpeechSynthesisVoice.name, or null/undefined for auto-Dutch
+function speak(text, onEnd, voiceName) {
+  try {
+    if(!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utt=new SpeechSynthesisUtterance(text);
+    utt.rate=0.82; utt.pitch=1.05;
+    const voices=window.speechSynthesis.getVoices();
+    let voice = voiceName ? voices.find(v=>v.name===voiceName)||null : null;
+    if(!voice) voice = voices.find(v=>v.lang.startsWith("nl"))||null;
+    if(voice){ utt.voice=voice; utt.lang=voice.lang; } else { utt.lang="nl-NL"; }
+    if(onEnd) utt.onend=onEnd;
+    window.speechSynthesis.speak(utt);
+  } catch(e){if(onEnd)onEnd();}
+}
+function useVoices() {
+  const [voices,setVoices]=useState([]);
+  useEffect(()=>{
+    function load(){ setVoices(window.speechSynthesis?.getVoices()||[]); }
+    load();
+    if(window.speechSynthesis) window.speechSynthesis.onvoiceschanged=load;
+    return ()=>{ if(window.speechSynthesis) window.speechSynthesis.onvoiceschanged=null; };
+  },[]);
+  return voices;
+}
+function exportJSON(woorden) {
+  const blob=new Blob([JSON.stringify(woorden,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url; a.download="woordenlijst.json"; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── Styles ────────────────────────────────────────────────────────────────────
+const S = {
+  page: {minHeight:"100vh",background:C.sky,display:"flex",flexDirection:"column",alignItems:"center",padding:"22px 13px 60px",fontFamily:"'Nunito',sans-serif"},
+  card: {background:C.white,borderRadius:22,padding:"20px 18px 16px",width:"100%",maxWidth:500,boxShadow:"0 7px 0 #b8d8f5, 0 12px 28px rgba(59,158,255,0.12)",marginBottom:16},
+  lbl:  {fontWeight:800,color:C.navy,fontSize:"0.87rem",display:"block",marginBottom:4,marginTop:11},
+  sel:  {width:"100%",border:"2.5px solid #b8d8f5",borderRadius:11,padding:"8px 11px",fontFamily:"inherit",fontSize:"0.95rem",fontWeight:700,color:C.navy,background:C.sky,outline:"none"},
+  chip: on=>({border:`2.5px solid ${on?C.blue:"#b8d8f5"}`,borderRadius:99,padding:"4px 11px",fontFamily:"inherit",fontSize:"0.82rem",fontWeight:800,color:on?C.white:C.navy,background:on?C.blue:C.sky,cursor:"pointer",whiteSpace:"nowrap"}),
+  btn:  (bg,fg="#fff",sm)=>({display:"inline-flex",alignItems:"center",gap:6,border:"none",borderRadius:13,fontFamily:"inherit",fontSize:sm?"0.83rem":"0.97rem",fontWeight:800,cursor:"pointer",padding:sm?"7px 13px":"10px 20px",background:bg,color:fg,boxShadow:"0 4px 0 rgba(0,0,0,0.13)"}),
+  tabB: on=>({background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",fontSize:"0.87rem",fontWeight:800,color:on?C.blue:"#aac8e8",padding:"5px 10px 9px",borderBottom:`3px solid ${on?C.blue:"transparent"}`,marginBottom:-2}),
+  prog: p=>({height:"100%",background:`linear-gradient(90deg,${C.blue},#6ec6ff)`,borderRadius:99,width:p+"%",transition:"width 0.4s ease"}),
+  inp:  s=>({width:"100%",border:`3px solid ${s==="correct"?C.green:s==="wrong"?C.red:"#b8d8f5"}`,borderRadius:13,padding:"12px 15px",fontFamily:"inherit",fontSize:"1.3rem",fontWeight:800,color:C.navy,background:s==="correct"?"#edfff3":s==="wrong"?"#fff0f1":C.sky,outline:"none",textAlign:"center",letterSpacing:1}),
+};
+
+// ── Woordenbank tab ───────────────────────────────────────────────────────────
+function WoordenBankTab({ woorden, setWoorden, labels, wbLevel, setWbLevel, history }) {
+  const [open, setOpen]     = useState({});
+  const [inputs, setInputs] = useState({});
+  const data = woorden[wbLevel] || {};
+
+  function removeWord(cat, word) {
+    setWoorden(prev => ({...prev, [wbLevel]: {...prev[wbLevel], [cat]: prev[wbLevel][cat].filter(w=>w!==word)}}));
+  }
+  function addWord(cat) {
+    const raw=(inputs[cat]||"").trim().toLowerCase();
+    if(!raw) return;
+    const nw=raw.split(/[\s,;]+/).filter(Boolean);
+    setWoorden(prev => {
+      const ex=prev[wbLevel]?.[cat]||[];
+      return {...prev,[wbLevel]:{...prev[wbLevel],[cat]:[...new Set([...ex,...nw])]}};
+    });
+    setInputs(prev=>({...prev,[cat]:""}));
+  }
+
+  function errClass(word) {
+    const e = errorCount(history, word);
+    if (e >= 3) return "wt err3";
+    if (e === 2) return "wt err2";
+    if (e === 1) return "wt err1";
+    return "wt";
+  }
+
+  return (<>
+    <p style={{fontSize:"0.82rem",fontWeight:700,color:"#7fb8e0",marginBottom:11,lineHeight:1.5}}>
+      Klik op een categorie om woorden te bekijken, toe te voegen of te verwijderen.
+      Woorden met fouten worden oranje/rood gemarkeerd.
+    </p>
+    <label style={S.lbl}>Niveau</label>
+    <select style={S.sel} value={wbLevel} onChange={e=>setWbLevel(e.target.value)}>
+      {LEVELS.filter(l=>woorden[l]).map(l=><option key={l} value={l}>{LEVEL_LABELS[l]||l}</option>)}
+    </select>
+    <div style={{marginTop:12,maxHeight:400,overflowY:"auto"}}>
+      {Object.entries(data).map(([cat,lijst])=>(
+        <div key={cat} className="wb-sec">
+          <div className="wb-hd" onClick={()=>setOpen(p=>({...p,[cat]:!p[cat]}))}>
+            <span className="wb-lbl">
+              {open[cat]?"▾":"▸"} {labels[cat]||cat}
+              <span style={{color:"#aac8e8",fontWeight:600,marginLeft:6}}>({lijst.length})</span>
+            </span>
+            <span className="wb-tog">{open[cat]?"inklappen":"uitklappen"}</span>
+          </div>
+          {open[cat] && (<>
+            <div style={{marginTop:4,lineHeight:2}}>
+              {lijst.length===0
+                ? <span style={{color:"#bbb",fontSize:"0.8rem",fontStyle:"italic"}}>Geen woorden</span>
+                : lijst.map(w=>(
+                  <span key={w} className={errClass(w)} title={errorCount(history,w)>0?`${errorCount(history,w)}× fout`:""}>
+                    {w}
+                    <button onClick={()=>removeWord(cat,w)} title="Verwijder">✕</button>
+                  </span>
+                ))
+              }
+            </div>
+            <div className="add-row">
+              <input value={inputs[cat]||""} onChange={e=>setInputs(p=>({...p,[cat]:e.target.value}))}
+                onKeyDown={e=>{if(e.key==="Enter")addWord(cat);}}
+                placeholder="Woord toevoegen (Enter of +)" autoCapitalize="none" autoCorrect="off" spellCheck={false}/>
+              <button style={S.btn(C.blue,"#fff",true)} onClick={()=>addWord(cat)}>+ Voeg toe</button>
+            </div>
+          </>)}
+        </div>
+      ))}
+    </div>
+  </>);
+}
+
+// ── Fouthistorie tab ──────────────────────────────────────────────────────────
+function FoutTab({ history, setHistory }) {
+  const entries = Object.entries(history)
+    .filter(([,v])=>v.wrong>0)
+    .sort((a,b)=>b[1].wrong-a[1].wrong);
+
+  function errColor(n) {
+    if(n>=3) return C.red;
+    if(n===2) return C.orange;
+    return C.yellow;
+  }
+
+  return (<>
+    <p style={{fontSize:"0.82rem",fontWeight:700,color:"#7fb8e0",marginBottom:11}}>
+      Woorden gesorteerd op aantal fouten. Woorden die goed gaan verdwijnen hier automatisch.
+    </p>
+    {entries.length===0
+      ? <p style={{color:"#aaa",fontWeight:700,fontSize:"0.87rem",padding:"14px 0",textAlign:"center"}}>Nog geen fouten geregistreerd.</p>
+      : (<>
+          <div style={{maxHeight:320,overflowY:"auto"}}>
+            {entries.map(([word,{correct,wrong}])=>(
+              <div key={word} style={{display:"flex",alignItems:"center",gap:8,padding:"7px 0",borderBottom:"2px dashed #e0f0ff",fontSize:"0.88rem",fontWeight:700}}>
+                <span style={{flex:1,color:C.navy}}>{word}</span>
+                <span style={{background:errColor(wrong),borderRadius:99,padding:"2px 9px",fontSize:"0.78rem",fontWeight:800,color:wrong>=2?C.white:C.navy}}>
+                  {wrong}× fout
+                </span>
+                <span style={{color:"#4ecb71",fontSize:"0.78rem",fontWeight:700}}>{correct}× goed</span>
+                <button onClick={()=>setHistory(h=>{const n={...h};delete n[word];saveHistory(n);return n;})}
+                  style={{background:"none",border:"none",cursor:"pointer",color:"#ccc",fontSize:"0.9rem",padding:"2px 4px"}}>✕</button>
+              </div>
+            ))}
+          </div>
+          <div style={{marginTop:12}}>
+            <button style={S.btn("#fff0f1",C.red,true)}
+              onClick={()=>{if(confirm("Alle fouthistorie wissen?")){{setHistory({});saveHistory({})}}}}>
+              🗑 Wis alle fouthistorie
+            </button>
+          </div>
+        </>)
+    }
+  </>);
+}
+
+// ── Hoofdapp ──────────────────────────────────────────────────────────────────
+function App() {
+  const [woorden, setWoorden]       = useState(STANDAARD);
+  const [geladen, setGeladen]       = useState(false);
+  const [history, setHistoryState]  = useState(loadHistory);
+  const [screen, setScreen]         = useState("setup");
+  const [tab, setTab]               = useState("oefenen");
+  const [level, setLevel]           = useState("groep5");
+  const [wbLevel, setWbLevel]       = useState("groep5");
+  const [selCats, setSelCats]       = useState([]);
+  const [wordCount, setWordCount]   = useState(10);
+  const [weightMode, setWeightMode] = useState("normaal");
+  const [selectedVoice, setSelectedVoice] = useState(""); // "" = auto
+  const [customText, setCustomText] = useState("");
+  const [error, setError]           = useState("");
+  const [words, setWords]           = useState([]);
+  const [idx, setIdx]               = useState(0);
+  const [answer, setAnswer]         = useState("");
+  const [ansState, setAnsState]     = useState("idle");
+  const [fbMsg, setFbMsg]           = useState("");
+  const [showNext, setShowNext]     = useState(false);
+  const [speaking, setSpeaking]     = useState(false);
+  const [results, setResults]       = useState([]);
+
+  const inputRef = useRef(null);
+  const fileRef  = useRef(null);
+  const voices   = useVoices();
+
+  // Labels: uit de JSON, anders leeg object
+  const labels = woorden._labels || {};
+
+  // Levels aanwezig in huidige woordenlijst
+  const availLevels = LEVELS.filter(l => woorden[l]);
+
+  // Categorieën voor huidig niveau (zonder 'all')
+  const availCats = Object.keys(woorden[level] || {}).filter(k => k !== "all");
+
+  function catLabel(id) { return labels[id] || id; }
+
+  function setHistory(fn) {
+    setHistoryState(prev => { const next = typeof fn==="function"?fn(prev):fn; saveHistory(next); return next; });
+  }
+
+  function toggleCat(id) {
+    setSelCats(prev=>prev.includes(id)?prev.filter(x=>x!==id):[...prev,id]);
+  }
+
+  function handleFileLoad(e) {
+    const file=e.target.files?.[0]; if(!file) return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try {
+        const parsed=JSON.parse(ev.target.result);
+        const hasLevel=LEVELS.some(l=>parsed[l]);
+        if(!hasLevel) throw new Error("Geen geldig formaat (verwacht groep3..groep8)");
+        setWoorden(parsed); setSelCats([]); setGeladen(true); setError("");
+      } catch(err){setError("Kon JSON niet laden: "+err.message);}
+    };
+    reader.readAsText(file); e.target.value="";
+  }
+
+  function getPool(lv, cats) {
+    const data=woorden[lv]||{};
+    if(cats.length===0) return data["all"]||[];
+    const seen=new Set(), pool=[];
+    for(const cat of cats) for(const w of (data[cat]||[])) if(!seen.has(w)){seen.add(w);pool.push(w);}
+    return pool;
+  }
+
+  function startDictee() {
+    setError("");
+    let wl;
+    if(customText.trim()){
+      wl=customText.trim().split("\n").map(w=>w.trim().toLowerCase()).filter(Boolean).slice(0,wordCount);
+    } else {
+      const pool=getPool(level,selCats);
+      if(pool.length===0){setError("Geen woorden gevonden. Kies een andere categorie of voeg woorden toe.");return;}
+      wl=weightedSample(pool,wordCount,history,weightMode);
+    }
+    setWords(wl);setIdx(0);setResults([]);
+    setAnswer("");setAnsState("idle");setFbMsg("");setShowNext(false);
+    setScreen("dictee");
+    setTimeout(()=>{setSpeaking(true);speak(wl[0],()=>setSpeaking(false),selectedVoice);},350);
+  }
+
+  function checkAnswer() {
+    if(!answer.trim()){speak(words[idx],null,selectedVoice);return;}
+    const correct=words[idx];
+    const ok=answer.trim().toLowerCase()===correct;
+    setResults(prev=>[...prev,{word:correct,answer:answer.trim().toLowerCase(),correct:ok}]);
+    setHistory(h=>recordResult(h,correct,ok));
+    setAnsState(ok?"correct":"wrong");
+    setFbMsg(ok?PRAISE[Math.floor(Math.random()*PRAISE.length)]:`Het goede woord is: "${correct}"`);
+    setShowNext(true);
+    if(ok) speak("Goed gedaan!",null,selectedVoice);
+    else setTimeout(()=>speak(correct,null,selectedVoice),300);
+  }
+
+  function nextWord() {
+    const next=idx+1;
+    if(next>=words.length){setScreen("results");return;}
+    setIdx(next);setAnswer("");setAnsState("idle");setFbMsg("");setShowNext(false);
+    setTimeout(()=>{setSpeaking(true);speak(words[next],()=>setSpeaking(false),selectedVoice);},300);
+    setTimeout(()=>inputRef.current?.focus(),100);
+  }
+
+  function retryWrong() {
+    const wrong=results.filter(r=>!r.correct).map(r=>r.word);
+    setWords(wrong);setIdx(0);setResults([]);
+    setAnswer("");setAnsState("idle");setFbMsg("");setShowNext(false);
+    setScreen("dictee");
+    setTimeout(()=>{setSpeaking(true);speak(wrong[0],()=>setSpeaking(false),selectedVoice);},350);
+  }
+
+  function stopDictee() { window.speechSynthesis?.cancel(); setScreen("setup"); }
+
+  const pct=words.length?idx/words.length*100:0;
+  const finalOk=results.filter(r=>r.correct).length;
+  const finalPct=results.length?Math.round(finalOk/results.length*100):0;
+
+  const TABS = ["oefenen","woordenbank","fouten"];
+  const TAB_LABELS = {"oefenen":"📝 Oefenen","woordenbank":"📚 Woordenbank","fouten":"❌ Fouten"};
+
+  return (
+    <div style={S.page}>
+      <div style={{fontFamily:"'Fredoka One',cursive",fontSize:"2.5rem",color:C.navy,textShadow:`3px 3px 0 ${C.yellow}`,marginBottom:3,textAlign:"center"}}>✏️ Dictee</div>
+      <div style={{fontSize:"0.92rem",color:C.blue,fontWeight:800,marginBottom:20,textAlign:"center"}}>Oefenen met woorden schrijven</div>
+
+      {/* ── SETUP ── */}
+      {screen==="setup" && <>
+        <div style={S.card}>
+          <div style={{display:"flex",gap:4,marginBottom:13,borderBottom:"2.5px solid #e0f0ff"}}>
+            {TABS.map(t=>(
+              <button key={t} style={S.tabB(tab===t)} onClick={()=>setTab(t)}>{TAB_LABELS[t]}</button>
+            ))}
+          </div>
+
+          {/* ── Tab: Oefenen ── */}
+          {tab==="oefenen" && <>
+            {error && <div style={{background:"#fff0f1",border:"2px solid #ff5c6a",borderRadius:10,padding:"9px 12px",marginBottom:11,fontSize:"0.83rem",fontWeight:700,color:C.red}}>⚠️ {error}</div>}
+
+            <label style={S.lbl}>📚 Niveau</label>
+            <select style={S.sel} value={level} onChange={e=>{setLevel(e.target.value);setSelCats([]);}}>
+              {availLevels.map(l=><option key={l} value={l}>{LEVEL_LABELS[l]||l}</option>)}
+            </select>
+
+            <label style={S.lbl}>🏷️ Categorieën <span style={{fontWeight:600,color:"#aac8e8",fontSize:"0.79rem"}}>(meerdere mogelijk)</span></label>
+            <div style={{display:"flex",flexWrap:"wrap",gap:6,marginTop:4}}>
+              {availCats.map(cat=>(
+                <button key={cat} style={S.chip(selCats.includes(cat))} onClick={()=>toggleCat(cat)}>
+                  {catLabel(cat)}
+                </button>
+              ))}
+              {selCats.length>0 && <button style={{...S.chip(false),color:"#bbb",fontSize:"0.76rem"}} onClick={()=>setSelCats([])}>✕ wis</button>}
+            </div>
+
+            <label style={S.lbl}>🔢 Aantal woorden</label>
+            <select style={S.sel} value={wordCount} onChange={e=>setWordCount(+e.target.value)}>
+              {[5,10,15,20].map(n=><option key={n} value={n}>{n} woorden</option>)}
+            </select>
+
+            <label style={S.lbl}>⚖️ Weging op fouten</label>
+            <div style={{display:"flex",flexWrap:"wrap",gap:6,marginTop:4}}>
+              {Object.entries(WEIGHT_MODES).map(([k,v])=>(
+                <button key={k} style={S.chip(weightMode===k)} onClick={()=>setWeightMode(k)}>
+                  {v.label}
+                </button>
+              ))}
+            </div>
+            {weightMode!=="uit" && (
+              <div style={{fontSize:"0.78rem",fontWeight:700,color:"#7fb8e0",marginTop:5}}>
+                Woorden met meer fouten krijgen een hogere kans om te verschijnen.
+              </div>
+            )}
+
+            <label style={S.lbl}>🔊 Stem</label>
+            <select style={S.sel} value={selectedVoice} onChange={e=>setSelectedVoice(e.target.value)}>
+              <option value="">Automatisch (Nederlands)</option>
+              {voices.length===0 && <option disabled>Stemmen laden...</option>}
+              {voices.map(v=>(
+                <option key={v.name} value={v.name}>
+                  {v.name} ({v.lang}){v.localService?" 📴":""}
+                </option>
+              ))}
+            </select>
+            {selectedVoice && (
+              <button style={{marginTop:6,fontSize:"0.78rem",fontWeight:700,color:C.blue,background:"none",border:"none",cursor:"pointer",padding:0,textDecoration:"underline"}}
+                onClick={()=>speak("Dit is een testje van de geselecteerde stem.",null,selectedVoice)}>
+                🔊 Testzin afspelen
+              </button>
+            )}
+
+            <div style={{borderTop:"2px dashed #e0f0ff",margin:"13px 0"}}/>
+            <label style={{...S.lbl,marginTop:0}}>✏️ Of gebruik eigen woorden (één per regel)</label>
+            <textarea style={{...S.sel,height:76,resize:"vertical",fontSize:"0.86rem"}}
+              value={customText} onChange={e=>setCustomText(e.target.value)}
+              placeholder={"Laat leeg voor woorden uit de woordenbank\nOf typ eigen woorden:\nboot\nfiets\nschool"}/>
+
+            <div style={{display:"flex",gap:9,marginTop:14}}>
+              <button style={S.btn(C.blue)} onClick={startDictee}>▶ Start dictee</button>
+            </div>
+          </>}
+
+          {tab==="woordenbank" && (
+            <WoordenBankTab woorden={woorden} setWoorden={setWoorden} labels={labels}
+              wbLevel={wbLevel} setWbLevel={setWbLevel} history={history}/>
+          )}
+
+          {tab==="fouten" && (
+            <FoutTab history={history} setHistory={setHistory}/>
+          )}
+        </div>
+
+        {/* ── Bestandsbeheer ── */}
+        <div style={{...S.card,padding:"16px 18px"}}>
+          <div style={{fontFamily:"'Fredoka One',cursive",fontSize:"1rem",color:C.navy,marginBottom:8}}>📂 Woordenlijst beheren</div>
+          {geladen && <div style={{fontSize:"0.8rem",fontWeight:700,background:"#edfff3",color:"#2a8a4a",padding:"5px 9px",borderRadius:8,marginBottom:10,display:"inline-flex",gap:4}}>✅ Aangepaste woordenlijst actief</div>}
+          <p style={{fontSize:"0.82rem",fontWeight:700,color:"#7fb8e0",marginBottom:11,lineHeight:1.5}}>
+            Importeer of exporteer <code style={{background:"#f0f0f0",padding:"1px 4px",borderRadius:4}}>woordenlijst.json</code>. Categorienamen worden gelezen uit het <code style={{background:"#f0f0f0",padding:"1px 4px",borderRadius:4}}>_labels</code> blok.
+          </p>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+            <button style={S.btn("#e8f4ff",C.blue,true)} onClick={()=>fileRef.current?.click()}>📁 Importeer JSON</button>
+            <button style={S.btn("#edfff3","#2a8a4a",true)} onClick={()=>exportJSON(woorden)}>⬇ Exporteer JSON</button>
+            {geladen && <button style={S.btn("#fff0f1",C.red,true)} onClick={()=>{setWoorden(STANDAARD);setGeladen(false);setSelCats([]);}}>↺ Herstel standaard</button>}
+          </div>
+          <input ref={fileRef} type="file" accept=".json" style={{display:"none"}} onChange={handleFileLoad}/>
+        </div>
+      </>}
+
+      {/* ── DICTEE ── */}
+      {screen==="dictee" && words.length>0 && (
+        <div style={S.card}>
+          <div style={{background:C.sky,borderRadius:99,height:13,width:"100%",overflow:"hidden",marginBottom:15,border:"2px solid #b8d8f5"}}>
+            <div style={S.prog(pct)}/>
+          </div>
+          <div style={{fontSize:"0.83rem",fontWeight:800,color:C.blue,marginBottom:9,textAlign:"center"}}>
+            Woord {idx+1} van {words.length}
+          </div>
+          <button onClick={()=>{setSpeaking(true);speak(words[idx],()=>setSpeaking(false),selectedVoice);}}
+            style={{display:"block",margin:"0 auto 13px",width:82,height:82,borderRadius:"50%",border:"none",background:C.yellow,boxShadow:"0 6px 0 #e6ba00",cursor:"pointer",fontSize:"2.2rem",animation:speaking?"none":"pulse 2.5s ease-in-out infinite",transform:speaking?"scale(1.07)":"none"}}>
+            🔊
+          </button>
+          <p style={{textAlign:"center",fontSize:"0.79rem",color:"#7fb8e0",fontWeight:700,marginBottom:13}}>Klik op 🔊 om het woord te horen</p>
+          <input ref={inputRef} style={S.inp(ansState)} value={answer}
+            onChange={e=>setAnswer(e.target.value)}
+            onKeyDown={e=>{if(e.key==="Enter") showNext?nextWord():checkAnswer();}}
+            placeholder="Typ hier het woord..."
+            autoComplete="off" autoCorrect="off" autoCapitalize="none" spellCheck={false}
+            disabled={showNext}/>
+          <div style={{textAlign:"center",marginTop:10,fontSize:"0.97rem",fontWeight:800,minHeight:22,color:ansState==="correct"?C.green:ansState==="wrong"?C.red:"transparent"}}>
+            {fbMsg||" "}
+          </div>
+          <div style={{display:"flex",gap:9,justifyContent:"center",marginTop:11}}>
+            {!showNext && <button style={S.btn(C.green)} onClick={checkAnswer}>✓ Controleer</button>}
+            {showNext  && <button style={S.btn(C.navy)}  onClick={nextWord}>Volgende →</button>}
+          </div>
+          <div style={{textAlign:"center",marginTop:12}}>
+            <button style={{background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",fontSize:"0.8rem",fontWeight:700,color:"#aac8e8",textDecoration:"underline"}}
+              onClick={stopDictee}>✕ Stoppen en terug naar menu</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── RESULTS ── */}
+      {screen==="results" && (
+        <div style={S.card}>
+          <div style={{fontSize:"2.5rem",textAlign:"center",marginBottom:5}}>{finalPct>=90?"🏆":finalPct>=70?"🎉":finalPct>=50?"💪":"📚"}</div>
+          <div style={{textAlign:"center",fontSize:"1.8rem",letterSpacing:4,marginBottom:5}}>{finalPct>=90?"⭐⭐⭐":finalPct>=70?"⭐⭐":finalPct>=50?"⭐":""}</div>
+          <div style={{fontFamily:"'Fredoka One',cursive",fontSize:"3.4rem",color:C.navy,textAlign:"center",lineHeight:1,marginBottom:4}}>{finalOk} / {results.length}</div>
+          <div style={{textAlign:"center",fontWeight:800,color:C.blue,marginBottom:15,fontSize:"0.9rem"}}>{finalPct}% goed</div>
+          <div style={{maxHeight:270,overflowY:"auto"}}>
+            {results.map((r,i)=>(
+              <div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"7px 0",borderBottom:i===results.length-1?"none":"2px dashed #e0f0ff",fontSize:"0.9rem",fontWeight:700}}>
+                <span>{r.correct?"✅":"❌"}</span>
+                <span style={{flex:1,color:C.navy}}>{r.word}</span>
+                {!r.correct && <span style={{color:C.red,fontSize:"0.82rem"}}>jij: "{r.answer}"</span>}
+              </div>
+            ))}
+          </div>
+          <div style={{display:"flex",gap:9,justifyContent:"center",marginTop:15}}>
+            <button style={S.btn(C.yellow,C.navy)} onClick={()=>setScreen("setup")}>↺ Opnieuw</button>
+            {results.some(r=>!r.correct) && <button style={S.btn(C.blue)} onClick={retryWrong}>🔄 Foute woorden</button>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
