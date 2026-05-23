@@ -12,7 +12,7 @@
   var surfColor= isDark ? '#1e1e1e' : '#f0f8ff';
   var borderColor = isDark ? '#2a2a2a' : '#b8d8f5';
   var textColor   = cfg.textColor || (isDark ? '#f0f0f0' : '#1a3a5c');
-  var mutedColor  = isDark ? '#555' : '#94a3b8';
+  var mutedColor  = isDark ? '#999' : '#64748b';
 
   function getLang() {
     return localStorage.getItem('thuiswerk_lang') || 'nl';
@@ -50,95 +50,18 @@
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  /* ── CSS ──────────────────────────────────────────────────────────────── */
-  var css = [
-    '#tw-btn{position:fixed;top:14px;left:14px;z-index:9000;',
-    'background:',bgColor,';border:1.5px solid ',borderColor,';color:',textColor,';',
-    'border-radius:9px;padding:8px 12px;font-size:17px;line-height:1;cursor:pointer;',
-    'box-shadow:0 2px 12px rgba(0,0,0,.18);transition:border-color .15s,color .15s;}',
-    '#tw-btn:hover{border-color:',primary,';color:',primary,';}',
-
-    '#tw-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9001;',
-    'opacity:0;pointer-events:none;transition:opacity .25s;}',
-    '#tw-ov.on{opacity:1;pointer-events:auto;}',
-
-    '#tw-pnl{position:fixed;top:0;left:0;height:100%;width:min(300px,86vw);',
-    'background:',bgColor,';border-right:1.5px solid ',borderColor,';z-index:9002;',
-    'transform:translateX(-100%);transition:transform .25s ease;',
-    'display:flex;flex-direction:column;overflow-y:auto;padding:18px 18px 40px;gap:20px;',
-    "font-family:'Nunito',sans-serif;}",
-    '#tw-pnl.on{transform:translateX(0);}',
-
-    '.tw-sec{display:flex;flex-direction:column;gap:8px;}',
-    '.tw-lbl{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:',mutedColor,';font-weight:800;}',
-
-    '.tw-home{display:flex;align-items:center;gap:8px;background:',surfColor,';',
-    'border:1.5px solid ',borderColor,';border-radius:9px;padding:11px 14px;',
-    'color:',textColor,';text-decoration:none;font-weight:800;font-size:.88rem;',
-    'transition:border-color .15s;}',
-    '.tw-home:hover{border-color:',primary,';}',
-
-    '.tw-chips{display:flex;gap:7px;}',
-    '.tw-chip{background:',surfColor,';border:1.5px solid ',borderColor,';',
-    'border-radius:99px;padding:5px 13px;font-weight:800;font-size:.82rem;',
-    'color:',mutedColor,';cursor:pointer;',
-    "font-family:'Nunito',sans-serif;transition:all .15s;}",
-    '.tw-chip.on{background:',(isDark?'#1a1f00':primary),';border-color:',primary,';',
-    'color:',(isDark?primary:'#fff'),';}'  ,
-
-    '.tw-inp{background:',(isDark?'#0d0d0d':'#e0f4ff'),';border:1.5px solid ',borderColor,';',
-    'border-radius:8px;padding:9px 11px;color:',textColor,';',
-    "font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:700;",
-    'outline:none;width:100%;box-sizing:border-box;}',
-    '.tw-inp:focus{border-color:',primary,';}',
-    '.tw-inp::placeholder{color:',mutedColor,';}',
-
-    '.tw-sbtn{background:',primary,';color:',(isDark?'#000':'#fff'),';',
-    'border:none;border-radius:8px;',
-    "font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:800;",
-    'padding:9px 16px;cursor:pointer;transition:opacity .15s;}',
-    '.tw-sbtn:hover{opacity:.85;}',
-
-    '.tw-fb{font-size:.78rem;font-weight:700;min-height:16px;',
-    'color:',(isDark?'#47ff8a':'#2a8a4a'),';transition:opacity .3s;}',
-
-    '.tw-hr{border:none;border-top:1px solid ',borderColor,';}',
-
-    '.tw-flist{display:flex;flex-direction:column;gap:5px;}',
-    '.tw-frow{display:flex;align-items:center;gap:6px;background:',surfColor,';',
-    'border:1.5px solid ',borderColor,';border-radius:8px;padding:9px 11px;',
-    'cursor:pointer;transition:border-color .15s;}',
-    '.tw-frow:hover{border-color:',primary,';}',
-    '.tw-fname{flex:1;font-weight:800;font-size:.86rem;color:',textColor,';}',
-    '.tw-fdel{background:none;border:none;color:',mutedColor,';cursor:pointer;',
-    'padding:2px 5px;font-size:.85rem;transition:color .15s;}',
-    '.tw-fdel:hover{color:',(isDark?'#ff4747':'#ff5c6a'),';}'  ,
-
-    '.tw-empty{font-size:.82rem;font-weight:700;color:',mutedColor,';}',
-
-    // Light-theme overrides (applied when html[data-theme="light"])
-    'html[data-theme="light"] #tw-btn{background:#fff!important;border-color:#e2e8f0!important;color:#1e293b!important;}',
-    'html[data-theme="light"] #tw-btn:hover{border-color:#818cf8!important;color:#818cf8!important;}',
-    'html[data-theme="light"] #tw-pnl{background:#fff!important;border-color:#e2e8f0!important;}',
-    'html[data-theme="light"] .tw-lbl{color:#64748b!important;}',
-    'html[data-theme="light"] .tw-home{background:#f8faff!important;border-color:#e2e8f0!important;color:#1e293b!important;}',
-    'html[data-theme="light"] .tw-home:hover{border-color:#818cf8!important;}',
-    'html[data-theme="light"] .tw-chip{background:#f8faff!important;border-color:#e2e8f0!important;color:#64748b!important;}',
-    'html[data-theme="light"] .tw-chip.on{background:#ede9fe!important;border-color:#818cf8!important;color:#4f46e5!important;}',
-    'html[data-theme="light"] .tw-inp{background:#f8faff!important;border-color:#e2e8f0!important;color:#1e293b!important;}',
-    'html[data-theme="light"] .tw-inp::placeholder{color:#94a3b8!important;}',
-    'html[data-theme="light"] .tw-inp:focus{border-color:#818cf8!important;}',
-    'html[data-theme="light"] .tw-fb{color:#166534!important;}',
-    'html[data-theme="light"] .tw-hr{border-color:#e2e8f0!important;}',
-    'html[data-theme="light"] .tw-frow{background:#f8faff!important;border-color:#e2e8f0!important;}',
-    'html[data-theme="light"] .tw-frow:hover{border-color:#818cf8!important;}',
-    'html[data-theme="light"] .tw-fname{color:#1e293b!important;}',
-    'html[data-theme="light"] .tw-fdel{color:#94a3b8!important;}',
-    'html[data-theme="light"] .tw-empty{color:#94a3b8!important;}',
-  ].join('');
-
+  /* ── Inject per-app CSS custom properties ───────────────────────────────── */
   var st = document.createElement('style');
-  st.textContent = css;
+  st.textContent = ':root{' +
+    '--tw-bg:'        + bgColor      + ';' +
+    '--tw-surf:'      + surfColor    + ';' +
+    '--tw-border:'    + borderColor  + ';' +
+    '--tw-text:'      + textColor    + ';' +
+    '--tw-muted:'     + mutedColor   + ';' +
+    '--tw-primary:'   + primary      + ';' +
+    '--tw-inp-bg:'    + (isDark ? '#0d0d0d' : '#e0f4ff') + ';' +
+    '--tw-sbtn-color:' + (isDark ? '#000' : '#fff') + ';' +
+  '}';
   document.head.appendChild(st);
 
   /* ── DOM ──────────────────────────────────────────────────────────────── */

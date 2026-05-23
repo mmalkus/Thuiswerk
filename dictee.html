@@ -10,20 +10,20 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Dictee">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
 <style>
-  * { box-sizing:border-box; margin:0; padding:0; }
   body { background:#e0f4ff; }
   @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
   input:focus { border-color:#3b9eff !important; background:#fff !important; outline:none; }
   .wt { display:inline-flex; align-items:center; gap:3px; background:#e0f4ff; border:1.5px solid #b8d8f5; border-radius:99px; padding:2px 7px 2px 9px; font-size:0.79rem; font-weight:800; color:#1a3a5c; margin:2px; }
-  .wt button { background:none; border:none; cursor:pointer; color:#aac8e8; font-size:0.85rem; padding:0 1px; line-height:1; }
+  .wt button { background:none; border:none; cursor:pointer; color:#336080; font-size:0.85rem; padding:0 1px; line-height:1; }
   .wt button:hover { color:#ff5c6a; }
   .wt.err1 { background:#fff8e0; border-color:#ffd94a; }
   .wt.err2 { background:#ffe8e0; border-color:#ffaa80; }
-  .wt.err3 { background:#ffd0d0; border-color:#ff5c6a; color:#cc2200; }
+  .wt.err3 { background:#ffd0d0; border-color:#ff5c6a; color:#aa1100; }
   .add-row { display:flex; gap:6px; margin-top:8px; }
   .add-row input { flex:1; border:2px solid #b8d8f5; border-radius:9px; padding:6px 10px; font-family:inherit; font-size:0.87rem; font-weight:700; color:#1a3a5c; background:#e0f4ff; outline:none; }
   .add-row input:focus { border-color:#3b9eff; background:#fff; }
@@ -31,8 +31,7 @@
   .wb-sec:last-child { border-bottom:none; }
   .wb-hd { display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none; margin-bottom:4px; }
   .wb-lbl { color:#3b9eff; font-size:0.82rem; font-weight:800; }
-  .wb-tog { color:#aac8e8; font-size:0.75rem; font-weight:700; }
-  body.tw-sidebar-active .tw-lang-toggle { display: none; }
+  .wb-tog { color:#336080; font-size:0.75rem; font-weight:700; }
 </style>
 <script>(function(){var t=localStorage.getItem('thuiswerk_theme');if(t)document.documentElement.dataset.theme=t;})();</script>
 </head>
@@ -189,7 +188,7 @@ const S = {
   sel:  {width:"100%",border:"2.5px solid #b8d8f5",borderRadius:11,padding:"8px 11px",fontFamily:"inherit",fontSize:"0.95rem",fontWeight:700,color:C.navy,background:C.sky,outline:"none"},
   chip: on=>({border:`2.5px solid ${on?C.blue:"#b8d8f5"}`,borderRadius:99,padding:"4px 11px",fontFamily:"inherit",fontSize:"0.82rem",fontWeight:800,color:on?C.white:C.navy,background:on?C.blue:C.sky,cursor:"pointer",whiteSpace:"nowrap"}),
   btn:  (bg,fg="#fff",sm)=>({display:"inline-flex",alignItems:"center",gap:6,border:"none",borderRadius:13,fontFamily:"inherit",fontSize:sm?"0.83rem":"0.97rem",fontWeight:800,cursor:"pointer",padding:sm?"7px 13px":"10px 20px",background:bg,color:fg,boxShadow:"0 4px 0 rgba(0,0,0,0.13)"}),
-  tabB: on=>({background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",fontSize:"0.87rem",fontWeight:800,color:on?C.blue:"#aac8e8",padding:"5px 10px 9px",borderBottom:`3px solid ${on?C.blue:"transparent"}`,marginBottom:-2}),
+  tabB: on=>({background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",fontSize:"0.87rem",fontWeight:800,color:on?C.blue:"#336080",padding:"5px 10px 9px",borderBottom:`3px solid ${on?C.blue:"transparent"}`,marginBottom:-2}),
   prog: p=>({height:"100%",background:`linear-gradient(90deg,${C.blue},#6ec6ff)`,borderRadius:99,width:p+"%",transition:"width 0.4s ease"}),
   inp:  s=>({width:"100%",border:`3px solid ${s==="correct"?C.green:s==="wrong"?C.red:"#b8d8f5"}`,borderRadius:13,padding:"12px 15px",fontFamily:"inherit",fontSize:"1.3rem",fontWeight:800,color:C.navy,background:s==="correct"?"#edfff3":s==="wrong"?"#fff0f1":C.sky,outline:"none",textAlign:"center",letterSpacing:1}),
 };
@@ -236,7 +235,7 @@ function WoordenBankTab({ woorden, setWoorden, labels, levelLabels, wbLevel, set
           <div className="wb-hd" onClick={()=>setOpen(p=>({...p,[cat]:!p[cat]}))}>
             <span className="wb-lbl">
               {open[cat]?"▾":"▸"} {labels[cat]||cat}
-              <span style={{color:"#aac8e8",fontWeight:600,marginLeft:6}}>({lijst.length})</span>
+              <span style={{color:"#336080",fontWeight:600,marginLeft:6}}>({lijst.length})</span>
             </span>
             <span className="wb-tog">{open[cat]?ui.wbCollapse:ui.wbExpand}</span>
           </div>
@@ -526,7 +525,7 @@ function App() {
               {availLevels.map(l=><option key={l} value={l}>{levelLabels[l]||l}</option>)}
             </select>
 
-            <label style={S.lbl}>{ui.catsLabel} <span style={{fontWeight:600,color:"#aac8e8",fontSize:"0.79rem"}}>{ui.catsHint}</span></label>
+            <label style={S.lbl}>{ui.catsLabel} <span style={{fontWeight:600,color:"#336080",fontSize:"0.79rem"}}>{ui.catsHint}</span></label>
             <div style={{display:"flex",flexWrap:"wrap",gap:6,marginTop:4}}>
               {availCats.map(cat=>(
                 <button key={cat} style={S.chip(selCats.includes(cat))} onClick={()=>toggleCat(cat)}>
@@ -635,7 +634,7 @@ function App() {
             {showNext  && <button style={S.btn(C.navy)}  onClick={nextWord}>{ui.dicteeNextBtn}</button>}
           </div>
           <div style={{textAlign:"center",marginTop:12}}>
-            <button style={{background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",fontSize:"0.8rem",fontWeight:700,color:"#aac8e8",textDecoration:"underline"}}
+            <button style={{background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",fontSize:"0.8rem",fontWeight:700,color:"#336080",textDecoration:"underline"}}
               onClick={stopDictee}>{ui.dicteeStopBtn}</button>
           </div>
         </div>
@@ -664,7 +663,7 @@ function App() {
         </div>
       )}
 
-      <div style={{textAlign:"center",marginTop:4,fontSize:"0.72rem",color:"#aac8e8",fontWeight:600,lineHeight:2}}>
+      <div style={{textAlign:"center",marginTop:4,fontSize:"0.72rem",color:"#336080",fontWeight:600,lineHeight:2}}>
         <a href="https://github.com/mmalkus/Thuiswerk" target="_blank" rel="noopener" style={{color:"#3b9eff",textDecoration:"none"}}>GitHub</a>
         {" · "}MIT License © 2026 Maurits Malkus
       </div>

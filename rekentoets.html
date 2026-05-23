@@ -9,6 +9,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Rekentoets">
+<link rel="stylesheet" href="shared.css">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Unbounded:wght@400;700;900&display=swap');
 
@@ -20,15 +21,13 @@
     --accent: #e8ff47;
     --accent2: #ff6b35;
     --text: #f0f0f0;
-    --muted: #888;
+    --muted: #909090;
     --good: #47ff8a;
     --bad: #ff4747;
     --key-bg: #1e1e1e;
     --key-border: #333;
     --key-hover: #2a2a2a;
   }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
     background: var(--bg);
@@ -379,21 +378,26 @@
   }
   .pop { animation: pop-in 0.2s ease-out; }
 
-  body.tw-sidebar-active .lang-toggle-wrap { display: none; }
 
-  /* footer */
-  .page-footer {
-    text-align: center; margin-top: 8px; padding-bottom: 8px;
-    font-size: 11px; color: var(--muted);
-  }
-  .page-footer a { color: var(--muted); text-decoration: none; }
-  .page-footer a:hover { color: var(--accent); }
 
   html[data-theme="light"] {
     --bg: #fefce8; --surface: #ffffff; --surface2: #fef9c3;
     --border: #fde68a; --accent: #ca8a04; --accent2: #ea580c;
-    --text: #1c1917; --muted: #78716c; --bad: #dc2626;
+    --text: #1c1917; --muted: #78716c; --bad: #dc2626; --good: #16a34a;
+    --key-bg: #fef9c3; --key-border: #fde68a; --key-hover: #fef3c7;
   }
+  html[data-theme="light"] body::before { background: radial-gradient(ellipse 60% 50% at 50% 0%, #fef3c7 0%, transparent 70%); }
+  html[data-theme="light"] .key:hover { border-color: var(--border); }
+  html[data-theme="light"] .key:active,
+  html[data-theme="light"] .key.pressed { background: #fef3c7; border-color: var(--accent); }
+  html[data-theme="light"] .key.key-del { background: #fff1f2; border-color: #fecaca; }
+  html[data-theme="light"] .key.key-del:hover { background: #fee2e2; }
+  html[data-theme="light"] .key.key-del:active,
+  html[data-theme="light"] .key.key-del.pressed { background: #fecaca; border-color: var(--bad); }
+  html[data-theme="light"] .answer-display.correct { background: #f0fdf4; }
+  html[data-theme="light"] .answer-display.wrong   { background: #fef2f2; }
+  html[data-theme="light"] .op-chip.selected { background: #fef9c3; }
+  html[data-theme="light"] .settings-toggle.active { background: #fef9c3; }
 </style>
 <script>(function(){var t=localStorage.getItem('thuiswerk_theme');if(t)document.documentElement.dataset.theme=t;})();</script>
 </head>
