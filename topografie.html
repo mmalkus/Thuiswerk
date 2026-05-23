@@ -249,7 +249,7 @@ window.APP_READY = loadI18n(window._initLang);
 <script>
 /* ══ Constants ══════════════════════════════════════════════════════════════ */
 const MAP_FILES = { nl:'topo-nl.json', europe:'topo-europe.json', world:'topo-world.json', physical:'topo-physical.json' };
-const MAP_CONTAINS = { nl:['province','city','river'], europe:['country','capital'], world:['country','capital'], physical:['river','mountain','sea'], africa:['country','capital'], asia:['country','capital'], 'n-america':['country','capital'], 's-america':['country','capital'], oceania:['country','capital'] };
+const MAP_CONTAINS = { nl:['province','city','river','sea'], europe:['country','capital'], world:['country','capital'], physical:['river','mountain','sea'], africa:['country','capital'], asia:['country','capital'], 'n-america':['country','capital'], 's-america':['country','capital'], oceania:['country','capital'] };
 const MAP_DEFAULT  = { nl:['province'], europe:['country'], world:['country'], physical:['river'], africa:['country'], asia:['country'], 'n-america':['country'], 's-america':['country'], oceania:['country'] };
 // [lonMin, latMin, lonMax, latMax]
 const MAP_BOUNDS   = { nl:[3.2,50.7,7.3,53.7], europe:[-25,34,50,72], world:[-180,-60,180,80], physical:[-15,30,65,75], africa:[-18,-35,52,38], asia:[26,-10,145,55], 'n-america':[-170,7,-52,73], 's-america':[-82,-57,-34,14], oceania:[110,-50,180,25] };
