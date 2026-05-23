@@ -189,18 +189,20 @@
           '<button class="tw-chip tw-tc' + (theme==='light'?' on':'') + '" onclick="window._twSB.setTheme(\'light\')">' + esc(u.themeLight||'☀️ Licht') + '</button>' +
         '</div>' +
       '</div>' +
-      '<hr class="tw-hr"/>' +
-      '<div class="tw-sec">' +
-        '<div class="tw-lbl">' + esc(u.saveTitle) + '</div>' +
-        '<input id="tw-name" class="tw-inp" type="text" placeholder="' + esc(u.placeholder) + '" autocomplete="off"/>' +
-        '<button class="tw-sbtn" onclick="window._twSB.save()">' + esc(u.saveBtn) + '</button>' +
-        '<div class="tw-fb" id="tw-fb"></div>' +
-      '</div>' +
-      '<hr class="tw-hr"/>' +
-      '<div class="tw-sec">' +
-        '<div class="tw-lbl">' + esc(u.favsTitle) + '</div>' +
-        '<div class="tw-flist" id="tw-flist">' + favListHtml(appFavs, u) + '</div>' +
-      '</div>';
+      (typeof cfg.getSettings === 'function' ?
+        '<hr class="tw-hr"/>' +
+        '<div class="tw-sec">' +
+          '<div class="tw-lbl">' + esc(u.saveTitle) + '</div>' +
+          '<input id="tw-name" class="tw-inp" type="text" placeholder="' + esc(u.placeholder) + '" autocomplete="off"/>' +
+          '<button class="tw-sbtn" onclick="window._twSB.save()">' + esc(u.saveBtn) + '</button>' +
+          '<div class="tw-fb" id="tw-fb"></div>' +
+        '</div>' +
+        '<hr class="tw-hr"/>' +
+        '<div class="tw-sec">' +
+          '<div class="tw-lbl">' + esc(u.favsTitle) + '</div>' +
+          '<div class="tw-flist" id="tw-flist">' + favListHtml(appFavs, u) + '</div>' +
+        '</div>'
+      : '');
   }
 
   /* ── Public API ───────────────────────────────────────────────────────── */

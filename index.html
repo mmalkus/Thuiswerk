@@ -336,6 +336,24 @@
   html[data-theme="light"] body { background: var(--bg); }
   html[data-theme="light"] .card { box-shadow: 0 4px 24px rgba(99,102,241,0.15); }
   html[data-theme="light"] .card:hover, html[data-theme="light"] .card:focus-visible { box-shadow: 0 12px 40px rgba(99,102,241,0.25); }
+
+  html[data-theme="light"] .card-topo {
+    background: #e8faf2;
+    color: #0d2b1a;
+  }
+  html[data-theme="light"] .card-topo .card-header {
+    background: #d0f5e4;
+    border-bottom: 1px solid #9edfc2;
+  }
+
+  html[data-theme="light"] .card-reken {
+    background: #fefce8;
+    color: #292400;
+  }
+  html[data-theme="light"] .card-reken .card-header {
+    background: #fffde0;
+    border-bottom: 1px solid #e8e880;
+  }
 </style>
 <script>(function(){var t=localStorage.getItem('thuiswerk_theme');if(t)document.documentElement.dataset.theme=t;})();</script>
 </head>
@@ -401,6 +419,15 @@
 
 <footer>Thuiswerk — offline beschikbaar</footer>
 
+<script>
+  window.THUISWERK_APP = {
+    id: 'home',
+    theme: localStorage.getItem('thuiswerk_theme') || 'dark',
+    primaryColor: '#818cf8',
+    textColor: '#f1f5f9'
+  };
+</script>
+<script src="sidebar.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
