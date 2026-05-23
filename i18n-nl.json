@@ -116,11 +116,17 @@
       "mountain": "Gebergten",
       "sea": "Zeeën"
     },
+    "continentLabel": "Continent",
     "maps": {
-      "nl":       "🇳🇱 Nederland",
-      "europe":   "🌍 Europa",
-      "world":    "🌐 Wereld",
-      "physical": "📏 Fysisch"
+      "nl":         "🇳🇱 Nederland",
+      "europe":     "🌍 Europa",
+      "world":      "🌐 Wereld",
+      "physical":   "📏 Fysisch",
+      "africa":     "🌍 Afrika",
+      "asia":       "🌏 Azië",
+      "n-america":  "🌎 N.-Amerika",
+      "s-america":  "🌎 Z.-Amerika",
+      "oceania":    "🌊 Oceanië"
     }
   },
   "sidebar": {

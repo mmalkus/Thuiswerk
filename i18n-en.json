@@ -116,11 +116,17 @@
       "mountain": "Mountain ranges",
       "sea": "Seas"
     },
+    "continentLabel": "Continent",
     "maps": {
-      "nl":       "🇳🇱 Netherlands",
-      "europe":   "🌍 Europe",
-      "world":    "🌐 World",
-      "physical": "📏 Physical"
+      "nl":         "🇳🇱 Netherlands",
+      "europe":     "🌍 Europe",
+      "world":      "🌐 World",
+      "physical":   "📏 Physical",
+      "africa":     "🌍 Africa",
+      "asia":       "🌏 Asia",
+      "n-america":  "🌎 N. America",
+      "s-america":  "🌎 S. America",
+      "oceania":    "🌊 Oceania"
     }
   },
   "sidebar": {

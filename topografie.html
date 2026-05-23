@@ -166,6 +166,17 @@ window.APP_READY = loadI18n(window._initLang);
         <button class="chip"    data-map="physical" onclick="selectMap('physical')">📏 Fysisch</button>
       </div>
     </div>
+    <div class="s-row" id="continentRow" style="display:none">
+      <div class="s-label" id="sContinentLabel">Continent</div>
+      <div class="chips" id="continentChips">
+        <button class="chip on" data-cont="world"     onclick="selectMap('world')">🌐 Wereld</button>
+        <button class="chip"    data-cont="africa"    onclick="selectMap('africa')">🌍 Afrika</button>
+        <button class="chip"    data-cont="asia"      onclick="selectMap('asia')">🌏 Azië</button>
+        <button class="chip"    data-cont="n-america" onclick="selectMap('n-america')">🌎 N.-Amerika</button>
+        <button class="chip"    data-cont="s-america" onclick="selectMap('s-america')">🌎 Z.-Amerika</button>
+        <button class="chip"    data-cont="oceania"   onclick="selectMap('oceania')">🌊 Oceanië</button>
+      </div>
+    </div>
     <div class="s-row">
       <div class="s-label" id="sTypeLabel">Onderdelen</div>
       <div class="chips" id="typeChips"></div>
@@ -235,11 +246,20 @@ window.APP_READY = loadI18n(window._initLang);
 <script>
 /* ══ Constants ══════════════════════════════════════════════════════════════ */
 const MAP_FILES = { nl:'topo-nl.json', europe:'topo-europe.json', world:'topo-world.json', physical:'topo-physical.json' };
-const MAP_CONTAINS = { nl:['province','city','river'], europe:['country','capital'], world:['country','capital'], physical:['river','mountain','sea'] };
-const MAP_DEFAULT  = { nl:['province'], europe:['country'], world:['country'], physical:['river'] };
+const MAP_CONTAINS = { nl:['province','city','river'], europe:['country','capital'], world:['country','capital'], physical:['river','mountain','sea'], africa:['country','capital'], asia:['country','capital'], 'n-america':['country','capital'], 's-america':['country','capital'], oceania:['country','capital'] };
+const MAP_DEFAULT  = { nl:['province'], europe:['country'], world:['country'], physical:['river'], africa:['country'], asia:['country'], 'n-america':['country'], 's-america':['country'], oceania:['country'] };
 // [lonMin, latMin, lonMax, latMax]
-const MAP_BOUNDS   = { nl:[3.2,50.7,7.3,53.7], europe:[-25,34,50,72], world:[-180,-60,180,80], physical:[-15,30,65,75] };
+const MAP_BOUNDS   = { nl:[3.2,50.7,7.3,53.7], europe:[-25,34,50,72], world:[-180,-60,180,80], physical:[-15,30,65,75], africa:[-18,-35,52,38], asia:[26,-10,145,55], 'n-america':[-170,7,-52,73], 's-america':[-82,-57,-34,14], oceania:[110,-50,180,25] };
 const TYPE_LABEL_KEY = { province:'tTypeProvince', city:'tTypeCity', river:'tTypeRiver', country:'tTypeCountry', capital:'tTypeCapital', mountain:'tTypeMountain', sea:'tTypeSea' };
+
+const WORLD_MAPS = new Set(['world','africa','asia','n-america','s-america','oceania']);
+const CONTINENT_SETS = {
+  africa:      new Set(['DZ','AO','BJ','BW','BF','BI','CM','CV','CF','TD','KM','CG','CD','CI','DJ','EG','GQ','ER','ET','GA','GM','GH','GN','GW','KE','LS','LR','LY','MG','MW','ML','MR','MU','MA','MZ','NA','NE','NG','RW','ST','SN','SL','SO','ZA','SS','SD','SZ','TZ','TG','TN','UG','ZM','ZW']),
+  asia:        new Set(['AF','AM','AZ','BH','BD','BT','BN','KH','CN','CY','GE','IN','ID','IR','IQ','IL','JP','JO','KZ','KW','KG','LA','LB','MY','MV','MN','MM','NP','KP','OM','PK','PH','QA','SA','SG','KR','LK','SY','TJ','TH','TL','TM','AE','UZ','VN','YE']),
+  'n-america': new Set(['AG','BS','BB','BZ','CA','CR','CU','DM','DO','SV','GD','GT','HT','HN','JM','MX','NI','PA','KN','LC','VC','TT','US']),
+  's-america': new Set(['AR','BO','BR','CL','CO','EC','GY','PY','PE','SR','UY','VE']),
+  oceania:     new Set(['AU','FJ','KI','MH','FM','NR','NZ','PW','PG','WS','SB','TO','TV','VU']),
+};
 
 /* ══ State ══════════════════════════════════════════════════════════════════ */
 let lang = window._initLang;
@@ -272,6 +292,14 @@ function showScreen(id) {
 /* ══ Map Loading ════════════════════════════════════════════════════════════ */
 function loadMap(id) {
   if (mapCache[id]) return Promise.resolve(mapCache[id]);
+  const cs = CONTINENT_SETS[id];
+  if (cs) {
+    return loadMap('world').then(data => {
+      const filtered = { ...data, features: data.features.filter(f => cs.has(f.countryId || f.id)) };
+      mapCache[id] = filtered;
+      return filtered;
+    });
+  }
   return fetch(MAP_FILES[id]).then(r => r.json()).then(d => { mapCache[id] = d; return d; });
 }
 
@@ -568,8 +596,11 @@ function setFeedback(msg, color) {
 /* ══ Settings UI ════════════════════════════════════════════════════════════ */
 function selectMap(id) {
   settings.mapId = id;
-  document.querySelectorAll('#mapChips .chip').forEach(c => c.classList.toggle('on', c.dataset.map === id));
-  // reset types to defaults if current selection invalid
+  const parentId = WORLD_MAPS.has(id) ? 'world' : id;
+  document.querySelectorAll('#mapChips .chip').forEach(c => c.classList.toggle('on', c.dataset.map === parentId));
+  const continentRow = document.getElementById('continentRow');
+  continentRow.style.display = WORLD_MAPS.has(id) ? '' : 'none';
+  document.querySelectorAll('#continentChips .chip').forEach(c => c.classList.toggle('on', c.dataset.cont === id));
   const valid = MAP_CONTAINS[id];
   if (!settings.types.some(t => valid.includes(t))) settings.types = [...MAP_DEFAULT[id]];
   buildTypeChips();
@@ -653,7 +684,11 @@ function applyLanguage(lc) {
     document.querySelectorAll('#mapChips .chip').forEach(c => {
       if (d.maps[c.dataset.map]) c.textContent = d.maps[c.dataset.map];
     });
+    document.querySelectorAll('#continentChips .chip').forEach(c => {
+      if (d.maps[c.dataset.cont]) c.textContent = d.maps[c.dataset.cont];
+    });
   }
+  if (d.continentLabel != null) document.getElementById('sContinentLabel').textContent = d.continentLabel;
   document.getElementById('rSettingsBtn').textContent = d.settingsBtn || '⚙ Instellingen';
   document.getElementById('rRetryBtn').textContent    = d.retryBtn    || '↩ Opnieuw';
   buildTypeChips();
