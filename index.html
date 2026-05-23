@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thuiswerk</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#6366f1">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Thuiswerk">
+<link rel="apple-touch-icon" href="icons/icon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0f172a;
+    --surface:   #1e293b;
+    --border:    #334155;
+    --text:      #f1f5f9;
+    --muted:     #94a3b8;
+    --dictee-bg:     #e0f4ff;
+    --dictee-card:   #c8e9ff;
+    --dictee-accent: #3b9eff;
+    --dictee-text:   #1a3a5c;
+    --reken-bg:      #0d0d0d;
+    --reken-card:    #161616;
+    --reken-accent:  #e8ff47;
+    --reken-text:    #f0f0f0;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100dvh;
+    padding: 2rem 1rem 3rem;
+    gap: 0;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  header h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2.2rem, 8vw, 3.5rem);
+    background: linear-gradient(135deg, #818cf8 0%, #a78bfa 50%, #38bdf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+  }
+
+  header p {
+    margin-top: 0.5rem;
+    color: var(--muted);
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+    width: 100%;
+    max-width: 640px;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    border-radius: 24px;
+    overflow: hidden;
+    text-decoration: none;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+  }
+
+  .card:hover, .card:focus-visible {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    outline: none;
+  }
+
+  .card:active {
+    transform: scale(0.98);
+  }
+
+  /* Dictee card — light blue */
+  .card-dictee {
+    background: var(--dictee-bg);
+    color: var(--dictee-text);
+  }
+
+  .card-dictee .card-header {
+    background: var(--dictee-card);
+    border-bottom: 2px solid #b8d8f5;
+  }
+
+  .card-dictee .tag {
+    background: var(--dictee-accent);
+    color: #fff;
+  }
+
+  .card-dictee .arrow {
+    color: var(--dictee-accent);
+  }
+
+  /* Rekentoets card — dark */
+  .card-reken {
+    background: var(--reken-bg);
+    color: var(--reken-text);
+  }
+
+  .card-reken .card-header {
+    background: var(--reken-card);
+    border-bottom: 1px solid #2a2a2a;
+  }
+
+  .card-reken .tag {
+    background: var(--reken-accent);
+    color: #0d0d0d;
+  }
+
+  .card-reken .arrow {
+    color: var(--reken-accent);
+  }
+
+  .card-header {
+    padding: 1.5rem 1.5rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .emoji {
+    font-size: 2.8rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .card-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.7rem;
+    line-height: 1.1;
+    letter-spacing: 0.01em;
+  }
+
+  .card-body {
+    padding: 1rem 1.5rem 1.4rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .card-desc {
+    font-size: 0.95rem;
+    font-weight: 700;
+    opacity: 0.75;
+    line-height: 1.45;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 0.5rem;
+  }
+
+  .tag {
+    font-size: 0.72rem;
+    font-weight: 900;
+    padding: 3px 10px;
+    border-radius: 99px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .arrow {
+    font-size: 1.4rem;
+    font-weight: 900;
+    transition: transform 0.15s ease;
+  }
+
+  .card:hover .arrow { transform: translateX(5px); }
+
+  #install-btn {
+    display: none;
+    margin-top: 2rem;
+    padding: 0.75rem 2rem;
+    background: linear-gradient(135deg, #6366f1, #818cf8);
+    color: #fff;
+    border: none;
+    border-radius: 99px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(99,102,241,0.4);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  #install-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(99,102,241,0.5);
+  }
+
+  footer {
+    margin-top: auto;
+    padding-top: 2rem;
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-align: center;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Thuiswerk</h1>
+  <p>Kies een oefening 👇</p>
+</header>
+
+<div class="cards">
+
+  <a href="dictee.html" class="card card-dictee">
+    <div class="card-header">
+      <span class="emoji">📝</span>
+      <span class="card-title">Dictee</span>
+    </div>
+    <div class="card-body">
+      <p class="card-desc">Oefen spellingwoorden voor groep 3 t/m 8. Met uitgesproken woorden en bijhouden van fouten.</p>
+      <div class="card-footer">
+        <span class="tag">NL · EN</span>
+        <span class="arrow">→</span>
+      </div>
+    </div>
+  </a>
+
+  <a href="rekentoets.html" class="card card-reken">
+    <div class="card-header">
+      <span class="emoji">🔢</span>
+      <span class="card-title">Rekentoets</span>
+    </div>
+    <div class="card-body">
+      <p class="card-desc">Oefen sommen met optellen, aftrekken, vermenigvuldigen en delen. Met timer en scoregrafiek.</p>
+      <div class="card-footer">
+        <span class="tag">NL · EN</span>
+        <span class="arrow">→</span>
+      </div>
+    </div>
+  </a>
+
+</div>
+
+<button id="install-btn">📲 Installeer app</button>
+
+<footer>Thuiswerk — offline beschikbaar</footer>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+
+  let deferredPrompt;
+  const installBtn = document.getElementById('install-btn');
+
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.style.display = 'block';
+  });
+
+  installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') installBtn.style.display = 'none';
+    deferredPrompt = null;
+  });
+
+  window.addEventListener('appinstalled', () => {
+    installBtn.style.display = 'none';
+    deferredPrompt = null;
+  });
+</script>
+</body>
+</html>
