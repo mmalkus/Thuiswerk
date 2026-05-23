@@ -348,7 +348,9 @@ function renderMap(highlightId, hlClass, wrongId, labels) {
     }
   }
 
-  svg.innerHTML = html;
+  svg.innerHTML =
+    '<defs><clipPath id="mc"><rect x="0" y="0" width="'+W+'" height="'+H+'"/></clipPath></defs>' +
+    '<g clip-path="url(#mc)">' + html + '</g>';
 }
 
 function featHtml(feat, proj, isQuiz, clickMode, highlightId, hlClass, wrongId) {
