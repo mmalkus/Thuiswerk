@@ -462,6 +462,19 @@
             </div>
           </div>
 
+          <div class="settings-row">
+            <div class="settings-label" id="labelAnswer">Antwoord (bereik)</div>
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <div class="op-chip" id="answerOnChip" onclick="setAnswerRange(true)">✓ Aan</div>
+              <div class="op-chip selected" id="answerOffChip" onclick="setAnswerRange(false)">∞ Uit</div>
+              <div id="answerRangeInputWrap" style="display:flex; gap:6px; align-items:center; margin-left:4px; opacity:0.3; pointer-events:none;">
+                <input class="num-input" type="number" id="c1" value="0" min="0" max="9999" style="width:60px;">
+                <span class="range-to" style="color:var(--muted);font-size:12px;">t/m</span>
+                <input class="num-input" type="number" id="c2" value="100" min="0" max="9999" style="width:60px;">
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -560,6 +573,9 @@
       timerOff:     '∞ Uit',
       secLabel:     'sec',
       opsLabel:     'Bewerkingen (meerdere mogelijk)',
+      answerLabel:  'Antwoord (bereik)',
+      answerOn:     '✓ Aan',
+      answerOff:    '∞ Uit',
       lastAttempts: 'Laatste pogingen',
       startBtn:     'Start toets →',
       quizTitle:    'Rekentoets',
@@ -584,6 +600,9 @@
       timerOff:     '∞ Off',
       secLabel:     'sec',
       opsLabel:     'Operations (multiple allowed)',
+      answerLabel:  'Answer (range)',
+      answerOn:     '✓ On',
+      answerOff:    '∞ Off',
       lastAttempts: 'Last attempts',
       startBtn:     'Start quiz →',
       quizTitle:    'Maths Quiz',
@@ -618,6 +637,9 @@
     document.getElementById('timerOffChip').textContent = u.timerOff;
     document.querySelector('.timer-sec-label').textContent = u.secLabel;
     document.getElementById('labelOps').textContent = u.opsLabel;
+    document.getElementById('labelAnswer').textContent = u.answerLabel;
+    document.getElementById('answerOnChip').textContent = u.answerOn;
+    document.getElementById('answerOffChip').textContent = u.answerOff;
     document.getElementById('historyLabel').textContent = u.lastAttempts;
     document.getElementById('startBtn').textContent = u.startBtn;
     document.getElementById('quizTitleText').textContent = u.quizTitle;
@@ -637,7 +659,9 @@
     b1: 1,  b2: 9,
     ops: ['+'],
     timerEnabled: true,
-    timerSecs: 60
+    timerSecs: 60,
+    answerRangeEnabled: false,
+    c1: 0, c2: 100,
   };
 
   // ── quiz state ────────────────────────────────────────────────────────────
@@ -671,6 +695,14 @@
     updateStartSubtitle();
   }
 
+  function setAnswerRange(enabled) {
+    settings.answerRangeEnabled = enabled;
+    document.getElementById('answerOnChip').classList.toggle('selected', enabled);
+    document.getElementById('answerOffChip').classList.toggle('selected', !enabled);
+    document.getElementById('answerRangeInputWrap').style.opacity = enabled ? '1' : '0.3';
+    document.getElementById('answerRangeInputWrap').style.pointerEvents = enabled ? 'auto' : 'none';
+  }
+
   function updateStartSubtitle() {
     const el = document.getElementById('startSubtitle');
     const u = UI_STRINGS[lang];
@@ -682,6 +714,12 @@
       settings.timerSecs = Math.max(10, parseInt(document.getElementById('timerSecs').value) || 60);
       updateStartSubtitle();
     });
+    document.getElementById('c1').addEventListener('input', () => {
+      settings.c1 = Math.max(0, parseInt(document.getElementById('c1').value) || 0);
+    });
+    document.getElementById('c2').addEventListener('input', () => {
+      settings.c2 = Math.max(settings.c1, parseInt(document.getElementById('c2').value) || 0);
+    });
   });
 
   function readSettings() {
@@ -691,6 +729,8 @@
     settings.b2 = Math.max(settings.b1, parseInt(document.getElementById('b2').value) || 0);
     settings.ops = [...document.querySelectorAll('.op-chip.selected')].map(e => e.dataset.op).filter(Boolean);
     settings.timerSecs = Math.max(10, parseInt(document.getElementById('timerSecs').value) || 60);
+    settings.c1 = Math.max(0, parseInt(document.getElementById('c1').value) || 0);
+    settings.c2 = Math.max(settings.c1, parseInt(document.getElementById('c2').value) || 0);
     localStorage.setItem('rekentoets_settings', JSON.stringify(settings));
     updateStartSubtitle();
   }
@@ -701,16 +741,19 @@
     document.getElementById('b1').value = settings.b1;
     document.getElementById('b2').value = settings.b2;
     document.getElementById('timerSecs').value = settings.timerSecs;
+    document.getElementById('c1').value = settings.c1;
+    document.getElementById('c2').value = settings.c2;
     document.querySelectorAll('.op-chip[data-op]').forEach(el => {
       el.classList.toggle('selected', settings.ops.includes(el.dataset.op));
     });
     setTimerMode(settings.timerEnabled);
+    setAnswerRange(settings.answerRangeEnabled);
   }
 
   // ── question generation ───────────────────────────────────────────────────
   function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-  function generateQuestion() {
+  function _genOneQuestion() {
     const op = settings.ops[Math.floor(Math.random() * settings.ops.length)];
     let a, b, answer;
 
@@ -740,6 +783,15 @@
       answer = a + b;
     }
     return { a, b, op, answer };
+  }
+
+  function generateQuestion() {
+    if (!settings.answerRangeEnabled) return _genOneQuestion();
+    for (let i = 0; i < 100; i++) {
+      const q = _genOneQuestion();
+      if (q.answer >= settings.c1 && q.answer <= settings.c2) return q;
+    }
+    return _genOneQuestion(); // fallback if range is too narrow
   }
 
   function generateQuestions() {
