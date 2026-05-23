@@ -32,93 +32,66 @@
   .wb-hd { display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none; margin-bottom:4px; }
   .wb-lbl { color:#3b9eff; font-size:0.82rem; font-weight:800; }
   .wb-tog { color:#aac8e8; font-size:0.75rem; font-weight:700; }
+  body.tw-sidebar-active .tw-lang-toggle { display: none; }
 </style>
 </head>
 <body>
 <div id="root"></div>
+<script>
+  window.THUISWERK_APP = {
+    id: 'dictee',
+    theme: 'light',
+    primaryColor: '#3b9eff',
+    bgColor: '#e0f4ff',
+    textColor: '#1a3a5c',
+  };
+
+  // Per-language data cache
+  window._i18n  = {};
+  window._words = {};
+
+  // Determine startup language (check ?fav= URL param first)
+  window._initLang = (function () {
+    try {
+      var favId = new URLSearchParams(location.search).get('fav');
+      if (favId) {
+        var favs = JSON.parse(localStorage.getItem('thuiswerk_favorites') || '[]');
+        var fav  = favs.find(function (f) { return f.id === favId && f.app === 'dictee'; });
+        if (fav && fav.settings && fav.settings.lang) return fav.settings.lang;
+      }
+    } catch (e) {}
+    return localStorage.getItem('thuiswerk_lang') || 'nl';
+  }());
+
+  function loadI18n(lc) {
+    return window._i18n[lc]
+      ? Promise.resolve(window._i18n[lc])
+      : fetch('i18n-' + lc + '.json').then(function (r) { return r.json(); })
+          .then(function (d) { window._i18n[lc] = d; return d; });
+  }
+  function loadWords(lc) {
+    return window._words[lc]
+      ? Promise.resolve(window._words[lc])
+      : fetch('words-' + lc + '.json').then(function (r) { return r.json(); })
+          .then(function (d) { window._words[lc] = d; return d; });
+  }
+
+  window.APP_READY = Promise.all([
+    loadI18n(window._initLang),
+    loadWords(window._initLang),
+  ]);
+</script>
 <script type="text/babel">
 const { useState, useRef, useEffect } = React;
 
-// ── Word lists ────────────────────────────────────────────────────────────────
-const STANDAARD_NL = {"_level_labels":{"groep3":"Groep 3","groep4":"Groep 4","groep5":"Groep 5","groep6":"Groep 6","groep7":"Groep 7","groep8":"Groep 8"},"_labels":{"all":"Gemengd","ng":"ng-klank","nk":"nk-klank","cks":"c / k / s","ei_ij":"ei of ij","au_ou":"au of ou","sch":"sch","ch":"ch","dt":"d / dt / t","dbl":"Verdubbeling","aai":"aai / ooi / oei","open":"Open/gesloten lettergreep","leenwoord":"Leenwoorden"},"groep3":{"all":["bok","mes","lip","gat","net","pot","dak","vis","kan","weg","bed","bos","mok","rij","zak","hek","bak","kam","lap","mus","tap","wip","ton","pet","bus","map","bel","kip","rug","som","tol","bal","vos","pit","rem","bad","hut","rok","pil","rib","til","kin","pop","koe","mop","dam","dop","zon","pen","nul"],"ng":["ring","lang","zang","gang","wang","eng","jong","bang","hang","zing","long","ding","sing","tong","meng","sprong","zong","ving","dong","song"],"nk":["bank","rank","dank","tank","pink","wink","link","rink","sink","mink","denk","wenk","honk","blank","plank","klank","stank","drank","zonk","dronk"],"ei_ij":["bij","rij","wij","zij","mij","fijn","pijn","wijn","zijn","vrij","ei","hij","lei","mei","rei","wei","ijs","wijs","prijs","tijd"],"au_ou":["oud","bouw","dauw","gauw","kauw","lauw","rauw","koud","goud","hout","bout","fout","jouw","mouw","rouw","touw","blauw","nauw","pauw","dauw"],"sch":["schip","schop","schap","schat","schel","schil","schot","schuw","schok","schaal"]},"groep4":{"all":["bank","krat","vlam","stap","brug","gras","tram","klem","plek","slof","prop","spin","klad","zwam","krab","plot","druk","grap","trek","knal","slak","ster","klap","krop","snap","glad","plan","blok","drop","grof","stom","flat","slop","drol","pril","brom","draf","dras","brak","wrak"],"ng":["rang","gang","lang","wang","zang","sing","ring","ding","jong","long","song","bong","dong","tong","eng","streng","meng","zong","sprong","ving"],"nk":["denk","wenk","pink","link","wink","rink","sink","mink","tank","bank","rank","dank","honk","zonk","blank","plank","klank","stank","drank","dronk"],"cks":["sok","sap","zak","zon","zee","zes","zus","zit","sop","sel","kan","kat","kar","kap","kas","koe","kin","kip","kil","kim"],"ei_ij":["trein","klein","fijn","pijn","wijn","zijn","vrij","bij","rij","mij","zij","wij","hij","prijs","vijf","tijd","rijk","reis","wijs","spijs"],"au_ou":["goud","fout","bout","hout","blauw","dauw","gauw","kauw","lauw","rauw","bouw","jouw","mouw","rouw","touw","nauw","pauw","gouw","louw","douw"],"sch":["school","schip","schaar","schema","scherm","schets","schat","schade","schaal","schelp","schijn","schok","schrijven","schuif","schuld","schuur"],"dbl":["kommen","letten","ballen","zitten","rennen","bakken","pakken","zetten","lopen","zwemmen","spelen","slapen","eten","drinken","fietsen","rijden"]},"groep5":{"all":["fiets","huis","trein","goud","brood","feest","vlees","geest","beest","groot","groen","bloem","stoep","broek","hoek","koek","boek","vloed","gloed","voelt","loopt","woord","koord","boord","moest","roest","toets","stoel","zoekt","biedt","vloog","droog","vroeg","zweeg","dreef","bleef","knoop","stroom","troon","viool"],"ng":["lening","koning","woning","mening","honing","kenning","penning","benning","jenning","menning","renning","denning","lenning","senning","toning","roning","soning","voning","wening","zoning","boning","goning"],"nk":["drinken","denken","blanken","planken","klanken","tanken","ranken","danken","wanken","zanken","banken","wenken","lenken","menken","penken","renken","senken","tenken","zenken","fonken","gonken","honken","jonken"],"cks":["citroen","camera","centrum","cirkel","cijfer","cabine","celcius","cement","circa","code","concert","concept","contact","correct","crisis","cultuur","cursus","cylinder","sok","sap","zak","sel","kan","kat","kar","kap","kas","koe"],"ei_ij":["vrijdag","rijbewijs","tijdelijk","bijzonder","fijnste","pijnlijk","wijnfles","zijn","zijden","lijnbus","bijhouden","prijzen","lijsten","sijpelen","dijbeen","lijm","vijver","hijgen","rijzen","bijten","lijnrecht","ijsbeer","ijskoud","vijftien","tijger","krijgen","rijweg","bijkans","pijlen","ijs"],"au_ou":["goudvis","houtwerk","foutloos","dauwdruppel","gauwdief","rouwdienst","bouwkunde","vouwblad","pauwenveer","rouwen","bouwen","houwen","jouwen","kauwen","nauwen","rauwen","tauwen","zouwen","blauwdruk","goudsmid"],"sch":["school","schip","schaar","beschermen","verschil","schoonheid","scherp","schema","scherm","schets","schat","schade","schaal","schap","scharnier","schelp","schijn","schok","schrijven","schuif","schuld","schuur","schuw"],"ch":["chocolade","chauffeur","chef","chemie","echo","chirurg","chalet","champagne","chanson","chaos","charme","chroom","choraal","chemisch","chinees"],"aai":["mooi","groei","kooi","kraai","gooi","boei","aaien","mooie","groeien","strooien","tooien","rooien","looien","booien","kooien","dooien","hooien","ooievaar","mooiheid","groeikracht","kooivogel","kraaienspan","boeiend"],"dbl":["kapper","lapper","tapper","baller","haller","maller","batter","hatter","latter","natter","patter","kommen","letten","ballen","zitten","rennen","bakken","pakken","zetten"],"open":["mannen","bakker","rozen","bidden","varen","laden","malen","ramen","bomen","namen","taken","waken","baken","haken","laken","maken","raken","zaken","beter","meter","lopen","komen","boven","leven","geven","nemen","weten"]},"groep6":{"all":["vliegtuig","beschaving","kostbaar","onderwijs","verzorging","aanbieden","omgeving","dichtbij","gedachte","afgelopen","bijdragen","ervaringen","geweldig","begrijpen","tevreden","betrokken","gevolgen","afhankelijk","bespreken","vertrouwen","verkopen","besteden","deelnemen","opvangen","bereiken"],"ng":["streng","mengsel","lening","woning","mening","kenning","penning","aangenaam","aangeslagen","aanhangend","aanhanging","aansluiting","aansporing","aantekening","aanvulling","aanwijzing","afbakening","afhankelijkheid","afhandeling","afrekening","vergelijking","omgeving"],"nk":["koninklijk","dankbaar","plankenkoorts","klankkast","tankstation","dankzegging","wankeling","bankgebouw","mankement","kankeren","lankmoedig","vonk","mank","rank","dank","zank","dronken","blanken","drinken","denken","bedanken"],"cks":["citroen","camera","centrum","sok","kat","kar","kap","kan","kas","koe","koek","koel","koers","koffer","kogel","kok","koken","kool","kracht","kraan","krab","centraal","cyclus","cynisch","celcius"],"sch":["schoolgebouw","beschaving","verschrikkelijk","afschieten","afscheid","beschikbaar","beschrijven","geschenk","geschrift","geschikt","herschrijven","omschrijven","onderscheiden","opschrijven","overschrijven","uitschrijven","verschrikken","verschuiven","voorschriften","beschimmeld","verscholen"],"ch":["chocolade","chauffeur","chef","chemie","echo","chirurg","technisch","achter","achtergrond","achterhalen","lachen","kachel","wachten","rechten","machtig","prachtig","nachten","zuchten","vechten","zachten"],"dt":["hij loopt","hij werkt","hij bouwt","hij antwoordt","hij geeft","hij neemt","hij staat","hij gaat","hij komt","hij doet","hij ziet","hij hoort","hij voelt","hij denkt","hij weet","hij wil","hij mag","hij moet","jij fietst","jij rijdt","jij schrijft","jij leest","jij werkt","jij speelt"],"dbl":["kapper","lapper","tapper","bagger","baller","haller","maller","batter","hatter","latter","natter","patter","oppassen","aannemen","binnenkomen","afspreken","uitleggen","inpakken"],"leenwoord":["garage","bureau","politie","restaurant","parachute","balkon","beton","trottoir","sofa","matras","gordijn","parfum","portret","seizoen","bagage","piloot","fotografie","bibliotheek","theater","tramway"]},"groep7":{"all":["sneeuw","groei","konijn","pauw","ooievaar","meeuw","leeuw","eeuw","nieuw","nieuwsgierig","trouwdag","getrouwd","vertrouwd","betrouwbaar","naïef","ruïne","coördinatie","geïnteresseerd","beëindigen","geïsoleerd","zoölogie","reünie","coöperatie","naïviteit","geëerd","beëindigd"],"ng":["aandoenlijk","aaneengesloten","aangenaam","aangeslagen","aangetrokken","aanhangend","aanklopping","aanleuning","aanmaning","aanneming","aanraking","aansluiting","aansporing","aantekening","aanvulling","aanwijzing","afbakening","afhankelijkheid","afhandeling","afrekening"],"nk":["dankbaarheid","plankenkoorts","tankstation","dankzegging","wankeling","bankgebouw","mankement","kankeren","lankmoedig","vonkeling","blankaard","frank","slank","blank","klank","stank","drank","rank","bank","tank","dronken","bedanken","gedronken"],"ei_ij":["vrijwillig","bijzonder","tijdrovend","lijnrecht","rijvaardig","prijsbewust","wijsbegeerte","fijnzinnig","pijnstiller","wijnkelder","zijdezacht","eigenwijs","eigenlijk","eigenaardig","bijgeloof","bijhouden","bijkans","bijster","rijwiel","vrijheid","rijksweg","tijdstip","prijslijst"],"au_ou":["blauwdruk","goudkoorts","houtskool","foutgevoelig","dauwdruppel","gauwdief","rouwdienst","ouderwets","bouwkunde","vouwblad","pauwenveer","rouwen","bouwen","houwen","jouwen","kauwen","nauwen","rauwen","tauwen","zouwen","blauwachtig","goudsmid","houtbewerking"],"aai":["aaibaarheid","mooiheid","groeipijn","kooiverband","kraaienpoot","gooiafstand","boeiend","strooiend","tooiend","rooiend","looiend","aaienswaardig","mooienmaker","groeienspan","kooienmaker","kraaienspan","gooienspan","ooievaarsnest"],"dt":["hij antwoordt","hij beantwoordt","hij beschaamt","hij bestormt","hij betreft","hij bevalt","hij beweegt","hij bezit","hij bijdraagt","hij bindt","hij brengt","hij denkt","hij doorziet","hij draagt","hij erft","hij ervaart","hij geeft","hij gelooft","hij groeit","hij handelt","jij antwoordt","jij beantwoordt","jij beschaamt","jij bestormt"],"dbl":["verdubbeling","aanvulling","terugtrekking","opeenstapeling","samenvatting","toelichting","bijwerking","doorstroming","uitbreiding","verlenging","versterking","verzwakking","afzwakking","uitdunning","inkorting","oppervlakkig","onmiddellijk","onregelmatig","onvoldoende","onweerstaanbaar"],"open":["mannen","bakker","rozen","bidden","varen","laden","malen","ramen","bomen","namen","taken","waken","beter","meter","lopen","komen","boven","leven","geven","nemen","weten","beken","leken","teken","weken","deken","zomer","kamer"],"leenwoord":["garage","bureau","politie","restaurant","parachute","balkon","sofa","matras","gordijn","parfum","portret","seizoen","bagage","piloot","fotografie","bibliotheek","theater","museum","concert","ballet","opera"]},"groep8":{"all":["architect","gymnasium","politie","chocolade","computer","parachute","restaurant","fotografie","electriciteit","democratie","bureaucratie","filosofie","psychologie","technologie","archeologie","meteorologie","criminologie","epidemiologie","immunologie","neurologie","oncologie","cardiologie","dermatologie","endocrinologie","gastro-enterologie"],"cks":["centraal","circus","cyclus","cynisch","cytologie","caesar","cavalerie","celestiaal","celibaat","celluloid","centrifuge","ceremonieel","cervicaal","chaotisch","karakteristiek","charlatanisme","chauvinisme","chemisch","chocolaatje","chromosoom","chronologisch","chronometrisch","chirurgisch"],"ch":["psychiatrie","psychologie","psychisch","psychosomatisch","techniek","technicus","technologie","technologisch","chronologisch","chronometrisch","chirurgisch","chaotisch","karakteristiek","charlatanisme","chauvinisme","chemisch","chromosoom","chronologie"],"dt":["hij antwoordt","hij beantwoordt","hij beschaamt","hij bestormt","hij betreft","hij bevalt","hij beweegt","hij bezit","hij bijdraagt","hij bindt","hij brengt","hij denkt","hij doorziet","hij draagt","hij erft","hij geeft","hij gelooft","hij groeit","hij handelt","hij herinnert","jij antwoordt","jij beantwoordt","jij beschaamt","jij bestormt","jij betreft"],"dbl":["assassinatie","attribuut","attractie","accumulatie","accuraat","accusatie","accreditatie","accentueren","accommodatie","accorderen","affirmatie","affiliatie","affectief","aggravatie","aggressie","agglomeratie","aggregatie","agitatie"],"open":["mannen","bakker","rozen","bidden","varen","laden","malen","ramen","bomen","namen","beter","meter","lopen","komen","boven","leven","geven","nemen","weten","beken","leken","teken","weken","deken","zomer","kamer","vader","moeder"],"leenwoord":["amateur","ambiance","ambitie","ambulance","amputatie","analogie","analyse","anarchie","anekdote","antenne","antiquiteit","architect","arena","aristocratie","arrogantie","atelier","attitude","attractie","auditorium","avontuur","balans","barrière","boulevard","brochure"]}};
-
-const STANDAARD_EN = {"_level_labels":{"year1":"Year 1","year2":"Year 2","year3":"Year 3","year4":"Year 4","year5":"Year 5","year6":"Year 6"},"_labels":{"all":"Mixed","cvc":"Short vowels","digraphs":"Digraphs (ch/sh/th)","blends":"Consonant blends","silent_e":"Magic e","long_vowels":"Long vowels","double":"Double letters","prefixes":"Prefixes","suffixes":"Suffixes","homophones":"Homophones","tricky":"Tricky words"},"year1":{"all":["cat","dog","big","run","hot","sit","can","let","did","hop","man","red","cut","bit","pop","pig","hen","cup","bed","sun","map","wet","box","hat","bus","log","fin","dip","pat","beg"],"cvc":["cat","dog","big","run","hot","sit","can","let","did","hop","man","red","cut","bit","pop","pig","hen","cup","bed","sun","map","wet","box","hat","bus","log","fin","dip","pat","beg"],"digraphs":["ship","chip","thin","then","when","shop","chop","chat","chin","that","this","fish","wish","rush","dash","path","bath","mesh","shed","shut","shot","thud","thick","check","chess","shred","shell","shelf","shift","shaft"],"blends":["clap","drop","flip","grab","plan","slim","spin","trap","frog","plug","snip","step","swim","sled","crab","drum","flag","glad","grip","plop","skip","snap","drip","clip","flat","slam","slip","trip","stop","crop"]},"year2":{"all":["cake","make","like","hope","time","home","came","gave","ride","game","name","face","safe","hole","tune","bone","nice","mice","race","rice","late","line","mine","note","cute","huge","save","wake","wave","wine"],"silent_e":["cake","make","like","hope","time","home","came","gave","ride","game","name","face","safe","hole","tune","bone","nice","mice","race","rice","late","line","mine","note","cute","huge","save","wake","wave","wine"],"digraphs":["chain","chair","beach","teach","reach","peach","coach","speech","patch","match","watch","catch","fetch","witch","ditch","pitch","batch","much","rich","which","wheat","wheel","white","whale","while","whip","graph","phone","photo","phase"],"blends":["black","blank","blast","blend","blind","block","brave","breed","brick","bring","broke","brown","brush","clash","class","clean","clear","climb","clock","close","crash","crawl","cream","crisp","cross","press","dress","frill","grill","spell"]},"year3":{"all":["rain","boat","feet","seat","road","read","meat","seal","deal","beam","dream","steam","cream","speak","treat","bead","load","foam","soap","coat","goat","float","sleep","sweet","stream","trail","snail","plain","train","brain"],"long_vowels":["rain","boat","feet","seat","road","read","meat","seal","deal","beam","dream","steam","cream","speak","treat","bead","load","foam","soap","coat","goat","float","sleep","sweet","stream","trail","snail","plain","train","brain"],"double":["butter","running","sitting","hopping","clapping","swimming","putting","getting","letting","hitting","cutting","shopping","dropping","stopping","tripping","spinning","skipping","dripping","betting","setting","fitting","knitting","splitting","spitting","trotting","spotted","dotted","blotted","knotted","plotted"],"suffixes":["jumped","looked","played","called","walked","talked","laughed","pushed","pulled","fixed","mixed","picked","kicked","packed","tracked","helped","asked","passed","missed","kissed","dressed","pressed","guessed","crossed","slower","fastest","running","singing","dancing"]},"year4":{"all":["station","nation","fraction","action","section","motion","mention","tension","pension","fashion","passion","mission","session","vision","division","revision","occasion","invasion","explosion","confusion","conclusion","persuasion","erosion","collision","decision","provision","television","expression","impression","possession"],"prefixes":["unhappy","unkind","unfair","unsafe","unclear","unable","unlock","undo","unpack","return","reuse","redo","reopen","rebuild","recycle","rewrite","replace","replay","disagree","dislike","disobey","disconnect","disappear","misbehave","misplace","misuse","mislead","misspell","preview","precaution"],"suffixes":["happily","angrily","greedily","easily","heavily","nastily","clumsily","hungrily","lazily","busily","noisily","luckily","messily","sleepily","happiest","angrier","greedier","easier","heavier","nastier","clumsier","hungrier","lazier","busier","noisier","luckier","messier","sleepier","noisier"],"homophones":["there","their","to","two","too","hear","here","wear","where","bare","bear","fair","fare","hair","hare","knight","night","knot","not","know","no","write","right","flour","flower","plane","plain","weather","whether"]},"year5":{"all":["accommodate","accompany","aggressive","amateur","ancient","apparent","appreciate","attached","available","average","awkward","bargain","bruise","category","cemetery","committee","communicate","competition","conscience","conscious","convenience","correspond","criticise","curiosity","definite","desperate","determined","develop","environment","equipped"],"prefixes":["autobiography","autograph","automatic","bicycle","bilingual","circumference","international","interchangeable","interrupt","intervene","submarine","submerge","substandard","subtitle","subway","supermarket","supernatural","supervise","microphone","microscope","multimedia","multitude","multiply","antibiotic","antibody","anticlockwise","antiseptic","antidote"],"suffixes":["comfortable","adorable","readable","believable","achievable","acceptable","considerable","manageable","desirable","enjoyable","possible","responsible","terrible","sensible","visible","horrible","flexible","audible","eligible","legible","capable","reliable","suitable","valuable","charitable","memorable","admirable","preferable","remarkable","reasonable"],"homophones":["aloud","allowed","altar","alter","ascent","assent","cereal","serial","council","counsel","current","currant","desert","dessert","gorilla","guerrilla","heard","herd","idle","idol","principal","principle","profit","prophet","stationary","stationery","complement","compliment","practice","practise"],"tricky":["necessary","occasion","occurred","possession","professional","programme","pronunciation","queue","recognise","recommend","relevant","restaurant","rhyme","rhythm","sacrifice","secretary","shoulder","signature","significant","sincerely","soldier","stomach","sufficient","suggest","symbol","system","temperature","thorough","twelfth","variety"]},"year6":{"all":["absence","acknowledge","acquire","adequate","adolescent","advantage","adversity","aggressive","alleviate","ambiguous","ambivalent","anticipate","appreciate","approximate","arbitrary","architect","arithmetic","arrogant","assessment","associate","atmosphere","authentic","beneficial","catastrophe","chronological","circumstance","coincidence","collaborate","commemorate","communicate"],"prefixes":["counteract","counterbalance","counterpart","decompose","deforestation","demolish","democracy","demonstrate","exaggerate","exceed","excellent","exception","exclusive","existence","exhibition","exhausted","experience","experiment","explanation","exploration","comprehensive","comprehend","concentrate","conclusion","contradiction","convenience","correspond","enthusiasm","equivalent","exquisite"],"suffixes":["advertisement","announcement","arrangement","astonishment","attachment","bewilderment","commitment","compartment","contentment","disappointment","encouragement","enjoyment","entertainment","environment","establishment","excitement","improvement","involvement","measurement","nourishment","punishment","refreshment","replacement","requirement","resentment","achievement","development","acknowledgement"],"homophones":["precedence","precedents","principal","principle","profit","prophet","stationary","stationery","complement","compliment","affect","effect","accept","except","eminent","imminent","ensure","insure","enquire","inquire","formally","formerly","licence","license","practise","practice","advice","advise","device","devise"],"tricky":["accommodate","conscience","conscientious","controversy","correspondence","discrepancy","embarrass","exaggerate","existence","extraordinary","familiar","foreign","guarantee","immediately","independent","innocence","irrelevant","mischievous","necessary","noticeable","occasionally","occurrence","parliament","perseverance","prejudice","privilege","pronunciation","questionnaire","relevant","responsibility"]}};
-
 // ── Language config ───────────────────────────────────────────────────────────
 const LANGUAGES = {
-  nl: {label:"NL", standaard:STANDAARD_NL, voiceLang:"nl"},
-  en: {label:"EN", standaard:STANDAARD_EN, voiceLang:"en"},
+  nl: { label: 'NL', voiceLang: 'nl' },
+  en: { label: 'EN', voiceLang: 'en' },
 };
 
-// ── UI strings ────────────────────────────────────────────────────────────────
-const UI = {
-  nl: {
-    appTitle:"✏️ Dictee",appSubtitle:"Oefenen met woorden schrijven",
-    tabs:{oefenen:"📝 Oefenen",woordenbank:"📚 Woordenbank",fouten:"❌ Fouten"},
-    levelLabel:"📚 Niveau",catsLabel:"🏷️ Categorieën",catsHint:"(meerdere mogelijk)",
-    clearBtn:"✕ wis",wordCountLabel:"🔢 Aantal woorden",
-    weightLabel:"⚖️ Weging op fouten",
-    weightHint:"Woorden met meer fouten krijgen een hogere kans om te verschijnen.",
-    weightModes:{uit:"Uit",licht:"Licht (×2/×3)",normaal:"Normaal (×3/×6)",zwaar:"Zwaar (×5/×15)"},
-    voiceLabel:"🔊 Stem",voiceAuto:"Automatisch (Nederlands)",voicesLoading:"Stemmen laden...",
-    testVoiceBtn:"🔊 Testzin afspelen",testSentence:"Dit is een testje van de geselecteerde stem.",
-    customLabel:"✏️ Of gebruik eigen woorden (één per regel)",
-    customPlaceholder:"Laat leeg voor woorden uit de woordenbank\nOf typ eigen woorden:\nboot\nfiets\nschool",
-    startBtn:"▶ Start dictee",
-    wbHint:"Klik op een categorie om woorden te bekijken, toe te voegen of te verwijderen. Woorden met fouten worden oranje/rood gemarkeerd.",
-    wbLevelLabel:"Niveau",wbAddBtn:"+ Voeg toe",wbAddPlaceholder:"Woord toevoegen (Enter of +)",
-    wbCollapse:"inklappen",wbExpand:"uitklappen",wbNoWords:"Geen woorden",
-    foutHint:"Woorden gesorteerd op aantal fouten. Woorden die goed gaan verdwijnen hier automatisch.",
-    foutNone:"Nog geen fouten geregistreerd.",
-    foutWrongSuffix:"× fout",foutRightSuffix:"× goed",
-    foutClearBtn:"🗑 Wis alle fouthistorie",foutClearConfirm:"Alle fouthistorie wissen?",
-    fileTitle:"📂 Woordenlijst beheren",fileHint:"Importeer of exporteer",fileCode:"woordenlijst.json",
-    fileActive:"✅ Aangepaste woordenlijst actief",
-    fileImportBtn:"📁 Importeer JSON",fileExportBtn:"⬇ Exporteer JSON",fileResetBtn:"↺ Herstel standaard",
-    fileErrorPrefix:"Kon JSON niet laden: ",fileErrorFormat:"Geen geldig formaat (verwacht ten minste één niveau)",
-    errorNoWords:"Geen woorden gevonden. Kies een andere categorie of voeg woorden toe.",
-    dicteeWord:"Woord",dicteeOf:"van",dicteeHint:"Klik op 🔊 om het woord te horen",
-    dicteeInputPlaceholder:"Typ hier het woord...",
-    dicteeCheckBtn:"✓ Controleer",dicteeNextBtn:"Volgende →",dicteeStopBtn:"✕ Stoppen en terug naar menu",
-    praise:["Super goed! 🌟","Geweldig! 🎉","Top! ✨","Bravo! 🦄","Perfect! 🏆"],
-    wellDone:"Goed gedaan!",wrongMsg:w=>`Het goede woord is: "${w}"`,
-    resultsPct:"% goed",resultsRetryBtn:"↺ Opnieuw",resultsWrongBtn:"🔄 Foute woorden",resultsYou:"jij:",
-    wordsCount:n=>`${n} woorden`,
-  },
-  en: {
-    appTitle:"✏️ Spelling",appSubtitle:"Practice spelling words",
-    tabs:{oefenen:"📝 Practice",woordenbank:"📚 Word Bank",fouten:"❌ Mistakes"},
-    levelLabel:"📚 Year group",catsLabel:"🏷️ Categories",catsHint:"(multiple allowed)",
-    clearBtn:"✕ clear",wordCountLabel:"🔢 Number of words",
-    weightLabel:"⚖️ Weight on mistakes",
-    weightHint:"Words with more mistakes will appear more often.",
-    weightModes:{uit:"Off",licht:"Light (×2/×3)",normaal:"Normal (×3/×6)",zwaar:"Heavy (×5/×15)"},
-    voiceLabel:"🔊 Voice",voiceAuto:"Automatic (English)",voicesLoading:"Loading voices...",
-    testVoiceBtn:"🔊 Play test sentence",testSentence:"This is a test of the selected voice.",
-    customLabel:"✏️ Or use your own words (one per line)",
-    customPlaceholder:"Leave empty for words from the word bank\nOr type your own:\ncat\ndog\nschool",
-    startBtn:"▶ Start spelling",
-    wbHint:"Click a category to view, add or remove words. Words with mistakes are highlighted in orange/red.",
-    wbLevelLabel:"Year group",wbAddBtn:"+ Add",wbAddPlaceholder:"Add word (Enter or +)",
-    wbCollapse:"collapse",wbExpand:"expand",wbNoWords:"No words",
-    foutHint:"Words sorted by number of mistakes. Words you get right will disappear automatically.",
-    foutNone:"No mistakes recorded yet.",
-    foutWrongSuffix:"× wrong",foutRightSuffix:"× correct",
-    foutClearBtn:"🗑 Clear all mistake history",foutClearConfirm:"Clear all mistake history?",
-    fileTitle:"📂 Word list management",fileHint:"Import or export",fileCode:"wordlist.json",
-    fileActive:"✅ Custom word list active",
-    fileImportBtn:"📁 Import JSON",fileExportBtn:"⬇ Export JSON",fileResetBtn:"↺ Restore default",
-    fileErrorPrefix:"Could not load JSON: ",fileErrorFormat:"Invalid format (expected at least one level)",
-    errorNoWords:"No words found. Choose another category or add words.",
-    dicteeWord:"Word",dicteeOf:"of",dicteeHint:"Click 🔊 to hear the word",
-    dicteeInputPlaceholder:"Type the word here...",
-    dicteeCheckBtn:"✓ Check",dicteeNextBtn:"Next →",dicteeStopBtn:"✕ Stop and back to menu",
-    praise:["Excellent! 🌟","Amazing! 🎉","Great! ✨","Brilliant! 🦄","Perfect! 🏆"],
-    wellDone:"Well done!",wrongMsg:w=>`The correct word is: "${w}"`,
-    resultsPct:"% correct",resultsRetryBtn:"↺ Again",resultsWrongBtn:"🔄 Wrong words",resultsYou:"you:",
-    wordsCount:n=>`${n} words`,
-  },
-};
+// Single-substitution template helper  ({word}, {n}, etc.)
+function t(str, val) { return String(str).replace(/\{\w+\}/, val); }
 
 // ── Gewichten ─────────────────────────────────────────────────────────────────
 const WEIGHT_MODES = {
@@ -332,16 +305,29 @@ function FoutTab({ history, setHistory, ui }) {
   </>);
 }
 
+// ── Initialiseer vanuit favoriet (URL ?fav=id) ────────────────────────────────
+function loadInitFav() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const favId = params.get('fav');
+    if (!favId) return null;
+    const favs = JSON.parse(localStorage.getItem('thuiswerk_favorites') || '[]');
+    const fav = favs.find(f => f.id === favId && f.app === 'dictee');
+    return fav ? fav.settings : null;
+  } catch(e) { return null; }
+}
+
 // ── Hoofdapp ──────────────────────────────────────────────────────────────────
 function App() {
-  const [lang, setLang]             = useState("nl");
-  const [woorden, setWoorden]       = useState(STANDAARD_NL);
+  const [lang, setLang]             = useState(window._initLang);
+  const [ui,   setUi]               = useState(window._i18n[window._initLang]?.dictee || null);
+  const [woorden, setWoorden]       = useState(window._words[window._initLang] || null);
   const [geladen, setGeladen]       = useState(false);
   const [history, setHistoryState]  = useState(loadHistory);
   const [screen, setScreen]         = useState("setup");
   const [tab, setTab]               = useState("oefenen");
-  const [level, setLevel]           = useState("groep5");
-  const [wbLevel, setWbLevel]       = useState("groep5");
+  const [level, setLevel]           = useState(window._initLang === 'nl' ? 'groep5' : 'year3');
+  const [wbLevel, setWbLevel]       = useState(window._initLang === 'nl' ? 'groep5' : 'year3');
   const [selCats, setSelCats]       = useState([]);
   const [wordCount, setWordCount]   = useState(10);
   const [weightMode, setWeightMode] = useState("normaal");
@@ -361,11 +347,53 @@ function App() {
   const fileRef  = useRef(null);
   const voices   = useVoices();
 
-  const ui         = UI[lang];
-  const labels     = woorden._labels || {};
-  const levelLabels = woorden._level_labels || {};
-  const availLevels = Object.keys(woorden).filter(k => !k.startsWith('_'));
-  const availCats   = Object.keys(woorden[level] || {}).filter(k => k !== "all");
+  // Luister naar globale taalwissel vanuit de sidebar
+  useEffect(() => {
+    const handler = (e) => { if (e.detail !== lang) switchLang(e.detail); };
+    window.addEventListener('thuiswerk:setLang', handler);
+    return () => window.removeEventListener('thuiswerk:setLang', handler);
+  }, [lang]);
+
+  // Registreer instellingen-API voor de sidebar (na elke render zodat closures vers zijn)
+  useEffect(() => {
+    window.THUISWERK_APP.getSettings = () => ({
+      lang, level, selCats, wordCount, weightMode, selectedVoice, customText
+    });
+    window.THUISWERK_APP.applySettings = (s) => {
+      if (s.wordCount  !== undefined) setWordCount(s.wordCount);
+      if (s.weightMode !== undefined) setWeightMode(s.weightMode);
+      if (s.selectedVoice !== undefined) setSelectedVoice(s.selectedVoice);
+      if (s.customText !== undefined) setCustomText(s.customText);
+      if (s.lang && s.lang !== lang) {
+        switchLang(s.lang);
+      } else {
+        if (s.level !== undefined) { setLevel(s.level); setWbLevel(s.level); }
+        if (s.selCats !== undefined) setSelCats(s.selCats);
+        setScreen('setup'); setTab('oefenen');
+      }
+    };
+  });
+
+  // Laad favoriet vanuit URL (?fav=id) bij eerste render
+  useEffect(() => {
+    const s = loadInitFav();
+    if (!s) return;
+    if (s.wordCount  !== undefined) setWordCount(s.wordCount);
+    if (s.weightMode !== undefined) setWeightMode(s.weightMode);
+    if (s.selectedVoice !== undefined) setSelectedVoice(s.selectedVoice);
+    if (s.customText !== undefined) setCustomText(s.customText);
+    if (s.lang && s.lang !== lang) {
+      switchLang(s.lang);
+    } else {
+      if (s.level !== undefined) { setLevel(s.level); setWbLevel(s.level); }
+      if (s.selCats !== undefined) setSelCats(s.selCats);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const labels      = woorden?._labels || {};
+  const levelLabels = woorden?._level_labels || {};
+  const availLevels = woorden ? Object.keys(woorden).filter(k => !k.startsWith('_')) : [];
+  const availCats   = woorden ? Object.keys(woorden[level] || {}).filter(k => k !== "all") : [];
 
   function catLabel(id) { return labels[id] || id; }
 
@@ -373,11 +401,13 @@ function App() {
     setHistoryState(prev => { const next = typeof fn==="function"?fn(prev):fn; saveHistory(next); return next; });
   }
 
-  function switchLang(lc) {
-    const cfg = LANGUAGES[lc];
-    const firstLevel = Object.keys(cfg.standaard).filter(k => !k.startsWith('_'))[0];
+  async function switchLang(lc) {
+    const [i18n, words] = await Promise.all([loadI18n(lc), loadWords(lc)]);
+    const firstLevel = Object.keys(words).filter(k => !k.startsWith('_'))[0];
+    localStorage.setItem('thuiswerk_lang', lc);
     setLang(lc);
-    setWoorden(cfg.standaard);
+    setUi(i18n.dictee);
+    setWoorden(words);
     setGeladen(false);
     setLevel(firstLevel);
     setWbLevel(firstLevel);
@@ -438,7 +468,7 @@ function App() {
     setResults(prev=>[...prev,{word:correct,answer:answer.trim().toLowerCase(),correct:ok}]);
     setHistory(h=>recordResult(h,correct,ok));
     setAnsState(ok?"correct":"wrong");
-    setFbMsg(ok?ui.praise[Math.floor(Math.random()*ui.praise.length)]:ui.wrongMsg(correct));
+    setFbMsg(ok?ui.praise[Math.floor(Math.random()*ui.praise.length)]:t(ui.wrongMsg, correct));
     setShowNext(true);
     if(ok) speak(ui.wellDone,null,selectedVoice,lang);
     else setTimeout(()=>speak(correct,null,selectedVoice,lang),300);
@@ -472,7 +502,7 @@ function App() {
     <div style={S.page}>
       <div style={{fontFamily:"'Fredoka One',cursive",fontSize:"2.5rem",color:C.navy,textShadow:`3px 3px 0 ${C.yellow}`,marginBottom:3,textAlign:"center"}}>{ui.appTitle}</div>
       <div style={{fontSize:"0.92rem",color:C.blue,fontWeight:800,marginBottom:8,textAlign:"center"}}>{ui.appSubtitle}</div>
-      <div style={{display:"flex",gap:5,marginBottom:14}}>
+      <div className="tw-lang-toggle" style={{display:"flex",gap:5,marginBottom:14}}>
         {Object.keys(LANGUAGES).map(lc=>(
           <button key={lc} style={S.chip(lang===lc)} onClick={()=>switchLang(lc)}>{LANGUAGES[lc].label}</button>
         ))}
@@ -507,7 +537,7 @@ function App() {
 
             <label style={S.lbl}>{ui.wordCountLabel}</label>
             <select style={S.sel} value={wordCount} onChange={e=>setWordCount(+e.target.value)}>
-              {[5,10,15,20].map(n=><option key={n} value={n}>{ui.wordsCount(n)}</option>)}
+              {[5,10,15,20].map(n=><option key={n} value={n}>{t(ui.wordsCount, n)}</option>)}
             </select>
 
             <label style={S.lbl}>{ui.weightLabel}</label>
@@ -570,7 +600,7 @@ function App() {
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
             <button style={S.btn("#e8f4ff",C.blue,true)} onClick={()=>fileRef.current?.click()}>{ui.fileImportBtn}</button>
             <button style={S.btn("#edfff3","#2a8a4a",true)} onClick={()=>exportJSON(woorden)}>{ui.fileExportBtn}</button>
-            {geladen && <button style={S.btn("#fff0f1",C.red,true)} onClick={()=>{setWoorden(LANGUAGES[lang].standaard);setGeladen(false);setSelCats([]);}}>{ui.fileResetBtn}</button>}
+            {geladen && <button style={S.btn("#fff0f1",C.red,true)} onClick={()=>{setWoorden(window._words[lang]);setGeladen(false);setSelCats([]);}}>{ui.fileResetBtn}</button>}
           </div>
           <input ref={fileRef} type="file" accept=".json" style={{display:"none"}} onChange={handleFileLoad}/>
         </div>
@@ -641,8 +671,11 @@ function App() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+window.APP_READY.then(() => {
+  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+});
 </script>
+<script src="sidebar.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});

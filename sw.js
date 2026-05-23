@@ -1,11 +1,21 @@
-const CACHE = 'thuiswerk-v1';
+const CACHE = 'thuiswerk-v4';
 const ASSETS = [
   '/Thuiswerk/',
   '/Thuiswerk/index.html',
   '/Thuiswerk/dictee.html',
   '/Thuiswerk/rekentoets.html',
+  '/Thuiswerk/topografie.html',
+  '/Thuiswerk/sidebar.js',
   '/Thuiswerk/manifest.json',
   '/Thuiswerk/icons/icon.svg',
+  '/Thuiswerk/i18n-nl.json',
+  '/Thuiswerk/i18n-en.json',
+  '/Thuiswerk/words-nl.json',
+  '/Thuiswerk/words-en.json',
+  '/Thuiswerk/topo-nl.json',
+  '/Thuiswerk/topo-europe.json',
+  '/Thuiswerk/topo-world.json',
+  '/Thuiswerk/topo-physical.json',
 ];
 
 self.addEventListener('install', e => {

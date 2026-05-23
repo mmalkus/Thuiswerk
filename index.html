@@ -29,6 +29,10 @@
     --reken-card:    #161616;
     --reken-accent:  #e8ff47;
     --reken-text:    #f0f0f0;
+    --topo-bg:       #080f08;
+    --topo-card:     #0f1a0f;
+    --topo-accent:   #4ade80;
+    --topo-text:     #dff5df;
   }
 
   html, body {
@@ -118,6 +122,23 @@
     color: var(--dictee-accent);
   }
 
+  /* Topografie card — dark green */
+  .card-topo {
+    background: var(--topo-bg);
+    color: var(--topo-text);
+  }
+  .card-topo .card-header {
+    background: var(--topo-card);
+    border-bottom: 1px solid #1e3a1e;
+  }
+  .card-topo .tag {
+    background: var(--topo-accent);
+    color: #000;
+  }
+  .card-topo .arrow {
+    color: var(--topo-accent);
+  }
+
   /* Rekentoets card — dark */
   .card-reken {
     background: var(--reken-bg);
@@ -198,6 +219,82 @@
 
   .card:hover .arrow { transform: translateX(5px); }
 
+  /* Favorieten sectie */
+  .fav-section {
+    display: none;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 640px;
+    margin-top: 1.5rem;
+  }
+
+  .fav-heading {
+    color: var(--muted);
+    font-size: 0.76rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .fav-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  .fav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 0.7rem 1rem;
+    transition: border-color 0.15s;
+  }
+  .fav-item:hover { border-color: #818cf8; }
+
+  .fav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    text-decoration: none;
+  }
+
+  .fav-icon { font-size: 1.3rem; line-height: 1; flex-shrink: 0; }
+
+  .fav-name {
+    flex: 1;
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+
+  .fav-badge {
+    font-size: 0.68rem;
+    font-weight: 900;
+    padding: 2px 8px;
+    border-radius: 99px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  .fav-del {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 3px 7px;
+    border-radius: 7px;
+    transition: color 0.15s, background 0.15s;
+    flex-shrink: 0;
+  }
+  .fav-del:hover { color: #ff5c6a; background: rgba(255,92,106,0.12); }
+
   #install-btn {
     display: none;
     margin-top: 2rem;
@@ -253,6 +350,20 @@
     </div>
   </a>
 
+  <a href="topografie.html" class="card card-topo">
+    <div class="card-header">
+      <span class="emoji">🗺️</span>
+      <span class="card-title">Topografie</span>
+    </div>
+    <div class="card-body">
+      <p class="card-desc">Oefen provincies, steden, rivieren, landen en hoofdsteden. Met klik- en typmodus.</p>
+      <div class="card-footer">
+        <span class="tag">NL · EN</span>
+        <span class="arrow">→</span>
+      </div>
+    </div>
+  </a>
+
   <a href="rekentoets.html" class="card card-reken">
     <div class="card-header">
       <span class="emoji">🔢</span>
@@ -269,6 +380,11 @@
 
 </div>
 
+<div class="fav-section" id="fav-section">
+  <div class="fav-heading">⭐ Favorieten</div>
+  <div class="fav-list" id="fav-list"></div>
+</div>
+
 <button id="install-btn">📲 Installeer app</button>
 
 <footer>Thuiswerk — offline beschikbaar</footer>
@@ -277,6 +393,49 @@
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }
+
+  // ── Favorieten ──────────────────────────────────────────────────────────
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function getFavs() {
+    try { return JSON.parse(localStorage.getItem('thuiswerk_favorites') || '[]'); } catch(e) { return []; }
+  }
+
+  function renderFavs() {
+    const favs = getFavs();
+    const section = document.getElementById('fav-section');
+    const list    = document.getElementById('fav-list');
+    if (favs.length === 0) { section.style.display = 'none'; return; }
+    section.style.display = 'flex';
+    list.innerHTML = favs.map(f => {
+      const icon  = f.app === 'dictee' ? '📝' : f.app === 'topo' ? '🗺️' : '🔢';
+      const page  = f.app === 'dictee' ? 'dictee.html' : f.app === 'topo' ? 'topografie.html' : 'rekentoets.html';
+      const url   = page + '?fav=' + f.id;
+      const badge = f.app === 'dictee'
+        ? '<span class="fav-badge" style="background:#3b9eff;color:#fff">Dictee</span>'
+        : f.app === 'topo'
+        ? '<span class="fav-badge" style="background:#4ade80;color:#000">Topo</span>'
+        : '<span class="fav-badge" style="background:#e8ff47;color:#000">Rekenen</span>';
+      return `<div class="fav-item">
+        <a href="${url}" class="fav-link">
+          <span class="fav-icon">${icon}</span>
+          <span class="fav-name">${escHtml(f.name)}</span>
+          ${badge}
+        </a>
+        <button class="fav-del" onclick="deleteFav('${f.id}')" title="Verwijder">✕</button>
+      </div>`;
+    }).join('');
+  }
+
+  function deleteFav(id) {
+    const favs = getFavs().filter(f => f.id !== id);
+    try { localStorage.setItem('thuiswerk_favorites', JSON.stringify(favs)); } catch(e) {}
+    renderFavs();
+  }
+
+  renderFavs();
 
   let deferredPrompt;
   const installBtn = document.getElementById('install-btn');

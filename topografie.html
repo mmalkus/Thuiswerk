@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="nl" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topografie</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4ade80">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Topografie">
+<link rel="apple-touch-icon" href="icons/icon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #080f08; --surface: #0f1a0f; --surface2: #162016;
+    --border: #1e3a1e; --accent: #4ade80; --text: #dff5df;
+    --muted: #4a7a4a; --bad: #f87171; --blue: #38bdf8; --orange: #fb923c;
+  }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Nunito', sans-serif; }
+  .screen { display: none; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* ── Map feature styles ── */
+  .feat-province { fill: rgba(74,222,128,.10); stroke: rgba(74,222,128,.45); stroke-width: 1.2px; }
+  .feat-country  { fill: rgba(74,222,128,.07); stroke: rgba(74,222,128,.30); stroke-width: 0.6px; }
+  .feat-river    { fill: none; stroke: #38bdf8; stroke-width: 2px; stroke-linecap: round; stroke-linejoin: round; }
+  .feat-mountain { fill: rgba(251,146,60,.10); stroke: rgba(251,146,60,.40); stroke-width: 0.9px; }
+  .feat-sea      { fill: rgba(56,189,248,.08); stroke: rgba(56,189,248,.28); stroke-width: 0.6px; }
+  .feat-city     { fill: #c8e8c8; stroke: #4ade80; stroke-width: 1.5px; }
+  .feat-capital  { fill: #fbbf24; stroke: #f59e0b; stroke-width: 1.5px; }
+  .feat-bg { opacity: .35; pointer-events: none; }
+  .game-click .quizzable { cursor: pointer; }
+  .game-click .quizzable:hover { opacity: .72; }
+  /* highlighted (type mode) */
+  .feat-hi.feat-province,.feat-hi.feat-country,.feat-hi.feat-mountain,.feat-hi.feat-sea {
+    fill: rgba(74,222,128,.40) !important; stroke: #4ade80 !important; stroke-width: 2.5px !important; }
+  .feat-hi.feat-river { stroke: #67e8f9 !important; stroke-width: 4.5px !important; }
+  /* correct answer */
+  .feat-ok.feat-province,.feat-ok.feat-country,.feat-ok.feat-mountain,.feat-ok.feat-sea {
+    fill: rgba(74,222,128,.55) !important; stroke: #4ade80 !important; stroke-width: 2.5px !important; }
+  .feat-ok.feat-river { stroke: #4ade80 !important; stroke-width: 5px !important; }
+  /* wrong click */
+  .feat-err.feat-province,.feat-err.feat-country,.feat-err.feat-mountain,.feat-err.feat-sea {
+    fill: rgba(248,113,113,.40) !important; stroke: #f87171 !important; stroke-width: 2.5px !important; }
+  .feat-err.feat-river { stroke: #f87171 !important; stroke-width: 4px !important; }
+
+  /* ── Settings Screen ── */
+  #settingsScreen { min-height: 100dvh; align-items: center; justify-content: flex-start; padding: 24px 16px 64px; }
+  .s-card { width: 100%; max-width: 540px; background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; padding: 24px 20px 20px; }
+  .s-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .s-title { font-size: 1.5rem; font-weight: 900; color: var(--accent); }
+  .s-row { margin-bottom: 18px; }
+  .s-label { font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { background: var(--bg); border: 1.5px solid var(--border); border-radius: 99px; padding: 5px 13px; font-family: 'Nunito', sans-serif; font-size: .82rem; font-weight: 800; color: var(--muted); cursor: pointer; transition: all .15s; }
+  .chip:hover { border-color: var(--accent); color: var(--text); }
+  .chip.on { background: rgba(74,222,128,.12); border-color: var(--accent); color: var(--accent); }
+  .lang-toggle-wrap { display: flex; gap: 6px; }
+  .lang-chip { background: var(--bg); border: 1.5px solid var(--border); border-radius: 99px; padding: 4px 12px; font-family: 'Nunito', sans-serif; font-size: .8rem; font-weight: 800; color: var(--muted); cursor: pointer; }
+  .lang-chip.on { border-color: var(--accent); color: var(--accent); background: rgba(74,222,128,.08); }
+  body.tw-sidebar-active .lang-toggle-wrap { display: none; }
+  .timer-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .num-input { background: var(--bg); border: 1.5px solid var(--border); border-radius: 7px; color: var(--text); font-family: 'Nunito', sans-serif; font-size: .88rem; font-weight: 700; padding: 5px 10px; width: 62px; text-align: center; outline: none; -moz-appearance: textfield; }
+  .num-input::-webkit-outer-spin-button, .num-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .num-input:focus { border-color: var(--accent); }
+  .start-btn { background: var(--accent); color: #000; border: none; border-radius: 9px; font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 900; padding: 14px; cursor: pointer; width: 100%; margin-top: 20px; transition: opacity .15s; }
+  .start-btn:hover { opacity: .85; }
+
+  /* ── Game Screen ── */
+  #gameScreen { position: fixed; inset: 0; z-index: 50; background: var(--bg); overflow: hidden; }
+  .g-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; flex-shrink: 0; border-bottom: 1px solid var(--border); gap: 12px; }
+  .g-title { font-size: .75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); flex: 1; }
+  .g-progress { font-size: .85rem; font-weight: 900; color: var(--accent); }
+  .g-stop { background: transparent; border: 1px solid var(--border); border-radius: 5px; color: var(--muted); font-family: 'Nunito', sans-serif; font-size: .78rem; font-weight: 800; padding: 4px 10px; cursor: pointer; }
+  .g-stop:hover { color: var(--bad); border-color: var(--bad); }
+  .g-timer-bar { flex-shrink: 0; height: 4px; background: var(--border); }
+  .g-timer-fill { height: 100%; background: var(--accent); transition: width .1s linear, background .5s; }
+  .g-timer-fill.warn { background: var(--orange); }
+  .g-timer-fill.danger { background: var(--bad); }
+  .g-prompt { flex-shrink: 0; padding: 10px 16px; min-height: 52px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+  .g-prompt-text { font-size: 1rem; font-weight: 800; color: var(--text); }
+  .g-prompt-name { color: var(--accent); }
+  .g-type-inp { flex: 1; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 700; padding: 8px 12px; outline: none; min-width: 0; }
+  .g-type-inp:focus { border-color: var(--accent); }
+  .g-ok { background: var(--accent); color: #000; border: none; border-radius: 7px; font-family: 'Nunito', sans-serif; font-size: .9rem; font-weight: 900; padding: 8px 16px; cursor: pointer; flex-shrink: 0; }
+  .g-ok:hover { opacity: .85; }
+  .map-wrap { flex: 1; overflow: hidden; min-height: 0; }
+  #mapSvg { width: 100%; height: 100%; display: block; }
+  .g-feedback { flex-shrink: 0; min-height: 36px; padding: 8px 16px; font-size: .9rem; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+
+  /* ── Results Screen ── */
+  #resultScreen { min-height: 100dvh; align-items: center; justify-content: flex-start; padding: 24px 16px 64px; }
+  .r-card { width: 100%; max-width: 540px; background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; padding: 28px 20px 20px; }
+  .r-score-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 20px; }
+  .r-score { font-size: 3.5rem; font-weight: 900; color: var(--accent); line-height: 1; }
+  .r-meta { font-size: .88rem; font-weight: 800; color: var(--muted); }
+  .r-list { list-style: none; max-height: 300px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border) transparent; margin-bottom: 16px; }
+  .r-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 6px; margin-bottom: 4px; font-size: .85rem; font-weight: 700; }
+  .r-item.ok  { background: rgba(74,222,128,.08); }
+  .r-item.err { background: rgba(248,113,113,.08); }
+  .r-item-name { flex: 1; }
+  .r-item-sub { color: var(--muted); font-size: .78rem; }
+  .r-btns { display: flex; gap: 8px; }
+  .r-btn-o { flex: 1; background: transparent; color: var(--accent); border: 2px solid var(--accent); border-radius: 8px; font-family: 'Nunito', sans-serif; font-size: .88rem; font-weight: 900; padding: 13px 8px; cursor: pointer; }
+  .r-btn-o:hover { background: var(--accent); color: #000; }
+  .r-btn-s { flex: 1; background: var(--accent); color: #000; border: 2px solid var(--accent); border-radius: 8px; font-family: 'Nunito', sans-serif; font-size: .88rem; font-weight: 900; padding: 13px 8px; cursor: pointer; }
+  .r-btn-s:hover { opacity: .85; }
+</style>
+</head>
+<body>
+<script>
+window.THUISWERK_APP = { id: 'topo', theme: 'dark', primaryColor: '#4ade80', textColor: '#dff5df' };
+window._i18n = window._i18n || {};
+window._initLang = (function () {
+  try {
+    var fav = new URLSearchParams(location.search).get('fav');
+    if (fav) {
+      var favs = JSON.parse(localStorage.getItem('thuiswerk_favorites') || '[]');
+      var f = favs.find(function (x) { return x.id === fav && x.app === 'topo'; });
+      if (f && f.settings && f.settings.lang) return f.settings.lang;
+    }
+  } catch (e) {}
+  return localStorage.getItem('thuiswerk_lang') || 'nl';
+}());
+function loadI18n(lc) {
+  return window._i18n[lc]
+    ? Promise.resolve(window._i18n[lc])
+    : fetch('i18n-' + lc + '.json').then(function (r) { return r.json(); })
+        .then(function (d) { window._i18n[lc] = d; return d; });
+}
+window.APP_READY = loadI18n(window._initLang);
+</script>
+
+<!-- ══ Settings Screen ══ -->
+<div id="settingsScreen" class="screen active">
+  <div class="s-card">
+    <div class="s-head">
+      <div class="s-title" id="sTitle">🗺️ Topografie</div>
+      <div class="lang-toggle-wrap">
+        <button class="lang-chip on" data-lc="nl" onclick="switchLang('nl')">NL</button>
+        <button class="lang-chip" data-lc="en" onclick="switchLang('en')">EN</button>
+      </div>
+    </div>
+    <div class="s-row">
+      <div class="s-label" id="sMapLabel">Kaart</div>
+      <div class="chips" id="mapChips">
+        <button class="chip on" data-map="nl"       onclick="selectMap('nl')">🇳🇱 Nederland</button>
+        <button class="chip"    data-map="europe"   onclick="selectMap('europe')">🌍 Europa</button>
+        <button class="chip"    data-map="world"    onclick="selectMap('world')">🌐 Wereld</button>
+        <button class="chip"    data-map="physical" onclick="selectMap('physical')">📏 Fysisch</button>
+      </div>
+    </div>
+    <div class="s-row">
+      <div class="s-label" id="sTypeLabel">Onderdelen</div>
+      <div class="chips" id="typeChips"></div>
+    </div>
+    <div class="s-row">
+      <div class="s-label" id="sModeLabel">Modus</div>
+      <div class="chips">
+        <button class="chip on" data-mode="click" onclick="selectMode('click')" id="modeClickChip">Klik op kaart</button>
+        <button class="chip"    data-mode="type"  onclick="selectMode('type')"  id="modeTypeChip">Typ de naam</button>
+      </div>
+    </div>
+    <div class="s-row">
+      <div class="s-label" id="sTimerLabel">Timer</div>
+      <div class="timer-row">
+        <button class="chip"    id="timerOnChip"  onclick="setTimerEnabled(true)">⏱ Aan</button>
+        <button class="chip on" id="timerOffChip" onclick="setTimerEnabled(false)">∞ Uit</button>
+        <input class="num-input" id="timerSecsInp" type="number" value="30" min="5" max="300"
+               style="opacity:.3;pointer-events:none;" onchange="settings.timerSecs=+this.value||30">
+        <span style="font-size:.8rem;color:var(--muted);" id="sSecLabel">sec</span>
+      </div>
+    </div>
+    <div class="s-row">
+      <div class="s-label" id="sCountLabel">Aantal vragen</div>
+      <div class="chips" id="countChips">
+        <button class="chip"    data-n="5"  onclick="selectCount(5)">5</button>
+        <button class="chip on" data-n="10" onclick="selectCount(10)">10</button>
+        <button class="chip"    data-n="15" onclick="selectCount(15)">15</button>
+        <button class="chip"    data-n="20" onclick="selectCount(20)">20</button>
+      </div>
+    </div>
+    <button class="start-btn" id="startBtn" onclick="startGame()">▶ Start</button>
+  </div>
+</div>
+
+<!-- ══ Game Screen ══ -->
+<div id="gameScreen" class="screen">
+  <div class="g-header">
+    <span class="g-title" id="gTitle">Topografie</span>
+    <span class="g-progress" id="gProgress">1/10</span>
+    <button class="g-stop" id="gStop" onclick="stopGame()">✕ stop</button>
+  </div>
+  <div class="g-timer-bar" id="gTimerBar" style="display:none;">
+    <div class="g-timer-fill" id="gTimerFill" style="width:100%;"></div>
+  </div>
+  <div class="g-prompt" id="gPrompt"></div>
+  <div class="map-wrap">
+    <svg id="mapSvg" preserveAspectRatio="xMidYMid meet" style="overflow:hidden;"></svg>
+  </div>
+  <div class="g-feedback" id="gFeedback"></div>
+</div>
+
+<!-- ══ Results Screen ══ -->
+<div id="resultScreen" class="screen">
+  <div class="r-card">
+    <div class="r-score-row">
+      <div class="r-score" id="rScore">0</div>
+      <div class="r-meta" id="rMeta">van 10 goed</div>
+    </div>
+    <ul class="r-list" id="rList"></ul>
+    <div class="r-btns">
+      <button class="r-btn-o" id="rSettingsBtn" onclick="showScreen('settingsScreen')">⚙ Instellingen</button>
+      <button class="r-btn-s" id="rRetryBtn"    onclick="startGame()">↩ Opnieuw</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══ Constants ══════════════════════════════════════════════════════════════ */
+const MAP_FILES = { nl:'topo-nl.json', europe:'topo-europe.json', world:'topo-world.json', physical:'topo-physical.json' };
+const MAP_CONTAINS = { nl:['province','city','river'], europe:['country','capital'], world:['country','capital'], physical:['river','mountain','sea'] };
+const MAP_DEFAULT  = { nl:['province'], europe:['country'], world:['country'], physical:['river'] };
+// [lonMin, latMin, lonMax, latMax]
+const MAP_BOUNDS   = { nl:[3.2,50.7,7.3,53.7], europe:[-25,34,50,72], world:[-180,-60,180,80], physical:[-15,30,65,75] };
+const TYPE_LABEL_KEY = { province:'tTypeProvince', city:'tTypeCity', river:'tTypeRiver', country:'tTypeCountry', capital:'tTypeCapital', mountain:'tTypeMountain', sea:'tTypeSea' };
+
+/* ══ State ══════════════════════════════════════════════════════════════════ */
+let lang = window._initLang;
+let settings = { mapId:'nl', types:['province'], mode:'click', timerEnabled:false, timerSecs:30, questionCount:10 };
+const mapCache = {};
+let currentMapData = null;
+let queue = [];       // shuffled features for this session
+let qIdx  = 0;
+let score = 0;
+let results = [];
+let phase = 'idle';   // 'idle' | 'question' | 'feedback'
+let timerIv = null, timeLeft = 30;
+
+/* ══ Utilities ══════════════════════════════════════════════════════════════ */
+function u(key) {
+  const d = window._i18n[lang] && window._i18n[lang].topo;
+  return d && d[key] != null ? d[key] : key;
+}
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ══ Map Loading ════════════════════════════════════════════════════════════ */
+function loadMap(id) {
+  if (mapCache[id]) return Promise.resolve(mapCache[id]);
+  return fetch(MAP_FILES[id]).then(r => r.json()).then(d => { mapCache[id] = d; return d; });
+}
+
+/* ══ Projection ═════════════════════════════════════════════════════════════ */
+function buildProj(bounds, W, H, pad) {
+  function merc([lon, lat]) {
+    const c = Math.max(-89.5, Math.min(89.5, lat)) * Math.PI / 180;
+    return [lon * Math.PI / 180, Math.log(Math.tan(Math.PI/4 + c/2))];
+  }
+  const [x0,y0] = merc([bounds[0], bounds[1]]);
+  const [x1,y1] = merc([bounds[2], bounds[3]]);
+  const bw = x1-x0, bh = y1-y0;
+  const sc = Math.min((W-2*pad)/bw, (H-2*pad)/bh);
+  const ox = (W - bw*sc)/2, oy = (H - bh*sc)/2;
+  return ([lon, lat]) => {
+    const [mx,my] = merc([lon, lat]);
+    return [ox + (mx-x0)*sc, H - (oy + (my-y0)*sc)];
+  };
+}
+
+/* ══ SVG Path Helpers ═══════════════════════════════════════════════════════ */
+function ptStr(proj, pt) { const [x,y]=proj(pt); return x.toFixed(1)+','+y.toFixed(1); }
+
+function ringsToD(rings, proj) {
+  return rings.map(r => r.map((p,i) => (i?'L':'M')+ptStr(proj,p)).join('')+'Z').join(' ');
+}
+
+function geomToD(geom, proj) {
+  if (!geom) return '';
+  const c = geom.coordinates;
+  switch (geom.type) {
+    case 'Polygon':         return ringsToD(c, proj);
+    case 'MultiPolygon':    return c.map(p => ringsToD(p, proj)).join(' ');
+    case 'LineString':      return c.map((p,i) => (i?'L':'M')+ptStr(proj,p)).join('');
+    case 'MultiLineString': return c.map(l => l.map((p,i) => (i?'L':'M')+ptStr(proj,p)).join('')).join(' ');
+    default: return '';
+  }
+}
+
+/* ══ SVG Rendering ══════════════════════════════════════════════════════════ */
+function renderMap(highlightId, hlClass, wrongId) {
+  const svg = document.getElementById('mapSvg');
+  const W = svg.clientWidth || 800, H = svg.clientHeight || 500;
+  svg.setAttribute('viewBox', '0 0 '+W+' '+H);
+
+  const proj = buildProj(MAP_BOUNDS[settings.mapId], W, H, 14);
+  const quizSet = new Set(settings.types);
+  const clickMode = settings.mode === 'click';
+
+  svg.className = clickMode && phase === 'question' ? 'game-click' : '';
+
+  const RENDER_ORDER = ['sea','mountain','country','province','river','city','capital'];
+  const byType = {};
+  for (const f of currentMapData.features) { (byType[f.type] = byType[f.type]||[]).push(f); }
+
+  let html = '';
+  for (const type of RENDER_ORDER) {
+    for (const feat of (byType[type]||[])) {
+      html += featHtml(feat, proj, quizSet.has(feat.type), clickMode, highlightId, hlClass, wrongId);
+    }
+  }
+  svg.innerHTML = html;
+}
+
+function featHtml(feat, proj, isQuiz, clickMode, highlightId, hlClass, wrongId) {
+  const id = feat.id, type = feat.type;
+  const isPoint = type === 'city' || type === 'capital';
+  const isLine  = type === 'river';
+  let cls = 'feat feat-'+type;
+  if (!isQuiz)               cls += ' feat-bg';
+  if (id === highlightId)    cls += ' '+hlClass;
+  else if (id === wrongId)   cls += ' feat-err';
+  const qAttr = isQuiz ? ' class="'+cls+' quizzable"' : ' class="'+cls+'"';
+
+  if (isPoint) {
+    const [x,y] = proj(feat.coords);
+    const xs = x.toFixed(1), ys = y.toFixed(1);
+    const r = (id === highlightId && hlClass === 'feat-hi') ? '7' : '4.5';
+    if (isQuiz && clickMode) {
+      // Wide transparent hit target + visual
+      return '<circle cx="'+xs+'" cy="'+ys+'" r="11" fill="transparent" data-fid="'+id+'" class="quizzable hit-target"/>'+
+             '<circle cx="'+xs+'" cy="'+ys+'" r="'+r+'" class="'+cls+'" pointer-events="none"/>';
+    }
+    return '<circle cx="'+xs+'" cy="'+ys+'" r="'+r+'"'+qAttr+(isQuiz?' data-fid="'+id+'"':'')+'/>';
+  }
+
+  const d = geomToD(feat.geometry, proj);
+  if (!d) return '';
+
+  if (isLine) {
+    const strokeW = (id === highlightId) ? '' : '';
+    if (isQuiz && clickMode) {
+      return '<path d="'+d+'" fill="none" stroke="transparent" stroke-width="14" class="quizzable hit-target" data-fid="'+id+'" pointer-events="stroke"/>'+
+             '<path d="'+d+'" class="'+cls+'" pointer-events="none"/>';
+    }
+    return '<path d="'+d+'"'+qAttr+(isQuiz?' data-fid="'+id+'"':'')+' />';
+  }
+
+  // Polygon
+  return '<path d="'+d+'"'+qAttr+(isQuiz?' data-fid="'+id+'"':'')+' />';
+}
+
+/* ══ Game Flow ══════════════════════════════════════════════════════════════ */
+function startGame() {
+  score = 0; results = []; qIdx = 0; phase = 'idle';
+  clearInterval(timerIv);
+
+  showScreen('gameScreen');
+  document.getElementById('gFeedback').textContent = '';
+  setFeedback('', '');
+
+  loadMap(settings.mapId).then(data => {
+    currentMapData = data;
+    const pool = data.features.filter(f => settings.types.includes(f.type));
+    if (!pool.length) { showScreen('settingsScreen'); return; }
+    const n = Math.min(settings.questionCount, pool.length);
+    queue = shuffle(pool).slice(0, n);
+    requestAnimationFrame(nextQuestion);
+  });
+}
+
+function nextQuestion() {
+  if (qIdx >= queue.length) { endGame(); return; }
+  phase = 'question';
+  const feat = queue[qIdx];
+  document.getElementById('gProgress').textContent = (qIdx+1)+'/'+queue.length;
+
+  const isType = settings.mode === 'type';
+  renderMap(isType ? feat.id : null, 'feat-hi', null);
+  buildPrompt(feat, isType);
+  setFeedback('', '');
+  startTimer();
+
+  if (isType) {
+    const inp = document.getElementById('gTypeInp');
+    if (inp) { inp.value=''; setTimeout(() => inp.focus(), 60); }
+  }
+}
+
+function buildPrompt(feat, isTypeMode) {
+  const prompt = document.getElementById('gPrompt');
+  const name = feat.names[lang] || feat.names.nl;
+  if (isTypeMode) {
+    prompt.innerHTML = '<span class="g-prompt-text">'+esc(u('typePrompt'))+'</span>'+
+      '<input id="gTypeInp" class="g-type-inp" type="text" autocomplete="off" autocorrect="off" spellcheck="false"/>'+
+      '<button class="g-ok" onclick="submitType()">OK</button>';
+    document.getElementById('gTypeInp').addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); submitType(); }
+    });
+  } else {
+    prompt.innerHTML = '<span class="g-prompt-text">'+esc(u('clickPrompt'))+' <span class="g-prompt-name">'+esc(name)+'</span></span>';
+  }
+}
+
+function stopGame() {
+  clearInterval(timerIv);
+  phase = 'idle';
+  showScreen('settingsScreen');
+}
+
+function endGame() {
+  clearInterval(timerIv);
+  phase = 'idle';
+  showScreen('resultScreen');
+  document.getElementById('rScore').textContent = score;
+  document.getElementById('rMeta').textContent = score + ' ' + u('scoreOf') + ' ' + queue.length + ' ' + u('scoreGoed');
+
+  const list = document.getElementById('rList');
+  list.innerHTML = results.map(r => {
+    const name = r.feat.names[lang] || r.feat.names.nl;
+    const sub  = (!r.correct && r.typed) ? ' — ✎ '+esc(r.typed) : '';
+    return '<li class="r-item '+(r.correct?'ok':'err')+'">'+
+      '<span class="r-item-name">'+esc(name)+'</span>'+
+      (sub ? '<span class="r-item-sub">'+sub+'</span>' : '')+
+      '<span>'+(r.correct?'✓':'✗')+'</span></li>';
+  }).join('');
+}
+
+/* ══ Click Handler ══════════════════════════════════════════════════════════ */
+document.getElementById('mapSvg').addEventListener('click', e => {
+  if (phase !== 'question' || settings.mode !== 'click') return;
+  const el = e.target.closest('[data-fid]');
+  if (!el || !el.classList.contains('quizzable')) return;
+  handleAnswer(el.dataset.fid, null);
+});
+
+function handleAnswer(clickedId, typed) {
+  if (phase !== 'question') return;
+  phase = 'feedback';
+  clearInterval(timerIv);
+
+  const feat = queue[qIdx];
+  const correct = clickedId === feat.id;
+
+  score += correct ? 1 : 0;
+  results.push({ feat, correct, typed: typed || '' });
+
+  const wrongId = (!correct && clickedId) ? clickedId : null;
+  renderMap(feat.id, 'feat-ok', wrongId);
+
+  if (correct) setFeedback(u('correct'), 'var(--accent)');
+  else         setFeedback(u('wrong') + ' ' + (feat.names[lang]||feat.names.nl), 'var(--bad)');
+
+  qIdx++;
+  setTimeout(() => nextQuestion(), 1400);
+}
+
+/* ══ Type Handler ═══════════════════════════════════════════════════════════ */
+function submitType() {
+  if (phase !== 'question' || settings.mode !== 'type') return;
+  const inp = document.getElementById('gTypeInp');
+  if (!inp) return;
+  const val = inp.value.trim();
+  if (!val) return;
+  const feat = queue[qIdx];
+  const ok = fuzzyMatch(val, feat.names);
+  handleAnswer(ok ? feat.id : '__wrong__', val);
+}
+
+/* ══ Fuzzy Matching ═════════════════════════════════════════════════════════ */
+function norm(s) { return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim(); }
+function lev(a, b) {
+  if (a === b) return 0;
+  const m = a.length, n = b.length;
+  if (!m) return n; if (!n) return m;
+  const row = Array.from({length: n+1}, (_,i) => i);
+  for (let i = 1; i <= m; i++) {
+    let prev = row[0]; row[0] = i;
+    for (let j = 1; j <= n; j++) {
+      const v = a[i-1]===b[j-1] ? prev : 1+Math.min(prev, row[j], row[j-1]);
+      prev = row[j]; row[j] = v;
+    }
+  }
+  return row[n];
+}
+function fuzzyMatch(input, names) {
+  const inp = norm(input);
+  return ['nl','en'].some(lc => {
+    const t = norm(names[lc]||'');
+    return t && lev(inp, t) <= 2;
+  });
+}
+
+/* ══ Timer ══════════════════════════════════════════════════════════════════ */
+function startTimer() {
+  const bar = document.getElementById('gTimerBar');
+  const fill = document.getElementById('gTimerFill');
+  if (!settings.timerEnabled) { bar.style.display = 'none'; return; }
+  bar.style.display = '';
+  timeLeft = settings.timerSecs;
+  fill.style.width = '100%';
+  fill.className = 'g-timer-fill';
+  clearInterval(timerIv);
+  timerIv = setInterval(() => {
+    timeLeft -= 0.1;
+    const pct = Math.max(0, timeLeft / settings.timerSecs) * 100;
+    fill.style.width = pct + '%';
+    fill.className = 'g-timer-fill' + (pct < 20 ? ' danger' : pct < 40 ? ' warn' : '');
+    if (timeLeft <= 0) {
+      clearInterval(timerIv);
+      if (phase === 'question') handleAnswer('__timeout__', '');
+    }
+  }, 100);
+}
+
+function setFeedback(msg, color) {
+  const el = document.getElementById('gFeedback');
+  el.textContent = msg; el.style.color = color;
+}
+
+/* ══ Settings UI ════════════════════════════════════════════════════════════ */
+function selectMap(id) {
+  settings.mapId = id;
+  document.querySelectorAll('#mapChips .chip').forEach(c => c.classList.toggle('on', c.dataset.map === id));
+  // reset types to defaults if current selection invalid
+  const valid = MAP_CONTAINS[id];
+  if (!settings.types.some(t => valid.includes(t))) settings.types = [...MAP_DEFAULT[id]];
+  buildTypeChips();
+}
+
+function buildTypeChips() {
+  const wrap = document.getElementById('typeChips');
+  const contains = MAP_CONTAINS[settings.mapId];
+  wrap.innerHTML = contains.map(t => {
+    const on = settings.types.includes(t);
+    const label = (window._i18n[lang]&&window._i18n[lang].topo&&window._i18n[lang].topo.types&&window._i18n[lang].topo.types[t]) || t;
+    return '<button class="chip'+(on?' on':'')+'" data-type="'+t+'" onclick="toggleType(\''+t+'\')" >'+esc(label)+'</button>';
+  }).join('');
+}
+
+function toggleType(t) {
+  const idx = settings.types.indexOf(t);
+  if (idx >= 0) {
+    if (settings.types.length === 1) return; // keep at least one
+    settings.types.splice(idx, 1);
+  } else {
+    settings.types.push(t);
+  }
+  buildTypeChips();
+}
+
+function selectMode(m) {
+  settings.mode = m;
+  document.getElementById('modeClickChip').classList.toggle('on', m === 'click');
+  document.getElementById('modeTypeChip').classList.toggle('on', m === 'type');
+}
+
+function setTimerEnabled(en) {
+  settings.timerEnabled = en;
+  document.getElementById('timerOnChip').classList.toggle('on', en);
+  document.getElementById('timerOffChip').classList.toggle('on', !en);
+  const inp = document.getElementById('timerSecsInp');
+  inp.style.opacity = en ? '1' : '.3';
+  inp.style.pointerEvents = en ? 'auto' : 'none';
+}
+
+function selectCount(n) {
+  settings.questionCount = n;
+  document.querySelectorAll('#countChips .chip').forEach(c => c.classList.toggle('on', +c.dataset.n === n));
+}
+
+function applySettingsToUI() {
+  selectMap(settings.mapId);
+  selectMode(settings.mode);
+  setTimerEnabled(settings.timerEnabled);
+  document.getElementById('timerSecsInp').value = settings.timerSecs;
+  selectCount(settings.questionCount);
+}
+
+/* ══ Language ═══════════════════════════════════════════════════════════════ */
+function switchLang(lc) { loadI18n(lc).then(() => applyLanguage(lc)); }
+
+function applyLanguage(lc) {
+  lang = lc;
+  localStorage.setItem('thuiswerk_lang', lc);
+  document.getElementById('htmlRoot').lang = lc;
+  document.querySelectorAll('.lang-chip').forEach(c => c.classList.toggle('on', c.dataset.lc === lc));
+  const d = window._i18n[lc] && window._i18n[lc].topo;
+  if (!d) return;
+  document.title = d.appTitle || 'Topografie';
+  document.getElementById('sTitle').textContent  = d.appTitle  || '🗺️ Topografie';
+  document.getElementById('sMapLabel').textContent   = d.mapLabel   || 'Kaart';
+  document.getElementById('sTypeLabel').textContent  = d.typeLabel  || 'Onderdelen';
+  document.getElementById('sModeLabel').textContent  = d.modeLabel  || 'Modus';
+  document.getElementById('sTimerLabel').textContent = d.timerLabel || 'Timer';
+  document.getElementById('sSecLabel').textContent   = d.secLabel   || 'sec';
+  document.getElementById('sCountLabel').textContent = d.countLabel || 'Aantal vragen';
+  document.getElementById('startBtn').textContent    = d.startBtn   || '▶ Start';
+  document.getElementById('gStop').textContent       = d.stopBtn    || '✕ stop';
+  document.getElementById('timerOnChip').textContent  = d.timerOn  || '⏱ Aan';
+  document.getElementById('timerOffChip').textContent = d.timerOff || '∞ Uit';
+  document.getElementById('modeClickChip').textContent = d.modeClick || 'Klik op kaart';
+  document.getElementById('modeTypeChip').textContent  = d.modeType  || 'Typ de naam';
+  // map chips
+  if (d.maps) {
+    document.querySelectorAll('#mapChips .chip').forEach(c => {
+      if (d.maps[c.dataset.map]) c.textContent = d.maps[c.dataset.map];
+    });
+  }
+  document.getElementById('rSettingsBtn').textContent = d.settingsBtn || '⚙ Instellingen';
+  document.getElementById('rRetryBtn').textContent    = d.retryBtn    || '↩ Opnieuw';
+  buildTypeChips();
+}
+
+/* ══ Init ═══════════════════════════════════════════════════════════════════ */
+// Load favourite from URL
+(function () {
+  try {
+    const fid = new URLSearchParams(location.search).get('fav');
+    if (!fid) return;
+    const favs = JSON.parse(localStorage.getItem('thuiswerk_favorites') || '[]');
+    const fav = favs.find(f => f.id === fid && f.app === 'topo');
+    if (fav && fav.settings) {
+      const s = fav.settings;
+      if (s.lang) lang = s.lang;
+      Object.assign(settings, s);
+      delete settings.lang;
+    }
+  } catch (e) {}
+}());
+
+window.APP_READY.then(function () {
+  applySettingsToUI();
+  applyLanguage(lang);
+
+  window.addEventListener('thuiswerk:setLang', function (e) {
+    if (e.detail !== lang) applyLanguage(e.detail);
+  });
+
+  window.THUISWERK_APP.getSettings = function () {
+    return Object.assign({ lang }, settings);
+  };
+  window.THUISWERK_APP.applySettings = function (s) {
+    if (s.lang) applyLanguage(s.lang);
+    const ns = Object.assign({}, s); delete ns.lang;
+    Object.assign(settings, ns);
+    applySettingsToUI();
+  };
+
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+});
+</script>
+<script src="sidebar.js"></script>
+</body>
+</html>

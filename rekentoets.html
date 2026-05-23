@@ -379,6 +379,8 @@
   }
   .pop { animation: pop-in 0.2s ease-out; }
 
+  body.tw-sidebar-active .lang-toggle-wrap { display: none; }
+
   /* footer */
   .page-footer {
     text-align: center; margin-top: 8px; padding-bottom: 8px;
@@ -389,6 +391,39 @@
 </style>
 </head>
 <body>
+<script>
+  window.THUISWERK_APP = {
+    id: 'reken',
+    theme: 'dark',
+    primaryColor: '#e8ff47',
+    bgColor: '#161616',
+    textColor: '#f0f0f0',
+  };
+
+  window._i18n = window._i18n || {};
+
+  window._initLang = (function () {
+    try {
+      var favId = new URLSearchParams(location.search).get('fav');
+      if (favId) {
+        var favs = JSON.parse(localStorage.getItem('thuiswerk_favorites') || '[]');
+        var fav  = favs.find(function (f) { return f.id === favId && f.app === 'reken'; });
+        if (fav && fav.settings && fav.settings.lang) return fav.settings.lang;
+      }
+    } catch (e) {}
+    return localStorage.getItem('thuiswerk_lang') || localStorage.getItem('rekentoets_lang') || 'nl';
+  }());
+
+  function loadI18n(lc) {
+    return window._i18n[lc]
+      ? Promise.resolve(window._i18n[lc])
+      : fetch('i18n-' + lc + '.json').then(function (r) { return r.json(); })
+          .then(function (d) { window._i18n[lc] = d; return d; });
+  }
+
+  window.APP_READY = loadI18n(window._initLang);
+</script>
+
 <div class="container">
 
   <!-- ══ START SCREEN ══ -->
@@ -398,7 +433,7 @@
       <div class="start-top">
         <div class="start-title"><span id="startTitleText">Rekentoets</span><br><span id="startSubtitle">⚡ 60 sec</span></div>
         <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
-          <div style="display:flex; gap:6px;">
+          <div class="lang-toggle-wrap" style="display:flex; gap:6px;">
             <button class="lang-chip op-chip selected" data-lc="nl" onclick="switchLang('nl')" style="padding:6px 12px; font-size:12px;">NL</button>
             <button class="lang-chip op-chip" data-lc="en" onclick="switchLang('en')" style="padding:6px 12px; font-size:12px;">EN</button>
           </div>
@@ -447,6 +482,19 @@
               <div class="op-chip" data-op="−" onclick="toggleOp(this)">−</div>
               <div class="op-chip" data-op="×" onclick="toggleOp(this)">×</div>
               <div class="op-chip" data-op="÷" onclick="toggleOp(this)">÷</div>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-label" id="labelAnswer">Antwoord (bereik)</div>
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <div class="op-chip" id="answerOnChip" onclick="setAnswerRange(true)">✓ Aan</div>
+              <div class="op-chip selected" id="answerOffChip" onclick="setAnswerRange(false)">∞ Uit</div>
+              <div id="answerRangeInputWrap" style="display:flex; gap:6px; align-items:center; margin-left:4px; opacity:0.3; pointer-events:none;">
+                <input class="num-input" type="number" id="c1" value="0" min="0" max="9999" style="width:60px;">
+                <span class="range-to" style="color:var(--muted);font-size:12px;">t/m</span>
+                <input class="num-input" type="number" id="c2" value="100" min="0" max="9999" style="width:60px;">
+              </div>
             </div>
           </div>
 
@@ -533,66 +581,17 @@
 <script>
   const TOTAL = 20;
 
-  // ── UI strings ────────────────────────────────────────────────────────────
-  const UI_STRINGS = {
-    nl: {
-      title:        'Rekentoets',
-      appTitle:     'Rekentoets',
-      noTimer:      '∞ Geen timer',
-      timerSec:     s => `⚡ ${s} sec`,
-      firstNum:     'Eerste getal (bereik)',
-      secondNum:    'Tweede getal (bereik)',
-      rangeToText:  't/m',
-      timerLabel:   'Timer',
-      timerOn:      '⏱ Aan',
-      timerOff:     '∞ Uit',
-      secLabel:     'sec',
-      opsLabel:     'Bewerkingen (meerdere mogelijk)',
-      lastAttempts: 'Laatste pogingen',
-      startBtn:     'Start toets →',
-      quizTitle:    'Rekentoets',
-      stopBtn:      '✕ stop',
-      outOf:        'van de 20 goed',
-      settingsBtn:  '⚙ Instellingen',
-      retryBtn:     '↩ Opnieuw',
-      correct:      '✓ Goed!',
-      wrong:        ans => `✗ Fout — antwoord was ${ans}`,
-      settingsTitle:'Instellingen',
-    },
-    en: {
-      title:        'Maths Quiz',
-      appTitle:     'Maths Quiz',
-      noTimer:      '∞ No timer',
-      timerSec:     s => `⚡ ${s} sec`,
-      firstNum:     'First number (range)',
-      secondNum:    'Second number (range)',
-      rangeToText:  'to',
-      timerLabel:   'Timer',
-      timerOn:      '⏱ On',
-      timerOff:     '∞ Off',
-      secLabel:     'sec',
-      opsLabel:     'Operations (multiple allowed)',
-      lastAttempts: 'Last attempts',
-      startBtn:     'Start quiz →',
-      quizTitle:    'Maths Quiz',
-      stopBtn:      '✕ stop',
-      outOf:        'out of 20 correct',
-      settingsBtn:  '⚙ Settings',
-      retryBtn:     '↩ Again',
-      correct:      '✓ Correct!',
-      wrong:        ans => `✗ Wrong — answer was ${ans}`,
-      settingsTitle:'Settings',
-    },
-  };
 
-  let lang = localStorage.getItem('rekentoets_lang') || 'nl';
+  let lang = window._initLang;
+  function t(str, val) { return String(str).replace(/\{\w+\}/, val); }
 
-  function switchLang(lc) { applyLanguage(lc); }
+  function switchLang(lc) { loadI18n(lc).then(function() { applyLanguage(lc); }); }
 
   function applyLanguage(lc) {
     lang = lc;
     localStorage.setItem('rekentoets_lang', lc);
-    const u = UI_STRINGS[lc];
+    localStorage.setItem('thuiswerk_lang', lc);
+    const u = window._i18n[lc] && window._i18n[lc].reken; if (!u) return;
     document.title = u.title;
     document.getElementById('htmlRoot').lang = lc === 'en' ? 'en' : 'nl';
     document.getElementById('startTitleText').textContent = u.appTitle;
@@ -605,6 +604,9 @@
     document.getElementById('timerOffChip').textContent = u.timerOff;
     document.querySelector('.timer-sec-label').textContent = u.secLabel;
     document.getElementById('labelOps').textContent = u.opsLabel;
+    document.getElementById('labelAnswer').textContent = u.answerLabel;
+    document.getElementById('answerOnChip').textContent = u.answerOn;
+    document.getElementById('answerOffChip').textContent = u.answerOff;
     document.getElementById('historyLabel').textContent = u.lastAttempts;
     document.getElementById('startBtn').textContent = u.startBtn;
     document.getElementById('quizTitleText').textContent = u.quizTitle;
@@ -624,7 +626,9 @@
     b1: 1,  b2: 9,
     ops: ['+'],
     timerEnabled: true,
-    timerSecs: 60
+    timerSecs: 60,
+    answerRangeEnabled: false,
+    c1: 0, c2: 100,
   };
 
   // ── quiz state ────────────────────────────────────────────────────────────
@@ -658,16 +662,30 @@
     updateStartSubtitle();
   }
 
+  function setAnswerRange(enabled) {
+    settings.answerRangeEnabled = enabled;
+    document.getElementById('answerOnChip').classList.toggle('selected', enabled);
+    document.getElementById('answerOffChip').classList.toggle('selected', !enabled);
+    document.getElementById('answerRangeInputWrap').style.opacity = enabled ? '1' : '0.3';
+    document.getElementById('answerRangeInputWrap').style.pointerEvents = enabled ? 'auto' : 'none';
+  }
+
   function updateStartSubtitle() {
     const el = document.getElementById('startSubtitle');
-    const u = UI_STRINGS[lang];
-    el.textContent = settings.timerEnabled ? u.timerSec(settings.timerSecs) : u.noTimer;
+    const u = window._i18n[lang] && window._i18n[lang].reken; if (!u) return;
+    el.textContent = settings.timerEnabled ? t(u.timerSec, settings.timerSecs) : u.noTimer;
   }
 
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('timerSecs').addEventListener('input', () => {
       settings.timerSecs = Math.max(10, parseInt(document.getElementById('timerSecs').value) || 60);
       updateStartSubtitle();
+    });
+    document.getElementById('c1').addEventListener('input', () => {
+      settings.c1 = Math.max(0, parseInt(document.getElementById('c1').value) || 0);
+    });
+    document.getElementById('c2').addEventListener('input', () => {
+      settings.c2 = Math.max(settings.c1, parseInt(document.getElementById('c2').value) || 0);
     });
   });
 
@@ -678,6 +696,8 @@
     settings.b2 = Math.max(settings.b1, parseInt(document.getElementById('b2').value) || 0);
     settings.ops = [...document.querySelectorAll('.op-chip.selected')].map(e => e.dataset.op).filter(Boolean);
     settings.timerSecs = Math.max(10, parseInt(document.getElementById('timerSecs').value) || 60);
+    settings.c1 = Math.max(0, parseInt(document.getElementById('c1').value) || 0);
+    settings.c2 = Math.max(settings.c1, parseInt(document.getElementById('c2').value) || 0);
     localStorage.setItem('rekentoets_settings', JSON.stringify(settings));
     updateStartSubtitle();
   }
@@ -688,16 +708,19 @@
     document.getElementById('b1').value = settings.b1;
     document.getElementById('b2').value = settings.b2;
     document.getElementById('timerSecs').value = settings.timerSecs;
+    document.getElementById('c1').value = settings.c1;
+    document.getElementById('c2').value = settings.c2;
     document.querySelectorAll('.op-chip[data-op]').forEach(el => {
       el.classList.toggle('selected', settings.ops.includes(el.dataset.op));
     });
     setTimerMode(settings.timerEnabled);
+    setAnswerRange(settings.answerRangeEnabled);
   }
 
   // ── question generation ───────────────────────────────────────────────────
   function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-  function generateQuestion() {
+  function _genOneQuestion() {
     const op = settings.ops[Math.floor(Math.random() * settings.ops.length)];
     let a, b, answer;
 
@@ -727,6 +750,15 @@
       answer = a + b;
     }
     return { a, b, op, answer };
+  }
+
+  function generateQuestion() {
+    if (!settings.answerRangeEnabled) return _genOneQuestion();
+    for (let i = 0; i < 100; i++) {
+      const q = _genOneQuestion();
+      if (q.answer >= settings.c1 && q.answer <= settings.c2) return q;
+    }
+    return _genOneQuestion(); // fallback if range is too narrow
   }
 
   function generateQuestions() {
@@ -815,10 +847,10 @@
     const userAns = parseInt(currentValue, 10);
     const q = questions[current];
     const correct = userAns === q.answer;
-    const u = UI_STRINGS[lang];
+    const u = window._i18n[lang] && window._i18n[lang].reken;
     results.push({ q, userAns, correct });
     if (correct) { score++; setDisplayState('correct'); setFeedback(u.correct, 'var(--good)'); updateDot(current, 'correct'); }
-    else         { setDisplayState('wrong'); setFeedback(u.wrong(q.answer), 'var(--bad)'); updateDot(current, 'wrong'); }
+    else         { setDisplayState('wrong'); setFeedback(t(u.wrong, q.answer), 'var(--bad)'); updateDot(current, 'wrong'); }
     current++;
     if (current >= TOTAL) setTimeout(endQuiz, 500);
     else setTimeout(showQuestion, 500);
@@ -936,13 +968,52 @@
   // ── init ──────────────────────────────────────────────────────────────────
   const savedSettings = JSON.parse(localStorage.getItem('rekentoets_settings') || 'null');
   if (savedSettings) Object.assign(settings, savedSettings);
+
+  // Laad favoriet vanuit URL (?fav=id)
+  (function () {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const favId = params.get('fav');
+      if (!favId) return;
+      const favs = JSON.parse(localStorage.getItem('thuiswerk_favorites') || '[]');
+      const fav = favs.find(f => f.id === favId && f.app === 'reken');
+      if (fav && fav.settings) {
+        const s = fav.settings;
+        if (s.lang) lang = s.lang;
+        Object.assign(settings, s);
+        delete settings.lang;
+      }
+    } catch(e) {}
+  })();
+
+  window.APP_READY.then(function() {
   applySettingsToUI();
   applyLanguage(lang);
   renderHistory();
+
+  // Sidebar taalwissel-event
+  window.addEventListener('thuiswerk:setLang', function (e) {
+    if (e.detail !== lang) applyLanguage(e.detail);
+  });
+
+  // Sidebar settings API
+  window.THUISWERK_APP.getSettings = function () {
+    readSettings();
+    return Object.assign({ lang: lang }, settings);
+  };
+  window.THUISWERK_APP.applySettings = function (s) {
+    if (s.lang) applyLanguage(s.lang);
+    const ns = Object.assign({}, s); delete ns.lang;
+    Object.assign(settings, ns);
+    applySettingsToUI();
+    readSettings();
+  };
+  });
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }
 </script>
+<script src="sidebar.js"></script>
 </body>
 </html>
