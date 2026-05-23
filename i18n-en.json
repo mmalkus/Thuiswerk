@@ -102,7 +102,7 @@
     "clickPrompt": "Click on:",
     "typePrompt": "Type the name:",
     "correct": "✓ Correct!",
-    "wrong": "✗ Wrong — it was:",
+    "wrong": "✗ Wrong!",
     "scoreOf": "of",
     "scoreGoed": "correct",
     "settingsBtn": "⚙ Settings",
@@ -126,6 +126,9 @@
   "sidebar": {
     "home": "Back to Home",
     "language": "Language",
+    "theme": "Theme",
+    "themeDark": "🌙 Dark",
+    "themeLight": "☀️ Light",
     "saveTitle": "Save as favourite",
     "placeholder": "Name for these settings…",
     "saveBtn": "Save",

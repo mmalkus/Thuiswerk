@@ -1,6 +1,10 @@
 (function () {
   document.body.classList.add('tw-sidebar-active');
 
+  function getTheme() { return localStorage.getItem('thuiswerk_theme') || 'dark'; }
+  // Apply theme immediately so CSS responds before any render
+  document.documentElement.dataset.theme = getTheme();
+
   var cfg = window.THUISWERK_APP || {};
   var isDark = cfg.theme === 'dark';
   var primary = cfg.primaryColor || '#818cf8';
@@ -39,8 +43,8 @@
     if (window._i18n && window._i18n[lc] && window._i18n[lc].sidebar) return window._i18n[lc].sidebar;
     // Tiny inline fallback for the rare case the JSON hasn't loaded yet
     return lc === 'en'
-      ? { home:'Back to Home', language:'Language', saveTitle:'Save as favourite', placeholder:'Name…', saveBtn:'Save', savedMsg:'✓ Saved!', noName:'Enter a name', favsTitle:'Saved favourites', noFavs:'No favourites saved yet.' }
-      : { home:'Terug naar Home', language:'Taal', saveTitle:'Opslaan als favoriet', placeholder:'Naam…', saveBtn:'Opslaan', savedMsg:'✓ Opgeslagen!', noName:'Geef een naam op', favsTitle:'Opgeslagen favorieten', noFavs:'Nog geen favorieten opgeslagen.' };
+      ? { home:'Back to Home', language:'Language', theme:'Theme', themeDark:'🌙 Dark', themeLight:'☀️ Light', saveTitle:'Save as favourite', placeholder:'Name…', saveBtn:'Save', savedMsg:'✓ Saved!', noName:'Enter a name', favsTitle:'Saved favourites', noFavs:'No favourites saved yet.' }
+      : { home:'Terug naar Home', language:'Taal', theme:'Thema', themeDark:'🌙 Donker', themeLight:'☀️ Licht', saveTitle:'Opslaan als favoriet', placeholder:'Naam…', saveBtn:'Opslaan', savedMsg:'✓ Opgeslagen!', noName:'Geef een naam op', favsTitle:'Opgeslagen favorieten', noFavs:'Nog geen favorieten opgeslagen.' };
   }
   function esc(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -111,6 +115,26 @@
     '.tw-fdel:hover{color:',(isDark?'#ff4747':'#ff5c6a'),';}'  ,
 
     '.tw-empty{font-size:.82rem;font-weight:700;color:',mutedColor,';}',
+
+    // Light-theme overrides (applied when html[data-theme="light"])
+    'html[data-theme="light"] #tw-btn{background:#fff!important;border-color:#e2e8f0!important;color:#1e293b!important;}',
+    'html[data-theme="light"] #tw-btn:hover{border-color:#818cf8!important;color:#818cf8!important;}',
+    'html[data-theme="light"] #tw-pnl{background:#fff!important;border-color:#e2e8f0!important;}',
+    'html[data-theme="light"] .tw-lbl{color:#64748b!important;}',
+    'html[data-theme="light"] .tw-home{background:#f8faff!important;border-color:#e2e8f0!important;color:#1e293b!important;}',
+    'html[data-theme="light"] .tw-home:hover{border-color:#818cf8!important;}',
+    'html[data-theme="light"] .tw-chip{background:#f8faff!important;border-color:#e2e8f0!important;color:#64748b!important;}',
+    'html[data-theme="light"] .tw-chip.on{background:#ede9fe!important;border-color:#818cf8!important;color:#4f46e5!important;}',
+    'html[data-theme="light"] .tw-inp{background:#f8faff!important;border-color:#e2e8f0!important;color:#1e293b!important;}',
+    'html[data-theme="light"] .tw-inp::placeholder{color:#94a3b8!important;}',
+    'html[data-theme="light"] .tw-inp:focus{border-color:#818cf8!important;}',
+    'html[data-theme="light"] .tw-fb{color:#166534!important;}',
+    'html[data-theme="light"] .tw-hr{border-color:#e2e8f0!important;}',
+    'html[data-theme="light"] .tw-frow{background:#f8faff!important;border-color:#e2e8f0!important;}',
+    'html[data-theme="light"] .tw-frow:hover{border-color:#818cf8!important;}',
+    'html[data-theme="light"] .tw-fname{color:#1e293b!important;}',
+    'html[data-theme="light"] .tw-fdel{color:#94a3b8!important;}',
+    'html[data-theme="light"] .tw-empty{color:#94a3b8!important;}',
   ].join('');
 
   var st = document.createElement('style');
@@ -145,7 +169,7 @@
   }
 
   function render() {
-    var u = ui(), lang = getLang();
+    var u = ui(), lang = getLang(), theme = getTheme();
     var appFavs = getFavs().filter(function (f) { return f.app === cfg.id; });
     pnl.innerHTML =
       '<div class="tw-sec">' +
@@ -156,6 +180,13 @@
         '<div class="tw-chips">' +
           '<button class="tw-chip' + (lang==='nl'?' on':'') + '" onclick="window._twSB.lang(\'nl\')">NL</button>' +
           '<button class="tw-chip' + (lang==='en'?' on':'') + '" onclick="window._twSB.lang(\'en\')">EN</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="tw-sec">' +
+        '<div class="tw-lbl">' + esc(u.theme||'Thema') + '</div>' +
+        '<div class="tw-chips">' +
+          '<button class="tw-chip tw-tc' + (theme==='dark'?' on':'') + '" onclick="window._twSB.setTheme(\'dark\')">' + esc(u.themeDark||'🌙 Donker') + '</button>' +
+          '<button class="tw-chip tw-tc' + (theme==='light'?' on':'') + '" onclick="window._twSB.setTheme(\'light\')">' + esc(u.themeLight||'☀️ Licht') + '</button>' +
         '</div>' +
       '</div>' +
       '<hr class="tw-hr"/>' +
@@ -218,6 +249,11 @@
     del: function (id) {
       setFavs(getFavs().filter(function (f) { return f.id !== id; }));
       render();
+    },
+    setTheme: function (t) {
+      localStorage.setItem('thuiswerk_theme', t);
+      document.documentElement.dataset.theme = t;
+      if (pnl.classList.contains('on')) render();
     }
   };
 })();

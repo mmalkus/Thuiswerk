@@ -102,7 +102,7 @@
     "clickPrompt": "Klik op:",
     "typePrompt": "Typ de naam:",
     "correct": "✓ Goed!",
-    "wrong": "✗ Fout — het was:",
+    "wrong": "✗ Fout!",
     "scoreOf": "van",
     "scoreGoed": "goed",
     "settingsBtn": "⚙ Instellingen",
@@ -126,6 +126,9 @@
   "sidebar": {
     "home": "Terug naar Home",
     "language": "Taal",
+    "theme": "Thema",
+    "themeDark": "🌙 Donker",
+    "themeLight": "☀️ Licht",
     "saveTitle": "Opslaan als favoriet",
     "placeholder": "Naam voor deze instellingen…",
     "saveBtn": "Opslaan",
