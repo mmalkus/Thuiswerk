@@ -1,0 +1,38 @@
+{
+  "name": "Thuiswerk",
+  "short_name": "Thuiswerk",
+  "description": "Dictee en Rekentoets voor thuis oefenen",
+  "start_url": "/Thuiswerk/",
+  "scope": "/Thuiswerk/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f172a",
+  "theme_color": "#6366f1",
+  "categories": ["education", "kids"],
+  "lang": "nl",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Dictee",
+      "short_name": "Dictee",
+      "description": "Woordje spellen oefenen",
+      "url": "/Thuiswerk/dictee.html",
+      "icons": [{ "src": "icons/icon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Rekentoets",
+      "short_name": "Rekenen",
+      "description": "Rekensommen oefenen",
+      "url": "/Thuiswerk/rekentoets.html",
+      "icons": [{ "src": "icons/icon.svg", "sizes": "any" }]
+    }
+  ]
+}
