@@ -323,8 +323,26 @@ function buildProj(bounds, W, H, pad) {
 /* ══ SVG Path Helpers ═══════════════════════════════════════════════════════ */
 function ptStr(proj, pt) { const [x,y]=proj(pt); return x.toFixed(1)+','+y.toFixed(1); }
 
+// Active map bounds (set in renderMap); used to cull out-of-view rings.
+let _mapBounds = [-180,-90,180,90];
+
 function ringsToD(rings, proj) {
-  return rings.map(r => r.map((p,i) => (i?'L':'M')+ptStr(proj,p)).join('')+'Z').join(' ');
+  const [b0,b1,b2,b3] = _mapBounds;
+  const ext = 25; // degrees outside bounds before a ring is culled
+  return rings.map(ring => {
+    // Skip rings with no point inside the extended bounds (e.g. French Guiana on the Europe map)
+    if (!ring.some(([lon,lat]) => lon>=b0-ext && lon<=b2+ext && lat>=b1-ext && lat<=b3+ext)) return '';
+    // Build path; break at anti-meridian crossings to avoid fill bleed across the map
+    let d = '', prevLon = null, needM = true;
+    for (const pt of ring) {
+      const lon = pt[0];
+      if (prevLon !== null && Math.abs(lon - prevLon) > 170) { d += 'Z'; needM = true; }
+      d += (needM ? 'M' : 'L') + ptStr(proj, pt);
+      needM = false;
+      prevLon = lon;
+    }
+    return d ? d + 'Z' : '';
+  }).filter(Boolean).join(' ');
 }
 
 function geomToD(geom, proj) {
@@ -333,8 +351,8 @@ function geomToD(geom, proj) {
   switch (geom.type) {
     case 'Polygon':         return ringsToD(c, proj);
     case 'MultiPolygon':    return c.map(p => ringsToD(p, proj)).join(' ');
-    case 'LineString':      return c.map((p,i) => (i?'L':'M')+ptStr(proj,p)).join('');
-    case 'MultiLineString': return c.map(l => l.map((p,i) => (i?'L':'M')+ptStr(proj,p)).join('')).join(' ');
+    case 'LineString':      return c.map((p,i,a) => ((i&&Math.abs(p[0]-a[i-1][0])>170)?'M':(i?'L':'M'))+ptStr(proj,p)).join('');
+    case 'MultiLineString': return c.map(l => l.map((p,i,a) => ((i&&Math.abs(p[0]-a[i-1][0])>170)?'M':(i?'L':'M'))+ptStr(proj,p)).join('')).join(' ');
     default: return '';
   }
 }
@@ -346,6 +364,7 @@ function renderMap(highlightId, hlClass, wrongId, labels) {
   svg.setAttribute('viewBox', '0 0 '+W+' '+H);
 
   const proj = buildProj(MAP_BOUNDS[settings.mapId], W, H, 14);
+  _mapBounds = MAP_BOUNDS[settings.mapId];
   const quizSet = new Set(settings.types);
   const clickMode = settings.mode === 'click';
 
