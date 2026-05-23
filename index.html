@@ -20,10 +20,10 @@
     --border:    #334155;
     --text:      #f1f5f9;
     --muted:     #94a3b8;
-    --dictee-bg:     #e0f4ff;
-    --dictee-card:   #c8e9ff;
+    --dictee-bg:     #0a1628;
+    --dictee-card:   #0d1e38;
     --dictee-accent: #3b9eff;
-    --dictee-text:   #1a3a5c;
+    --dictee-text:   #b8d8f5;
     --reken-bg:      #0d0d0d;
     --reken-card:    #161616;
     --reken-accent:  #e8ff47;
@@ -109,7 +109,7 @@
 
   .card-dictee .card-header {
     background: var(--dictee-card);
-    border-bottom: 2px solid #b8d8f5;
+    border-bottom: 1px solid #1a3a5c;
   }
 
   .card-dictee .tag {
@@ -354,6 +354,15 @@
   html[data-theme="light"] .card-reken .card-header {
     background: #fffde0;
     border-bottom: 1px solid #e8e880;
+  }
+
+  html[data-theme="light"] .card-dictee {
+    background: #e0f4ff;
+    color: #1a3a5c;
+  }
+  html[data-theme="light"] .card-dictee .card-header {
+    background: #c8e9ff;
+    border-bottom: 2px solid #b8d8f5;
   }
 </style>
 <script>(function(){var t=localStorage.getItem('thuiswerk_theme');if(t)document.documentElement.dataset.theme=t;})();</script>

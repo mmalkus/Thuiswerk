@@ -15,23 +15,35 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
 <style>
-  body { background:#e0f4ff; }
+  body { background:#0f172a; }
+  html[data-theme="light"] body { background:#e0f4ff; }
   @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
-  input:focus { border-color:#3b9eff !important; background:#fff !important; outline:none; }
-  .wt { display:inline-flex; align-items:center; gap:3px; background:#e0f4ff; border:1.5px solid #b8d8f5; border-radius:99px; padding:2px 7px 2px 9px; font-size:0.79rem; font-weight:800; color:#1a3a5c; margin:2px; }
-  .wt button { background:none; border:none; cursor:pointer; color:#336080; font-size:0.85rem; padding:0 1px; line-height:1; }
+  input:focus { border-color:#3b9eff !important; outline:none; }
+  html[data-theme="light"] input:focus { background:#fff !important; }
+  .wt { display:inline-flex; align-items:center; gap:3px; background:#1e3a5c; border:1.5px solid #334d6e; border-radius:99px; padding:2px 7px 2px 9px; font-size:0.79rem; font-weight:800; color:#93c5fd; margin:2px; }
+  html[data-theme="light"] .wt { background:#e0f4ff; border-color:#b8d8f5; color:#1a3a5c; }
+  .wt button { background:none; border:none; cursor:pointer; color:#64748b; font-size:0.85rem; padding:0 1px; line-height:1; }
+  html[data-theme="light"] .wt button { color:#336080; }
   .wt button:hover { color:#ff5c6a; }
-  .wt.err1 { background:#fff8e0; border-color:#ffd94a; }
-  .wt.err2 { background:#ffe8e0; border-color:#ffaa80; }
-  .wt.err3 { background:#ffd0d0; border-color:#ff5c6a; color:#aa1100; }
+  .wt.err1 { background:#3a2e00; border-color:#ffd94a; color:#ffd94a; }
+  .wt.err2 { background:#3a1800; border-color:#ffaa80; color:#ffaa80; }
+  .wt.err3 { background:#3a0000; border-color:#ff5c6a; color:#ff9090; }
+  html[data-theme="light"] .wt.err1 { background:#fff8e0; border-color:#ffd94a; color:#1a3a5c; }
+  html[data-theme="light"] .wt.err2 { background:#ffe8e0; border-color:#ffaa80; color:#1a3a5c; }
+  html[data-theme="light"] .wt.err3 { background:#ffd0d0; border-color:#ff5c6a; color:#aa1100; }
   .add-row { display:flex; gap:6px; margin-top:8px; }
-  .add-row input { flex:1; border:2px solid #b8d8f5; border-radius:9px; padding:6px 10px; font-family:inherit; font-size:0.87rem; font-weight:700; color:#1a3a5c; background:#e0f4ff; outline:none; }
-  .add-row input:focus { border-color:#3b9eff; background:#fff; }
-  .wb-sec { border-bottom:2px dashed #e0f0ff; padding:10px 0; }
+  .add-row input { flex:1; border:2px solid #334155; border-radius:9px; padding:6px 10px; font-family:inherit; font-size:0.87rem; font-weight:700; color:#e2e8f0; background:#1e293b; outline:none; }
+  html[data-theme="light"] .add-row input { border-color:#b8d8f5; color:#1a3a5c; background:#e0f4ff; }
+  .add-row input:focus { border-color:#3b9eff; }
+  html[data-theme="light"] .add-row input:focus { background:#fff; }
+  .wb-sec { border-bottom:2px dashed #334155; padding:10px 0; }
+  html[data-theme="light"] .wb-sec { border-bottom-color:#e0f0ff; }
   .wb-sec:last-child { border-bottom:none; }
   .wb-hd { display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none; margin-bottom:4px; }
-  .wb-lbl { color:#3b9eff; font-size:0.82rem; font-weight:800; }
-  .wb-tog { color:#336080; font-size:0.75rem; font-weight:700; }
+  .wb-lbl { color:#60a5fa; font-size:0.82rem; font-weight:800; }
+  html[data-theme="light"] .wb-lbl { color:#3b9eff; }
+  .wb-tog { color:#64748b; font-size:0.75rem; font-weight:700; }
+  html[data-theme="light"] .wb-tog { color:#336080; }
 </style>
 <script>(function(){var t=localStorage.getItem('thuiswerk_theme');if(t)document.documentElement.dataset.theme=t;})();</script>
 </head>
@@ -40,7 +52,7 @@
 <script>
   window.THUISWERK_APP = {
     id: 'dictee',
-    theme: 'light',
+    theme: localStorage.getItem('thuiswerk_theme') || 'dark',
     primaryColor: '#3b9eff',
     bgColor: '#e0f4ff',
     textColor: '#1a3a5c',
@@ -101,7 +113,23 @@ const WEIGHT_MODES = {
   zwaar:  { weights: [1, 5, 10, 15] },
 };
 
-const C = {sky:"#e0f4ff",blue:"#3b9eff",navy:"#1a3a5c",yellow:"#ffd94a",green:"#4ecb71",red:"#ff5c6a",white:"#fff",orange:"#ff8c42"};
+const COLORS = {
+  dark:  { sky:"#1e293b", page:"#0f172a", blue:"#3b9eff", navy:"#e2e8f0", yellow:"#ffd94a", green:"#4ecb71", red:"#ff5c6a", white:"#1e293b", orange:"#ff8c42", border:"#334155", muted:"#94a3b8", hint:"#64748b", divider:"#334155", cardShadow:"0 7px 0 #0d1a2e, 0 12px 28px rgba(0,0,0,0.4)", errBg:"#fff0f1" },
+  light: { sky:"#e0f4ff", page:"#e0f4ff", blue:"#3b9eff", navy:"#1a3a5c", yellow:"#ffd94a", green:"#4ecb71", red:"#ff5c6a", white:"#fff",    orange:"#ff8c42", border:"#b8d8f5", muted:"#7fb8e0", hint:"#336080", divider:"#e0f0ff", cardShadow:"0 7px 0 #b8d8f5, 0 12px 28px rgba(59,158,255,0.12)", errBg:"#fff0f1" },
+};
+
+function makeC(theme) { return COLORS[theme] || COLORS.dark; }
+function makeS(C) { return {
+  page: {minHeight:"100vh",background:C.page,display:"flex",flexDirection:"column",alignItems:"center",padding:"22px 13px 60px",fontFamily:"'Nunito',sans-serif"},
+  card: {background:C.white,borderRadius:22,padding:"20px 18px 16px",width:"100%",maxWidth:500,boxShadow:C.cardShadow,marginBottom:16},
+  lbl:  {fontWeight:800,color:C.navy,fontSize:"0.87rem",display:"block",marginBottom:4,marginTop:11},
+  sel:  {width:"100%",border:`2.5px solid ${C.border}`,borderRadius:11,padding:"8px 11px",fontFamily:"inherit",fontSize:"0.95rem",fontWeight:700,color:C.navy,background:C.sky,outline:"none"},
+  chip: on=>({border:`2.5px solid ${on?C.blue:C.border}`,borderRadius:99,padding:"4px 11px",fontFamily:"inherit",fontSize:"0.82rem",fontWeight:800,color:on?C.white:C.navy,background:on?C.blue:C.sky,cursor:"pointer",whiteSpace:"nowrap"}),
+  btn:  (bg,fg="#fff",sm)=>({display:"inline-flex",alignItems:"center",gap:6,border:"none",borderRadius:13,fontFamily:"inherit",fontSize:sm?"0.83rem":"0.97rem",fontWeight:800,cursor:"pointer",padding:sm?"7px 13px":"10px 20px",background:bg,color:fg,boxShadow:"0 4px 0 rgba(0,0,0,0.13)"}),
+  tabB: on=>({background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",fontSize:"0.87rem",fontWeight:800,color:on?C.blue:C.hint,padding:"5px 10px 9px",borderBottom:`3px solid ${on?C.blue:"transparent"}`,marginBottom:-2}),
+  prog: p=>({height:"100%",background:`linear-gradient(90deg,${C.blue},#6ec6ff)`,borderRadius:99,width:p+"%",transition:"width 0.4s ease"}),
+  inp:  s=>({width:"100%",border:`3px solid ${s==="correct"?C.green:s==="wrong"?C.red:C.border}`,borderRadius:13,padding:"12px 15px",fontFamily:"inherit",fontSize:"1.3rem",fontWeight:800,color:C.navy,background:s==="correct"?"#edfff3":s==="wrong"?"#fff0f1":C.sky,outline:"none",textAlign:"center",letterSpacing:1}),
+}; }
 
 // ── Fouthistorie via localStorage ─────────────────────────────────────────────
 function loadHistory() {
@@ -180,21 +208,9 @@ function exportJSON(woorden) {
   URL.revokeObjectURL(url);
 }
 
-// ── Styles ────────────────────────────────────────────────────────────────────
-const S = {
-  page: {minHeight:"100vh",background:C.sky,display:"flex",flexDirection:"column",alignItems:"center",padding:"22px 13px 60px",fontFamily:"'Nunito',sans-serif"},
-  card: {background:C.white,borderRadius:22,padding:"20px 18px 16px",width:"100%",maxWidth:500,boxShadow:"0 7px 0 #b8d8f5, 0 12px 28px rgba(59,158,255,0.12)",marginBottom:16},
-  lbl:  {fontWeight:800,color:C.navy,fontSize:"0.87rem",display:"block",marginBottom:4,marginTop:11},
-  sel:  {width:"100%",border:"2.5px solid #b8d8f5",borderRadius:11,padding:"8px 11px",fontFamily:"inherit",fontSize:"0.95rem",fontWeight:700,color:C.navy,background:C.sky,outline:"none"},
-  chip: on=>({border:`2.5px solid ${on?C.blue:"#b8d8f5"}`,borderRadius:99,padding:"4px 11px",fontFamily:"inherit",fontSize:"0.82rem",fontWeight:800,color:on?C.white:C.navy,background:on?C.blue:C.sky,cursor:"pointer",whiteSpace:"nowrap"}),
-  btn:  (bg,fg="#fff",sm)=>({display:"inline-flex",alignItems:"center",gap:6,border:"none",borderRadius:13,fontFamily:"inherit",fontSize:sm?"0.83rem":"0.97rem",fontWeight:800,cursor:"pointer",padding:sm?"7px 13px":"10px 20px",background:bg,color:fg,boxShadow:"0 4px 0 rgba(0,0,0,0.13)"}),
-  tabB: on=>({background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",fontSize:"0.87rem",fontWeight:800,color:on?C.blue:"#336080",padding:"5px 10px 9px",borderBottom:`3px solid ${on?C.blue:"transparent"}`,marginBottom:-2}),
-  prog: p=>({height:"100%",background:`linear-gradient(90deg,${C.blue},#6ec6ff)`,borderRadius:99,width:p+"%",transition:"width 0.4s ease"}),
-  inp:  s=>({width:"100%",border:`3px solid ${s==="correct"?C.green:s==="wrong"?C.red:"#b8d8f5"}`,borderRadius:13,padding:"12px 15px",fontFamily:"inherit",fontSize:"1.3rem",fontWeight:800,color:C.navy,background:s==="correct"?"#edfff3":s==="wrong"?"#fff0f1":C.sky,outline:"none",textAlign:"center",letterSpacing:1}),
-};
 
 // ── Woordenbank tab ───────────────────────────────────────────────────────────
-function WoordenBankTab({ woorden, setWoorden, labels, levelLabels, wbLevel, setWbLevel, history, ui }) {
+function WoordenBankTab({ woorden, setWoorden, labels, levelLabels, wbLevel, setWbLevel, history, ui, C, S }) {
   const [open, setOpen]     = useState({});
   const [inputs, setInputs] = useState({});
   const data = woorden[wbLevel] || {};
@@ -222,7 +238,7 @@ function WoordenBankTab({ woorden, setWoorden, labels, levelLabels, wbLevel, set
   }
 
   return (<>
-    <p style={{fontSize:"0.82rem",fontWeight:700,color:"#7fb8e0",marginBottom:11,lineHeight:1.5}}>
+    <p style={{fontSize:"0.82rem",fontWeight:700,color:C.muted,marginBottom:11,lineHeight:1.5}}>
       {ui.wbHint}
     </p>
     <label style={S.lbl}>{ui.wbLevelLabel}</label>
@@ -235,14 +251,14 @@ function WoordenBankTab({ woorden, setWoorden, labels, levelLabels, wbLevel, set
           <div className="wb-hd" onClick={()=>setOpen(p=>({...p,[cat]:!p[cat]}))}>
             <span className="wb-lbl">
               {open[cat]?"▾":"▸"} {labels[cat]||cat}
-              <span style={{color:"#336080",fontWeight:600,marginLeft:6}}>({lijst.length})</span>
+              <span style={{color:C.hint,fontWeight:600,marginLeft:6}}>({lijst.length})</span>
             </span>
             <span className="wb-tog">{open[cat]?ui.wbCollapse:ui.wbExpand}</span>
           </div>
           {open[cat] && (<>
             <div style={{marginTop:4,lineHeight:2}}>
               {lijst.length===0
-                ? <span style={{color:"#bbb",fontSize:"0.8rem",fontStyle:"italic"}}>{ui.wbNoWords}</span>
+                ? <span style={{color:C.muted,fontSize:"0.8rem",fontStyle:"italic"}}>{ui.wbNoWords}</span>
                 : lijst.map(w=>(
                   <span key={w} className={errClass(w)} title={errorCount(history,w)>0?`${errorCount(history,w)}${ui.foutWrongSuffix}`:""}>
                     {w}
@@ -265,7 +281,7 @@ function WoordenBankTab({ woorden, setWoorden, labels, levelLabels, wbLevel, set
 }
 
 // ── Fouthistorie tab ──────────────────────────────────────────────────────────
-function FoutTab({ history, setHistory, ui }) {
+function FoutTab({ history, setHistory, ui, C, S }) {
   const entries = Object.entries(history)
     .filter(([,v])=>v.wrong>0)
     .sort((a,b)=>b[1].wrong-a[1].wrong);
@@ -277,20 +293,20 @@ function FoutTab({ history, setHistory, ui }) {
   }
 
   return (<>
-    <p style={{fontSize:"0.82rem",fontWeight:700,color:"#7fb8e0",marginBottom:11}}>{ui.foutHint}</p>
+    <p style={{fontSize:"0.82rem",fontWeight:700,color:C.muted,marginBottom:11}}>{ui.foutHint}</p>
     {entries.length===0
-      ? <p style={{color:"#aaa",fontWeight:700,fontSize:"0.87rem",padding:"14px 0",textAlign:"center"}}>{ui.foutNone}</p>
+      ? <p style={{color:C.muted,fontWeight:700,fontSize:"0.87rem",padding:"14px 0",textAlign:"center"}}>{ui.foutNone}</p>
       : (<>
           <div style={{maxHeight:320,overflowY:"auto"}}>
             {entries.map(([word,{correct,wrong}])=>(
-              <div key={word} style={{display:"flex",alignItems:"center",gap:8,padding:"7px 0",borderBottom:"2px dashed #e0f0ff",fontSize:"0.88rem",fontWeight:700}}>
+              <div key={word} style={{display:"flex",alignItems:"center",gap:8,padding:"7px 0",borderBottom:`2px dashed ${C.divider}`,fontSize:"0.88rem",fontWeight:700}}>
                 <span style={{flex:1,color:C.navy}}>{word}</span>
-                <span style={{background:errColor(wrong),borderRadius:99,padding:"2px 9px",fontSize:"0.78rem",fontWeight:800,color:wrong>=2?C.white:C.navy}}>
+                <span style={{background:errColor(wrong),borderRadius:99,padding:"2px 9px",fontSize:"0.78rem",fontWeight:800,color:wrong>=2?"#fff":C.navy}}>
                   {wrong}{ui.foutWrongSuffix}
                 </span>
                 <span style={{color:"#4ecb71",fontSize:"0.78rem",fontWeight:700}}>{correct}{ui.foutRightSuffix}</span>
                 <button onClick={()=>setHistory(h=>{const n={...h};delete n[word];saveHistory(n);return n;})}
-                  style={{background:"none",border:"none",cursor:"pointer",color:"#ccc",fontSize:"0.9rem",padding:"2px 4px"}}>✕</button>
+                  style={{background:"none",border:"none",cursor:"pointer",color:C.muted,fontSize:"0.9rem",padding:"2px 4px"}}>✕</button>
               </div>
             ))}
           </div>
@@ -319,6 +335,19 @@ function loadInitFav() {
 
 // ── Hoofdapp ──────────────────────────────────────────────────────────────────
 function App() {
+  const [theme, setTheme] = useState(
+    () => document.documentElement.dataset.theme || localStorage.getItem('thuiswerk_theme') || 'dark'
+  );
+  useEffect(() => {
+    const obs = new MutationObserver(() =>
+      setTheme(document.documentElement.dataset.theme || 'dark')
+    );
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => obs.disconnect();
+  }, []);
+  const C = makeC(theme);
+  const S = makeS(C);
+
   const [lang, setLang]             = useState(window._initLang);
   const [ui,   setUi]               = useState(window._i18n[window._initLang]?.dictee || null);
   const [woorden, setWoorden]       = useState(window._words[window._initLang] || null);
@@ -511,7 +540,7 @@ function App() {
       {/* ── SETUP ── */}
       {screen==="setup" && <>
         <div style={S.card}>
-          <div style={{display:"flex",gap:4,marginBottom:13,borderBottom:"2.5px solid #e0f0ff"}}>
+          <div style={{display:"flex",gap:4,marginBottom:13,borderBottom:`2.5px solid ${C.divider}`}}>
             {TABS.map(t=>(
               <button key={t} style={S.tabB(tab===t)} onClick={()=>setTab(t)}>{ui.tabs[t]}</button>
             ))}
@@ -525,14 +554,14 @@ function App() {
               {availLevels.map(l=><option key={l} value={l}>{levelLabels[l]||l}</option>)}
             </select>
 
-            <label style={S.lbl}>{ui.catsLabel} <span style={{fontWeight:600,color:"#336080",fontSize:"0.79rem"}}>{ui.catsHint}</span></label>
+            <label style={S.lbl}>{ui.catsLabel} <span style={{fontWeight:600,color:C.hint,fontSize:"0.79rem"}}>{ui.catsHint}</span></label>
             <div style={{display:"flex",flexWrap:"wrap",gap:6,marginTop:4}}>
               {availCats.map(cat=>(
                 <button key={cat} style={S.chip(selCats.includes(cat))} onClick={()=>toggleCat(cat)}>
                   {catLabel(cat)}
                 </button>
               ))}
-              {selCats.length>0 && <button style={{...S.chip(false),color:"#bbb",fontSize:"0.76rem"}} onClick={()=>setSelCats([])}>{ui.clearBtn}</button>}
+              {selCats.length>0 && <button style={{...S.chip(false),color:C.muted,fontSize:"0.76rem"}} onClick={()=>setSelCats([])}>{ui.clearBtn}</button>}
             </div>
 
             <label style={S.lbl}>{ui.wordCountLabel}</label>
@@ -549,7 +578,7 @@ function App() {
               ))}
             </div>
             {weightMode!=="uit" && (
-              <div style={{fontSize:"0.78rem",fontWeight:700,color:"#7fb8e0",marginTop:5}}>{ui.weightHint}</div>
+              <div style={{fontSize:"0.78rem",fontWeight:700,color:C.muted,marginTop:5}}>{ui.weightHint}</div>
             )}
 
             <label style={S.lbl}>{ui.voiceLabel}</label>
@@ -569,7 +598,7 @@ function App() {
               </button>
             )}
 
-            <div style={{borderTop:"2px dashed #e0f0ff",margin:"13px 0"}}/>
+            <div style={{borderTop:`2px dashed ${C.divider}`,margin:"13px 0"}}/>
             <label style={{...S.lbl,marginTop:0}}>{ui.customLabel}</label>
             <textarea style={{...S.sel,height:76,resize:"vertical",fontSize:"0.86rem"}}
               value={customText} onChange={e=>setCustomText(e.target.value)}
@@ -582,11 +611,11 @@ function App() {
 
           {tab==="woordenbank" && (
             <WoordenBankTab woorden={woorden} setWoorden={setWoorden} labels={labels} levelLabels={levelLabels}
-              wbLevel={wbLevel} setWbLevel={setWbLevel} history={history} ui={ui}/>
+              wbLevel={wbLevel} setWbLevel={setWbLevel} history={history} ui={ui} C={C} S={S}/>
           )}
 
           {tab==="fouten" && (
-            <FoutTab history={history} setHistory={setHistory} ui={ui}/>
+            <FoutTab history={history} setHistory={setHistory} ui={ui} C={C} S={S}/>
           )}
         </div>
 
@@ -594,11 +623,11 @@ function App() {
         <div style={{...S.card,padding:"16px 18px"}}>
           <div style={{fontFamily:"'Fredoka One',cursive",fontSize:"1rem",color:C.navy,marginBottom:8}}>{ui.fileTitle}</div>
           {geladen && <div style={{fontSize:"0.8rem",fontWeight:700,background:"#edfff3",color:"#2a8a4a",padding:"5px 9px",borderRadius:8,marginBottom:10,display:"inline-flex",gap:4}}>{ui.fileActive}</div>}
-          <p style={{fontSize:"0.82rem",fontWeight:700,color:"#7fb8e0",marginBottom:11,lineHeight:1.5}}>
-            {ui.fileHint} <code style={{background:"#f0f0f0",padding:"1px 4px",borderRadius:4}}>{ui.fileCode}</code>.
+          <p style={{fontSize:"0.82rem",fontWeight:700,color:C.muted,marginBottom:11,lineHeight:1.5}}>
+            {ui.fileHint} <code style={{background:C.divider,padding:"1px 4px",borderRadius:4,color:C.navy}}>{ui.fileCode}</code>.
           </p>
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-            <button style={S.btn("#e8f4ff",C.blue,true)} onClick={()=>fileRef.current?.click()}>{ui.fileImportBtn}</button>
+            <button style={S.btn(C.sky,C.blue,true)} onClick={()=>fileRef.current?.click()}>{ui.fileImportBtn}</button>
             <button style={S.btn("#edfff3","#2a8a4a",true)} onClick={()=>exportJSON(woorden)}>{ui.fileExportBtn}</button>
             {geladen && <button style={S.btn("#fff0f1",C.red,true)} onClick={()=>{setWoorden(window._words[lang]);setGeladen(false);setSelCats([]);}}>{ui.fileResetBtn}</button>}
           </div>
@@ -609,7 +638,7 @@ function App() {
       {/* ── DICTEE ── */}
       {screen==="dictee" && words.length>0 && (
         <div style={S.card}>
-          <div style={{background:C.sky,borderRadius:99,height:13,width:"100%",overflow:"hidden",marginBottom:15,border:"2px solid #b8d8f5"}}>
+          <div style={{background:C.sky,borderRadius:99,height:13,width:"100%",overflow:"hidden",marginBottom:15,border:`2px solid ${C.border}`}}>
             <div style={S.prog(pct)}/>
           </div>
           <div style={{fontSize:"0.83rem",fontWeight:800,color:C.blue,marginBottom:9,textAlign:"center"}}>
@@ -619,7 +648,7 @@ function App() {
             style={{display:"block",margin:"0 auto 13px",width:82,height:82,borderRadius:"50%",border:"none",background:C.yellow,boxShadow:"0 6px 0 #e6ba00",cursor:"pointer",fontSize:"2.2rem",animation:speaking?"none":"pulse 2.5s ease-in-out infinite",transform:speaking?"scale(1.07)":"none"}}>
             🔊
           </button>
-          <p style={{textAlign:"center",fontSize:"0.79rem",color:"#7fb8e0",fontWeight:700,marginBottom:13}}>{ui.dicteeHint}</p>
+          <p style={{textAlign:"center",fontSize:"0.79rem",color:C.muted,fontWeight:700,marginBottom:13}}>{ui.dicteeHint}</p>
           <input ref={inputRef} style={S.inp(ansState)} value={answer}
             onChange={e=>setAnswer(e.target.value)}
             onKeyDown={e=>{if(e.key==="Enter") showNext?nextWord():checkAnswer();}}
@@ -631,10 +660,10 @@ function App() {
           </div>
           <div style={{display:"flex",gap:9,justifyContent:"center",marginTop:11}}>
             {!showNext && <button style={S.btn(C.green)} onClick={checkAnswer}>{ui.dicteeCheckBtn}</button>}
-            {showNext  && <button style={S.btn(C.navy)}  onClick={nextWord}>{ui.dicteeNextBtn}</button>}
+            {showNext  && <button style={S.btn("#1a3a5c")} onClick={nextWord}>{ui.dicteeNextBtn}</button>}
           </div>
           <div style={{textAlign:"center",marginTop:12}}>
-            <button style={{background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",fontSize:"0.8rem",fontWeight:700,color:"#336080",textDecoration:"underline"}}
+            <button style={{background:"none",border:"none",cursor:"pointer",fontFamily:"inherit",fontSize:"0.8rem",fontWeight:700,color:C.hint,textDecoration:"underline"}}
               onClick={stopDictee}>{ui.dicteeStopBtn}</button>
           </div>
         </div>
@@ -649,7 +678,7 @@ function App() {
           <div style={{textAlign:"center",fontWeight:800,color:C.blue,marginBottom:15,fontSize:"0.9rem"}}>{finalPct}{ui.resultsPct}</div>
           <div style={{maxHeight:270,overflowY:"auto"}}>
             {results.map((r,i)=>(
-              <div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"7px 0",borderBottom:i===results.length-1?"none":"2px dashed #e0f0ff",fontSize:"0.9rem",fontWeight:700}}>
+              <div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"7px 0",borderBottom:i===results.length-1?"none":`2px dashed ${C.divider}`,fontSize:"0.9rem",fontWeight:700}}>
                 <span>{r.correct?"✅":"❌"}</span>
                 <span style={{flex:1,color:C.navy}}>{r.word}</span>
                 {!r.correct && <span style={{color:C.red,fontSize:"0.82rem"}}>{ui.resultsYou} "{r.answer}"</span>}
@@ -657,13 +686,13 @@ function App() {
             ))}
           </div>
           <div style={{display:"flex",gap:9,justifyContent:"center",marginTop:15}}>
-            <button style={S.btn(C.yellow,C.navy)} onClick={()=>setScreen("setup")}>{ui.resultsRetryBtn}</button>
+            <button style={S.btn(C.yellow,"#1a3a5c")} onClick={()=>setScreen("setup")}>{ui.resultsRetryBtn}</button>
             {results.some(r=>!r.correct) && <button style={S.btn(C.blue)} onClick={retryWrong}>{ui.resultsWrongBtn}</button>}
           </div>
         </div>
       )}
 
-      <div style={{textAlign:"center",marginTop:4,fontSize:"0.72rem",color:"#336080",fontWeight:600,lineHeight:2}}>
+      <div style={{textAlign:"center",marginTop:4,fontSize:"0.72rem",color:C.hint,fontWeight:600,lineHeight:2}}>
         <a href="https://github.com/mmalkus/Thuiswerk" target="_blank" rel="noopener" style={{color:"#3b9eff",textDecoration:"none"}}>GitHub</a>
         {" · "}MIT License © 2026 Maurits Malkus
       </div>
