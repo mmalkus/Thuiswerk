@@ -85,6 +85,44 @@
     "wrong": "✗ Wrong — answer was {ans}",
     "settingsTitle": "Settings"
   },
+  "topo": {
+    "appTitle": "🗺️ Geography",
+    "mapLabel": "Map",
+    "typeLabel": "Categories",
+    "modeLabel": "Mode",
+    "modeClick": "Click on map",
+    "modeType": "Type the name",
+    "timerLabel": "Timer",
+    "timerOn": "⏱ On",
+    "timerOff": "∞ Off",
+    "secLabel": "sec",
+    "countLabel": "Number of questions",
+    "startBtn": "▶ Start",
+    "stopBtn": "✕ stop",
+    "clickPrompt": "Click on:",
+    "typePrompt": "Type the name:",
+    "correct": "✓ Correct!",
+    "wrong": "✗ Wrong — it was:",
+    "scoreOf": "of",
+    "scoreGoed": "correct",
+    "settingsBtn": "⚙ Settings",
+    "retryBtn": "↩ Again",
+    "types": {
+      "province": "Provinces",
+      "city": "Cities",
+      "river": "Rivers",
+      "country": "Countries",
+      "capital": "Capitals",
+      "mountain": "Mountain ranges",
+      "sea": "Seas"
+    },
+    "maps": {
+      "nl":       "🇳🇱 Netherlands",
+      "europe":   "🌍 Europe",
+      "world":    "🌐 World",
+      "physical": "📏 Physical"
+    }
+  },
   "sidebar": {
     "home": "Back to Home",
     "language": "Language",

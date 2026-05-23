@@ -85,6 +85,44 @@
     "wrong": "✗ Fout — antwoord was {ans}",
     "settingsTitle": "Instellingen"
   },
+  "topo": {
+    "appTitle": "🗺️ Topografie",
+    "mapLabel": "Kaart",
+    "typeLabel": "Onderdelen",
+    "modeLabel": "Modus",
+    "modeClick": "Klik op kaart",
+    "modeType": "Typ de naam",
+    "timerLabel": "Timer",
+    "timerOn": "⏱ Aan",
+    "timerOff": "∞ Uit",
+    "secLabel": "sec",
+    "countLabel": "Aantal vragen",
+    "startBtn": "▶ Start",
+    "stopBtn": "✕ stop",
+    "clickPrompt": "Klik op:",
+    "typePrompt": "Typ de naam:",
+    "correct": "✓ Goed!",
+    "wrong": "✗ Fout — het was:",
+    "scoreOf": "van",
+    "scoreGoed": "goed",
+    "settingsBtn": "⚙ Instellingen",
+    "retryBtn": "↩ Opnieuw",
+    "types": {
+      "province": "Provincies",
+      "city": "Steden",
+      "river": "Rivieren",
+      "country": "Landen",
+      "capital": "Hoofdsteden",
+      "mountain": "Gebergten",
+      "sea": "Zeeën"
+    },
+    "maps": {
+      "nl":       "🇳🇱 Nederland",
+      "europe":   "🌍 Europa",
+      "world":    "🌐 Wereld",
+      "physical": "📏 Fysisch"
+    }
+  },
   "sidebar": {
     "home": "Terug naar Home",
     "language": "Taal",

@@ -29,6 +29,10 @@
     --reken-card:    #161616;
     --reken-accent:  #e8ff47;
     --reken-text:    #f0f0f0;
+    --topo-bg:       #080f08;
+    --topo-card:     #0f1a0f;
+    --topo-accent:   #4ade80;
+    --topo-text:     #dff5df;
   }
 
   html, body {
@@ -116,6 +120,23 @@
 
   .card-dictee .arrow {
     color: var(--dictee-accent);
+  }
+
+  /* Topografie card — dark green */
+  .card-topo {
+    background: var(--topo-bg);
+    color: var(--topo-text);
+  }
+  .card-topo .card-header {
+    background: var(--topo-card);
+    border-bottom: 1px solid #1e3a1e;
+  }
+  .card-topo .tag {
+    background: var(--topo-accent);
+    color: #000;
+  }
+  .card-topo .arrow {
+    color: var(--topo-accent);
   }
 
   /* Rekentoets card — dark */
@@ -329,6 +350,20 @@
     </div>
   </a>
 
+  <a href="topografie.html" class="card card-topo">
+    <div class="card-header">
+      <span class="emoji">🗺️</span>
+      <span class="card-title">Topografie</span>
+    </div>
+    <div class="card-body">
+      <p class="card-desc">Oefen provincies, steden, rivieren, landen en hoofdsteden. Met klik- en typmodus.</p>
+      <div class="card-footer">
+        <span class="tag">NL · EN</span>
+        <span class="arrow">→</span>
+      </div>
+    </div>
+  </a>
+
   <a href="rekentoets.html" class="card card-reken">
     <div class="card-header">
       <span class="emoji">🔢</span>
@@ -375,11 +410,13 @@
     if (favs.length === 0) { section.style.display = 'none'; return; }
     section.style.display = 'flex';
     list.innerHTML = favs.map(f => {
-      const isDictee = f.app === 'dictee';
-      const icon  = isDictee ? '📝' : '🔢';
-      const url   = (isDictee ? 'dictee.html' : 'rekentoets.html') + '?fav=' + f.id;
-      const badge = isDictee
+      const icon  = f.app === 'dictee' ? '📝' : f.app === 'topo' ? '🗺️' : '🔢';
+      const page  = f.app === 'dictee' ? 'dictee.html' : f.app === 'topo' ? 'topografie.html' : 'rekentoets.html';
+      const url   = page + '?fav=' + f.id;
+      const badge = f.app === 'dictee'
         ? '<span class="fav-badge" style="background:#3b9eff;color:#fff">Dictee</span>'
+        : f.app === 'topo'
+        ? '<span class="fav-badge" style="background:#4ade80;color:#000">Topo</span>'
         : '<span class="fav-badge" style="background:#e8ff47;color:#000">Rekenen</span>';
       return `<div class="fav-item">
         <a href="${url}" class="fav-link">
