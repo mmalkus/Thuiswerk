@@ -392,8 +392,21 @@
   html[data-theme="light"] {
     --bg: #fefce8; --surface: #ffffff; --surface2: #fef9c3;
     --border: #fde68a; --accent: #ca8a04; --accent2: #ea580c;
-    --text: #1c1917; --muted: #78716c; --bad: #dc2626;
+    --text: #1c1917; --muted: #78716c; --bad: #dc2626; --good: #16a34a;
+    --key-bg: #fef9c3; --key-border: #fde68a; --key-hover: #fef3c7;
   }
+  html[data-theme="light"] body::before { background: radial-gradient(ellipse 60% 50% at 50% 0%, #fef3c7 0%, transparent 70%); }
+  html[data-theme="light"] .key:hover { border-color: var(--border); }
+  html[data-theme="light"] .key:active,
+  html[data-theme="light"] .key.pressed { background: #fef3c7; border-color: var(--accent); }
+  html[data-theme="light"] .key.key-del { background: #fff1f2; border-color: #fecaca; }
+  html[data-theme="light"] .key.key-del:hover { background: #fee2e2; }
+  html[data-theme="light"] .key.key-del:active,
+  html[data-theme="light"] .key.key-del.pressed { background: #fecaca; border-color: var(--bad); }
+  html[data-theme="light"] .answer-display.correct { background: #f0fdf4; }
+  html[data-theme="light"] .answer-display.wrong   { background: #fef2f2; }
+  html[data-theme="light"] .op-chip.selected { background: #fef9c3; }
+  html[data-theme="light"] .settings-toggle.active { background: #fef9c3; }
 </style>
 <script>(function(){var t=localStorage.getItem('thuiswerk_theme');if(t)document.documentElement.dataset.theme=t;})();</script>
 </head>
