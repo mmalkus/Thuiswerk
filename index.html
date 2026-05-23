@@ -362,7 +362,7 @@
 
 <header>
   <h1>Thuiswerk</h1>
-  <p>Kies een oefening 👇</p>
+  <p id="home-subtitle">Kies een oefening 👇</p>
 </header>
 
 <div class="cards">
@@ -370,10 +370,10 @@
   <a href="dictee.html" class="card card-dictee">
     <div class="card-header">
       <span class="emoji">📝</span>
-      <span class="card-title">Dictee</span>
+      <span class="card-title" id="home-dictee-title">Dictee</span>
     </div>
     <div class="card-body">
-      <p class="card-desc">Oefen spellingwoorden voor groep 3 t/m 8. Met uitgesproken woorden en bijhouden van fouten.</p>
+      <p class="card-desc" id="home-dictee-desc">Oefen spellingwoorden voor groep 3 t/m 8. Met uitgesproken woorden en bijhouden van fouten.</p>
       <div class="card-footer">
         <span class="tag">NL · EN</span>
         <span class="arrow">→</span>
@@ -384,10 +384,10 @@
   <a href="topografie.html" class="card card-topo">
     <div class="card-header">
       <span class="emoji">🗺️</span>
-      <span class="card-title">Topografie</span>
+      <span class="card-title" id="home-topo-title">Topografie</span>
     </div>
     <div class="card-body">
-      <p class="card-desc">Oefen provincies, steden, rivieren, landen en hoofdsteden. Met klik- en typmodus.</p>
+      <p class="card-desc" id="home-topo-desc">Oefen provincies, steden, rivieren, landen en hoofdsteden. Met klik- en typmodus.</p>
       <div class="card-footer">
         <span class="tag">NL · EN</span>
         <span class="arrow">→</span>
@@ -398,10 +398,10 @@
   <a href="rekentoets.html" class="card card-reken">
     <div class="card-header">
       <span class="emoji">🔢</span>
-      <span class="card-title">Rekentoets</span>
+      <span class="card-title" id="home-reken-title">Rekentoets</span>
     </div>
     <div class="card-body">
-      <p class="card-desc">Oefen sommen met optellen, aftrekken, vermenigvuldigen en delen. Met timer en scoregrafiek.</p>
+      <p class="card-desc" id="home-reken-desc">Oefen sommen met optellen, aftrekken, vermenigvuldigen en delen. Met timer en scoregrafiek.</p>
       <div class="card-footer">
         <span class="tag">NL · EN</span>
         <span class="arrow">→</span>
@@ -412,7 +412,7 @@
 </div>
 
 <div class="fav-section" id="fav-section">
-  <div class="fav-heading">⭐ Favorieten</div>
+  <div class="fav-heading" id="fav-heading">⭐ Favorieten</div>
   <div class="fav-list" id="fav-list"></div>
 </div>
 
@@ -421,7 +421,7 @@
 <footer>
   <a href="https://github.com/mmalkus/Thuiswerk" target="_blank" rel="noopener">GitHub</a>
   · MIT License © 2026 Maurits Malkus
-  · offline beschikbaar
+  · <span id="home-offline">offline beschikbaar</span>
 </footer>
 
 <script>
@@ -438,6 +438,41 @@
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }
 
+  // ── i18n ────────────────────────────────────────────────────────────────
+  window._i18n = window._i18n || {};
+  let _lang = localStorage.getItem('thuiswerk_lang') || 'nl';
+  let _homeStrings = null;
+
+  function loadI18n(lc) {
+    if (window._i18n[lc]) return Promise.resolve(window._i18n[lc]);
+    return fetch('i18n-' + lc + '.json').then(r => r.json()).then(d => {
+      window._i18n[lc] = d; return d;
+    });
+  }
+
+  function applyLang(data) {
+    const h = _homeStrings = data.home;
+    document.getElementById('home-subtitle').textContent      = h.subtitle;
+    document.getElementById('home-dictee-title').textContent  = h.dicteeTitle;
+    document.getElementById('home-dictee-desc').textContent   = h.dicteeDesc;
+    document.getElementById('home-topo-title').textContent    = h.topoTitle;
+    document.getElementById('home-topo-desc').textContent     = h.topoDesc;
+    document.getElementById('home-reken-title').textContent   = h.rekenTitle;
+    document.getElementById('home-reken-desc').textContent    = h.rekenDesc;
+    document.getElementById('fav-heading').textContent        = '⭐ ' + h.favsHeading;
+    document.getElementById('install-btn').textContent        = h.installBtn;
+    document.getElementById('home-offline').textContent       = h.offline;
+    document.documentElement.lang = _lang;
+    renderFavs();
+  }
+
+  loadI18n(_lang).then(applyLang);
+
+  window.addEventListener('thuiswerk:setLang', e => {
+    _lang = e.detail;
+    loadI18n(_lang).then(applyLang);
+  });
+
   // ── Favorieten ──────────────────────────────────────────────────────────
   function escHtml(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -448,7 +483,8 @@
   }
 
   function renderFavs() {
-    const favs = getFavs();
+    const h     = _homeStrings;
+    const favs  = getFavs();
     const section = document.getElementById('fav-section');
     const list    = document.getElementById('fav-list');
     if (favs.length === 0) { section.style.display = 'none'; return; }
@@ -457,18 +493,19 @@
       const icon  = f.app === 'dictee' ? '📝' : f.app === 'topo' ? '🗺️' : '🔢';
       const page  = f.app === 'dictee' ? 'dictee.html' : f.app === 'topo' ? 'topografie.html' : 'rekentoets.html';
       const url   = page + '?fav=' + f.id;
+      const delTitle = h ? h.favDelete : 'Verwijder';
       const badge = f.app === 'dictee'
-        ? '<span class="fav-badge" style="background:#3b9eff;color:#fff">Dictee</span>'
+        ? `<span class="fav-badge" style="background:#3b9eff;color:#fff">${h ? h.favBadgeDictee : 'Dictee'}</span>`
         : f.app === 'topo'
-        ? '<span class="fav-badge" style="background:#4ade80;color:#000">Topo</span>'
-        : '<span class="fav-badge" style="background:#e8ff47;color:#000">Rekenen</span>';
+        ? `<span class="fav-badge" style="background:#4ade80;color:#000">${h ? h.favBadgeTopo : 'Topo'}</span>`
+        : `<span class="fav-badge" style="background:#e8ff47;color:#000">${h ? h.favBadgeReken : 'Rekenen'}</span>`;
       return `<div class="fav-item">
         <a href="${url}" class="fav-link">
           <span class="fav-icon">${icon}</span>
           <span class="fav-name">${escHtml(f.name)}</span>
           ${badge}
         </a>
-        <button class="fav-del" onclick="deleteFav('${f.id}')" title="Verwijder">✕</button>
+        <button class="fav-del" onclick="deleteFav('${f.id}')" title="${escHtml(delTitle)}">✕</button>
       </div>`;
     }).join('');
   }
@@ -478,8 +515,6 @@
     try { localStorage.setItem('thuiswerk_favorites', JSON.stringify(favs)); } catch(e) {}
     renderFavs();
   }
-
-  renderFavs();
 
   let deferredPrompt;
   const installBtn = document.getElementById('install-btn');

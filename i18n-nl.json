@@ -142,5 +142,21 @@
     "noName": "Geef een naam op",
     "favsTitle": "Opgeslagen favorieten",
     "noFavs": "Nog geen favorieten opgeslagen."
+  },
+  "home": {
+    "subtitle": "Kies een oefening 👇",
+    "dicteeTitle": "Dictee",
+    "dicteeDesc": "Oefen spellingwoorden voor groep 3 t/m 8. Met uitgesproken woorden en bijhouden van fouten.",
+    "topoTitle": "Topografie",
+    "topoDesc": "Oefen provincies, steden, rivieren, landen en hoofdsteden. Met klik- en typmodus.",
+    "rekenTitle": "Rekentoets",
+    "rekenDesc": "Oefen sommen met optellen, aftrekken, vermenigvuldigen en delen. Met timer en scoregrafiek.",
+    "favsHeading": "Favorieten",
+    "favDelete": "Verwijder",
+    "favBadgeDictee": "Dictee",
+    "favBadgeTopo": "Topo",
+    "favBadgeReken": "Rekenen",
+    "installBtn": "📲 Installeer app",
+    "offline": "offline beschikbaar"
   }
 }

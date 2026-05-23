@@ -142,5 +142,21 @@
     "noName": "Please enter a name",
     "favsTitle": "Saved favourites",
     "noFavs": "No favourites saved yet."
+  },
+  "home": {
+    "subtitle": "Choose an exercise 👇",
+    "dicteeTitle": "Spelling",
+    "dicteeDesc": "Practice spelling words for years 3 to 8. With spoken words and error tracking.",
+    "topoTitle": "Geography",
+    "topoDesc": "Practice provinces, cities, rivers, countries and capitals. With click and type mode.",
+    "rekenTitle": "Maths Quiz",
+    "rekenDesc": "Practice addition, subtraction, multiplication and division. With timer and score chart.",
+    "favsHeading": "Favourites",
+    "favDelete": "Delete",
+    "favBadgeDictee": "Spelling",
+    "favBadgeTopo": "Topo",
+    "favBadgeReken": "Maths",
+    "installBtn": "📲 Install app",
+    "offline": "available offline"
   }
 }
