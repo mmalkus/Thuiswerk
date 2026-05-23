@@ -12,7 +12,7 @@
   var surfColor= isDark ? '#1e1e1e' : '#f0f8ff';
   var borderColor = isDark ? '#2a2a2a' : '#b8d8f5';
   var textColor   = cfg.textColor || (isDark ? '#f0f0f0' : '#1a3a5c');
-  var mutedColor  = isDark ? '#555' : '#94a3b8';
+  var mutedColor  = isDark ? '#999' : '#64748b';
 
   function getLang() {
     return localStorage.getItem('thuiswerk_lang') || 'nl';
@@ -134,7 +134,7 @@
     'html[data-theme="light"] .tw-frow:hover{border-color:#818cf8!important;}',
     'html[data-theme="light"] .tw-fname{color:#1e293b!important;}',
     'html[data-theme="light"] .tw-fdel{color:#94a3b8!important;}',
-    'html[data-theme="light"] .tw-empty{color:#94a3b8!important;}',
+    'html[data-theme="light"] .tw-empty{color:#64748b!important;}',
   ].join('');
 
   var st = document.createElement('style');
