@@ -330,6 +330,9 @@ const HOUTRIB_E = [5.462, 52.514];
 const CLIP_IJSSELMEER  = [[[3,55],[8,55],[8,HOUTRIB_E[1]],HOUTRIB_E,HOUTRIB_W,[3,HOUTRIB_W[1]],[3,55]]];
 const CLIP_MARKERMEER  = [[[3,50],[8,50],[8,HOUTRIB_E[1]],HOUTRIB_E,HOUTRIB_W,[3,HOUTRIB_W[1]],[3,50]]];
 
+// NL map bounding box as a clip polygon for trimming large marine features.
+const CLIP_NL_BBOX = [[[NL_BBOX[0],NL_BBOX[1]],[NL_BBOX[2],NL_BBOX[1]],[NL_BBOX[2],NL_BBOX[3]],[NL_BBOX[0],NL_BBOX[3]],[NL_BBOX[0],NL_BBOX[1]]]];
+
 function intersectClip(geom, clipPoly) {
   const subject = toClipPoly(geom);
   if (!subject) return null;
@@ -340,7 +343,7 @@ function intersectClip(geom, clipPoly) {
   }
 }
 
-async function buildNL(provGeo, placesGeo, places10mGeo, riversGeo, lakesGeo) {
+async function buildNL(provGeo, placesGeo, places10mGeo, riversGeo, lakesGeo, marineGeo) {
   console.log('\nBuilding topo-nl.json...');
 
   const nlLakes = lakesGeo.features.filter(f => inBox(NL_BBOX, coordsOf(f.geometry)));
@@ -380,6 +383,20 @@ async function buildNL(provGeo, placesGeo, places10mGeo, riversGeo, lakesGeo) {
     centroid: centroid(lauwersFeat.geometry),
     geometry: roundGeometry(lauwersFeat.geometry),
   });
+
+  // North Sea — clip the large marine polygon to the NL map extent.
+  const northSeaFeat = marineGeo.features.find(f =>
+    (f.properties.name || '') === 'North Sea'
+  );
+  if (northSeaFeat) {
+    const clipped = intersectClip(northSeaFeat.geometry, CLIP_NL_BBOX);
+    if (clipped) features.push({
+      id: 'sea-noordzee', type: 'sea',
+      names: { nl: 'Noordzee', en: 'North Sea' },
+      centroid: centroid(clipped),
+      geometry: roundGeometry(clipped),
+    });
+  }
 
   // Provinces — Natural Earth 10m admin-1 filtered to NL
   for (const f of provGeo.features.filter(f =>
@@ -560,7 +577,7 @@ async function main() {
 
   console.log('\nBuilding output files...');
   await buildCountries(placesGeo);
-  await buildNL(provGeo, placesGeo, places10mGeo, rivers10mGeo, lakesGeo);
+  await buildNL(provGeo, placesGeo, places10mGeo, rivers10mGeo, lakesGeo, marineGeo);
   await buildPhysical(rivers50mGeo, regionGeo, marineGeo);
 
   console.log('\nDone. Run `cd .. && git status` to review new files.');
