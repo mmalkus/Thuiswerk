@@ -13,6 +13,20 @@
   function getLang() {
     return localStorage.getItem('thuiswerk_lang') || 'nl';
   }
+  function loadI18n(lc) {
+    if (typeof window.loadI18n === 'function') return window.loadI18n(lc);
+    window._i18n = window._i18n || {};
+    if (window._i18n[lc]) return Promise.resolve(window._i18n[lc]);
+    return fetch('i18n-' + lc + '.json').then(function (r) { return r.json(); })
+      .then(function (d) { window._i18n[lc] = d; return d; });
+  }
+  function loadWords(lc) {
+    if (typeof window.loadWords === 'function') return window.loadWords(lc);
+    window._words = window._words || {};
+    if (window._words[lc]) return Promise.resolve(window._words[lc]);
+    return fetch('words-' + lc + '.json').then(function (r) { return r.json(); })
+      .then(function (d) { window._words[lc] = d; return d; });
+  }
   function getFavs() {
     try { return JSON.parse(localStorage.getItem('thuiswerk_favorites') || '[]'); } catch (e) { return []; }
   }
@@ -20,32 +34,14 @@
     try { localStorage.setItem('thuiswerk_favorites', JSON.stringify(favs)); } catch (e) {}
   }
 
-  var LABELS = {
-    nl: {
-      home: 'Terug naar Home',
-      language: 'Taal',
-      saveTitle: 'Opslaan als favoriet',
-      placeholder: 'Naam voor deze instellingen…',
-      saveBtn: 'Opslaan',
-      savedMsg: '✓ Opgeslagen!',
-      noName: 'Geef een naam op',
-      favsTitle: 'Opgeslagen favorieten',
-      noFavs: 'Nog geen favorieten opgeslagen.',
-    },
-    en: {
-      home: 'Back to Home',
-      language: 'Language',
-      saveTitle: 'Save as favourite',
-      placeholder: 'Name for these settings…',
-      saveBtn: 'Save',
-      savedMsg: '✓ Saved!',
-      noName: 'Please enter a name',
-      favsTitle: 'Saved favourites',
-      noFavs: 'No favourites saved yet.',
-    }
-  };
-
-  function ui() { return LABELS[getLang()] || LABELS.nl; }
+  function ui() {
+    var lc = getLang();
+    if (window._i18n && window._i18n[lc] && window._i18n[lc].sidebar) return window._i18n[lc].sidebar;
+    // Tiny inline fallback for the rare case the JSON hasn't loaded yet
+    return lc === 'en'
+      ? { home:'Back to Home', language:'Language', saveTitle:'Save as favourite', placeholder:'Name…', saveBtn:'Save', savedMsg:'✓ Saved!', noName:'Enter a name', favsTitle:'Saved favourites', noFavs:'No favourites saved yet.' }
+      : { home:'Terug naar Home', language:'Taal', saveTitle:'Opslaan als favoriet', placeholder:'Naam…', saveBtn:'Opslaan', savedMsg:'✓ Opgeslagen!', noName:'Geef een naam op', favsTitle:'Opgeslagen favorieten', noFavs:'Nog geen favorieten opgeslagen.' };
+  }
   function esc(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
@@ -181,10 +177,17 @@
     lang: function (lc) {
       localStorage.setItem('thuiswerk_lang', lc);
       if (cfg.id === 'reken') localStorage.setItem('rekentoets_lang', lc);
-      window.dispatchEvent(new CustomEvent('thuiswerk:setLang', { detail: lc }));
+      // Update chips immediately
       document.querySelectorAll('#tw-pnl .tw-chip').forEach(function (c) {
         if (c.textContent === 'NL') c.classList.toggle('on', lc === 'nl');
         if (c.textContent === 'EN') c.classList.toggle('on', lc === 'en');
+      });
+      // Ensure both i18n (and words for dictee) are cached before firing the event
+      var fetches = [loadI18n(lc)];
+      if (cfg.id === 'dictee') fetches.push(loadWords(lc));
+      Promise.all(fetches).then(function () {
+        window.dispatchEvent(new CustomEvent('thuiswerk:setLang', { detail: lc }));
+        if (pnl.classList.contains('on')) render();
       });
     },
     save: function () {

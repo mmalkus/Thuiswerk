@@ -1,4 +1,4 @@
-const CACHE = 'thuiswerk-v2';
+const CACHE = 'thuiswerk-v3';
 const ASSETS = [
   '/Thuiswerk/',
   '/Thuiswerk/index.html',
@@ -7,6 +7,10 @@ const ASSETS = [
   '/Thuiswerk/sidebar.js',
   '/Thuiswerk/manifest.json',
   '/Thuiswerk/icons/icon.svg',
+  '/Thuiswerk/i18n-nl.json',
+  '/Thuiswerk/i18n-en.json',
+  '/Thuiswerk/words-nl.json',
+  '/Thuiswerk/words-en.json',
 ];
 
 self.addEventListener('install', e => {

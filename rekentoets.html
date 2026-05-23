@@ -399,6 +399,29 @@
     bgColor: '#161616',
     textColor: '#f0f0f0',
   };
+
+  window._i18n = window._i18n || {};
+
+  window._initLang = (function () {
+    try {
+      var favId = new URLSearchParams(location.search).get('fav');
+      if (favId) {
+        var favs = JSON.parse(localStorage.getItem('thuiswerk_favorites') || '[]');
+        var fav  = favs.find(function (f) { return f.id === favId && f.app === 'reken'; });
+        if (fav && fav.settings && fav.settings.lang) return fav.settings.lang;
+      }
+    } catch (e) {}
+    return localStorage.getItem('thuiswerk_lang') || localStorage.getItem('rekentoets_lang') || 'nl';
+  }());
+
+  function loadI18n(lc) {
+    return window._i18n[lc]
+      ? Promise.resolve(window._i18n[lc])
+      : fetch('i18n-' + lc + '.json').then(function (r) { return r.json(); })
+          .then(function (d) { window._i18n[lc] = d; return d; });
+  }
+
+  window.APP_READY = loadI18n(window._initLang);
 </script>
 
 <div class="container">
@@ -558,73 +581,17 @@
 <script>
   const TOTAL = 20;
 
-  // ── UI strings ────────────────────────────────────────────────────────────
-  const UI_STRINGS = {
-    nl: {
-      title:        'Rekentoets',
-      appTitle:     'Rekentoets',
-      noTimer:      '∞ Geen timer',
-      timerSec:     s => `⚡ ${s} sec`,
-      firstNum:     'Eerste getal (bereik)',
-      secondNum:    'Tweede getal (bereik)',
-      rangeToText:  't/m',
-      timerLabel:   'Timer',
-      timerOn:      '⏱ Aan',
-      timerOff:     '∞ Uit',
-      secLabel:     'sec',
-      opsLabel:     'Bewerkingen (meerdere mogelijk)',
-      answerLabel:  'Antwoord (bereik)',
-      answerOn:     '✓ Aan',
-      answerOff:    '∞ Uit',
-      lastAttempts: 'Laatste pogingen',
-      startBtn:     'Start toets →',
-      quizTitle:    'Rekentoets',
-      stopBtn:      '✕ stop',
-      outOf:        'van de 20 goed',
-      settingsBtn:  '⚙ Instellingen',
-      retryBtn:     '↩ Opnieuw',
-      correct:      '✓ Goed!',
-      wrong:        ans => `✗ Fout — antwoord was ${ans}`,
-      settingsTitle:'Instellingen',
-    },
-    en: {
-      title:        'Maths Quiz',
-      appTitle:     'Maths Quiz',
-      noTimer:      '∞ No timer',
-      timerSec:     s => `⚡ ${s} sec`,
-      firstNum:     'First number (range)',
-      secondNum:    'Second number (range)',
-      rangeToText:  'to',
-      timerLabel:   'Timer',
-      timerOn:      '⏱ On',
-      timerOff:     '∞ Off',
-      secLabel:     'sec',
-      opsLabel:     'Operations (multiple allowed)',
-      answerLabel:  'Answer (range)',
-      answerOn:     '✓ On',
-      answerOff:    '∞ Off',
-      lastAttempts: 'Last attempts',
-      startBtn:     'Start quiz →',
-      quizTitle:    'Maths Quiz',
-      stopBtn:      '✕ stop',
-      outOf:        'out of 20 correct',
-      settingsBtn:  '⚙ Settings',
-      retryBtn:     '↩ Again',
-      correct:      '✓ Correct!',
-      wrong:        ans => `✗ Wrong — answer was ${ans}`,
-      settingsTitle:'Settings',
-    },
-  };
 
-  let lang = localStorage.getItem('thuiswerk_lang') || localStorage.getItem('rekentoets_lang') || 'nl';
+  let lang = window._initLang;
+  function t(str, val) { return String(str).replace(/\{\w+\}/, val); }
 
-  function switchLang(lc) { applyLanguage(lc); }
+  function switchLang(lc) { loadI18n(lc).then(function() { applyLanguage(lc); }); }
 
   function applyLanguage(lc) {
     lang = lc;
     localStorage.setItem('rekentoets_lang', lc);
     localStorage.setItem('thuiswerk_lang', lc);
-    const u = UI_STRINGS[lc];
+    const u = window._i18n[lc] && window._i18n[lc].reken; if (!u) return;
     document.title = u.title;
     document.getElementById('htmlRoot').lang = lc === 'en' ? 'en' : 'nl';
     document.getElementById('startTitleText').textContent = u.appTitle;
@@ -705,8 +672,8 @@
 
   function updateStartSubtitle() {
     const el = document.getElementById('startSubtitle');
-    const u = UI_STRINGS[lang];
-    el.textContent = settings.timerEnabled ? u.timerSec(settings.timerSecs) : u.noTimer;
+    const u = window._i18n[lang] && window._i18n[lang].reken; if (!u) return;
+    el.textContent = settings.timerEnabled ? t(u.timerSec, settings.timerSecs) : u.noTimer;
   }
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -880,10 +847,10 @@
     const userAns = parseInt(currentValue, 10);
     const q = questions[current];
     const correct = userAns === q.answer;
-    const u = UI_STRINGS[lang];
+    const u = window._i18n[lang] && window._i18n[lang].reken;
     results.push({ q, userAns, correct });
     if (correct) { score++; setDisplayState('correct'); setFeedback(u.correct, 'var(--good)'); updateDot(current, 'correct'); }
-    else         { setDisplayState('wrong'); setFeedback(u.wrong(q.answer), 'var(--bad)'); updateDot(current, 'wrong'); }
+    else         { setDisplayState('wrong'); setFeedback(t(u.wrong, q.answer), 'var(--bad)'); updateDot(current, 'wrong'); }
     current++;
     if (current >= TOTAL) setTimeout(endQuiz, 500);
     else setTimeout(showQuestion, 500);
@@ -1019,6 +986,7 @@
     } catch(e) {}
   })();
 
+  window.APP_READY.then(function() {
   applySettingsToUI();
   applyLanguage(lang);
   renderHistory();
@@ -1040,6 +1008,7 @@
     applySettingsToUI();
     readSettings();
   };
+  });
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
