@@ -36,6 +36,15 @@
 </head>
 <body>
 <div id="root"></div>
+<script>
+  window.THUISWERK_APP = {
+    id: 'dictee',
+    theme: 'light',
+    primaryColor: '#3b9eff',
+    bgColor: '#e0f4ff',
+    textColor: '#1a3a5c',
+  };
+</script>
 <script type="text/babel">
 const { useState, useRef, useEffect } = React;
 
@@ -332,16 +341,37 @@ function FoutTab({ history, setHistory, ui }) {
   </>);
 }
 
+// ── Initialiseer vanuit favoriet (URL ?fav=id) ────────────────────────────────
+function loadInitFav() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const favId = params.get('fav');
+    if (!favId) return null;
+    const favs = JSON.parse(localStorage.getItem('thuiswerk_favorites') || '[]');
+    const fav = favs.find(f => f.id === favId && f.app === 'dictee');
+    return fav ? fav.settings : null;
+  } catch(e) { return null; }
+}
+
 // ── Hoofdapp ──────────────────────────────────────────────────────────────────
 function App() {
-  const [lang, setLang]             = useState("nl");
-  const [woorden, setWoorden]       = useState(STANDAARD_NL);
+  const [lang, setLang]             = useState(() => localStorage.getItem('thuiswerk_lang') || "nl");
+  const [woorden, setWoorden]       = useState(() => {
+    const lc = localStorage.getItem('thuiswerk_lang') || "nl";
+    return LANGUAGES[lc]?.standaard || STANDAARD_NL;
+  });
   const [geladen, setGeladen]       = useState(false);
   const [history, setHistoryState]  = useState(loadHistory);
   const [screen, setScreen]         = useState("setup");
   const [tab, setTab]               = useState("oefenen");
-  const [level, setLevel]           = useState("groep5");
-  const [wbLevel, setWbLevel]       = useState("groep5");
+  const [level, setLevel]           = useState(() => {
+    const lc = localStorage.getItem('thuiswerk_lang') || "nl";
+    return lc === 'nl' ? "groep5" : "year3";
+  });
+  const [wbLevel, setWbLevel]       = useState(() => {
+    const lc = localStorage.getItem('thuiswerk_lang') || "nl";
+    return lc === 'nl' ? "groep5" : "year3";
+  });
   const [selCats, setSelCats]       = useState([]);
   const [wordCount, setWordCount]   = useState(10);
   const [weightMode, setWeightMode] = useState("normaal");
@@ -361,6 +391,49 @@ function App() {
   const fileRef  = useRef(null);
   const voices   = useVoices();
 
+  // Luister naar globale taalwissel vanuit de sidebar
+  useEffect(() => {
+    const handler = (e) => { if (e.detail !== lang) switchLang(e.detail); };
+    window.addEventListener('thuiswerk:setLang', handler);
+    return () => window.removeEventListener('thuiswerk:setLang', handler);
+  }, [lang]);
+
+  // Registreer instellingen-API voor de sidebar (na elke render zodat closures vers zijn)
+  useEffect(() => {
+    window.THUISWERK_APP.getSettings = () => ({
+      lang, level, selCats, wordCount, weightMode, selectedVoice, customText
+    });
+    window.THUISWERK_APP.applySettings = (s) => {
+      if (s.wordCount  !== undefined) setWordCount(s.wordCount);
+      if (s.weightMode !== undefined) setWeightMode(s.weightMode);
+      if (s.selectedVoice !== undefined) setSelectedVoice(s.selectedVoice);
+      if (s.customText !== undefined) setCustomText(s.customText);
+      if (s.lang && s.lang !== lang) {
+        switchLang(s.lang);
+      } else {
+        if (s.level !== undefined) { setLevel(s.level); setWbLevel(s.level); }
+        if (s.selCats !== undefined) setSelCats(s.selCats);
+        setScreen('setup'); setTab('oefenen');
+      }
+    };
+  });
+
+  // Laad favoriet vanuit URL (?fav=id) bij eerste render
+  useEffect(() => {
+    const s = loadInitFav();
+    if (!s) return;
+    if (s.wordCount  !== undefined) setWordCount(s.wordCount);
+    if (s.weightMode !== undefined) setWeightMode(s.weightMode);
+    if (s.selectedVoice !== undefined) setSelectedVoice(s.selectedVoice);
+    if (s.customText !== undefined) setCustomText(s.customText);
+    if (s.lang && s.lang !== lang) {
+      switchLang(s.lang);
+    } else {
+      if (s.level !== undefined) { setLevel(s.level); setWbLevel(s.level); }
+      if (s.selCats !== undefined) setSelCats(s.selCats);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const ui         = UI[lang];
   const labels     = woorden._labels || {};
   const levelLabels = woorden._level_labels || {};
@@ -376,6 +449,7 @@ function App() {
   function switchLang(lc) {
     const cfg = LANGUAGES[lc];
     const firstLevel = Object.keys(cfg.standaard).filter(k => !k.startsWith('_'))[0];
+    localStorage.setItem('thuiswerk_lang', lc);
     setLang(lc);
     setWoorden(cfg.standaard);
     setGeladen(false);
@@ -643,6 +717,7 @@ function App() {
 
 ReactDOM.createRoot(document.getElementById("root")).render(<App />);
 </script>
+<script src="sidebar.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});

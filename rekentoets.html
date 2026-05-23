@@ -389,6 +389,16 @@
 </style>
 </head>
 <body>
+<script>
+  window.THUISWERK_APP = {
+    id: 'reken',
+    theme: 'dark',
+    primaryColor: '#e8ff47',
+    bgColor: '#161616',
+    textColor: '#f0f0f0',
+  };
+</script>
+
 <div class="container">
 
   <!-- ══ START SCREEN ══ -->
@@ -585,13 +595,14 @@
     },
   };
 
-  let lang = localStorage.getItem('rekentoets_lang') || 'nl';
+  let lang = localStorage.getItem('thuiswerk_lang') || localStorage.getItem('rekentoets_lang') || 'nl';
 
   function switchLang(lc) { applyLanguage(lc); }
 
   function applyLanguage(lc) {
     lang = lc;
     localStorage.setItem('rekentoets_lang', lc);
+    localStorage.setItem('thuiswerk_lang', lc);
     const u = UI_STRINGS[lc];
     document.title = u.title;
     document.getElementById('htmlRoot').lang = lc === 'en' ? 'en' : 'nl';
@@ -936,13 +947,50 @@
   // ── init ──────────────────────────────────────────────────────────────────
   const savedSettings = JSON.parse(localStorage.getItem('rekentoets_settings') || 'null');
   if (savedSettings) Object.assign(settings, savedSettings);
+
+  // Laad favoriet vanuit URL (?fav=id)
+  (function () {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const favId = params.get('fav');
+      if (!favId) return;
+      const favs = JSON.parse(localStorage.getItem('thuiswerk_favorites') || '[]');
+      const fav = favs.find(f => f.id === favId && f.app === 'reken');
+      if (fav && fav.settings) {
+        const s = fav.settings;
+        if (s.lang) lang = s.lang;
+        Object.assign(settings, s);
+        delete settings.lang;
+      }
+    } catch(e) {}
+  })();
+
   applySettingsToUI();
   applyLanguage(lang);
   renderHistory();
+
+  // Sidebar taalwissel-event
+  window.addEventListener('thuiswerk:setLang', function (e) {
+    if (e.detail !== lang) applyLanguage(e.detail);
+  });
+
+  // Sidebar settings API
+  window.THUISWERK_APP.getSettings = function () {
+    readSettings();
+    return Object.assign({ lang: lang }, settings);
+  };
+  window.THUISWERK_APP.applySettings = function (s) {
+    if (s.lang) applyLanguage(s.lang);
+    const ns = Object.assign({}, s); delete ns.lang;
+    Object.assign(settings, ns);
+    applySettingsToUI();
+    readSettings();
+  };
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }
 </script>
+<script src="sidebar.js"></script>
 </body>
 </html>
