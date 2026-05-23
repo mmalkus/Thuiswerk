@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background: warm dark blue -->
+  <rect width="512" height="512" rx="96" fill="#1a1a2e"/>
+
+  <!-- Open book forming the house base/floor -->
+  <!-- Left page angled up like a roof slope -->
+  <path d="M60,340 L256,200 L256,460 L60,460 Z" fill="#e8e0d0"/>
+  <!-- Right page -->
+  <path d="M452,340 L256,200 L256,460 L452,460 Z" fill="#f5f0e8"/>
+  <!-- Spine/ridge of book = roof ridge -->
+  <line x1="256" y1="195" x2="256" y2="465" stroke="#8a7a6a" stroke-width="14" stroke-linecap="round"/>
+
+  <!-- Roof gable triangle (house outline implied by book pages) -->
+  <!-- Peak accent dot -->
+  <circle cx="256" cy="175" r="18" fill="#e8ff47"/>
+
+  <!-- Left page lines -->
+  <line x1="90" y1="370" x2="230" y2="305" stroke="#c0b0a0" stroke-width="5" stroke-linecap="round"/>
+  <line x1="90" y1="400" x2="230" y2="345" stroke="#c0b0a0" stroke-width="5" stroke-linecap="round"/>
+  <line x1="90" y1="430" x2="230" y2="385" stroke="#c0b0a0" stroke-width="5" stroke-linecap="round"/>
+  <!-- Right page lines -->
+  <line x1="282" y1="305" x2="422" y2="370" stroke="#c0b0a0" stroke-width="5" stroke-linecap="round"/>
+  <line x1="282" y1="345" x2="422" y2="400" stroke="#c0b0a0" stroke-width="5" stroke-linecap="round"/>
+  <line x1="282" y1="385" x2="422" y2="430" stroke="#c0b0a0" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Little house door cut-out in book center -->
+  <rect x="218" y="360" width="76" height="100" rx="8" fill="#3a7bd5"/>
+  <!-- Arch top of door -->
+  <ellipse cx="256" cy="360" rx="38" ry="22" fill="#3a7bd5"/>
+
+  <!-- Window on left page -->
+  <rect x="108" y="310" width="52" height="46" rx="5" fill="#a0d0ff" opacity="0.8"/>
+  <line x1="134" y1="310" x2="134" y2="356" stroke="#6ab0ef" stroke-width="3"/>
+  <line x1="108" y1="333" x2="160" y2="333" stroke="#6ab0ef" stroke-width="3"/>
+
+  <!-- Window on right page -->
+  <rect x="352" y="310" width="52" height="46" rx="5" fill="#a0d0ff" opacity="0.8"/>
+  <line x1="378" y1="310" x2="378" y2="356" stroke="#6ab0ef" stroke-width="3"/>
+  <line x1="352" y1="333" x2="404" y2="333" stroke="#6ab0ef" stroke-width="3"/>
+</svg>

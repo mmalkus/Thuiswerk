@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background: warm gradient feel via layered rects -->
+  <rect width="512" height="512" rx="96" fill="#16213e"/>
+  <rect width="512" height="512" rx="96" fill="url(#bg-grad)" opacity="0.6"/>
+  <defs>
+    <radialGradient id="bg-grad" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#2a3a6e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </radialGradient>
+  </defs>
+
+  <!-- OPEN BOOK — covers entire icon base -->
+  <!-- Left page -->
+  <path d="M72,210 C72,205 76,200 82,200 L248,200 L248,455 C248,460 244,464 240,462 C190,445 100,440 78,440 C74,440 72,437 72,433 Z" fill="#ede8df"/>
+  <!-- Right page -->
+  <path d="M440,210 C440,205 436,200 430,200 L264,200 L264,455 C264,460 268,464 272,462 C322,445 412,440 434,440 C438,440 440,437 440,433 Z" fill="#f7f3ec"/>
+  <!-- Center spine -->
+  <rect x="246" y="196" width="20" height="268" rx="6" fill="#9a8a78"/>
+
+  <!-- HOUSE SILHOUETTE embedded in the open book space -->
+  <!-- Roof triangle (sits inside the top portion of book) -->
+  <polygon points="256,62 148,210 364,210" fill="#e8ff47"/>
+  <!-- Roof underside shadow -->
+  <polygon points="148,210 364,210 356,210 154,210" fill="#c8df20" opacity="0.5"/>
+
+  <!-- Walls (between roof and spine line) -->
+  <!-- Left wall on left page -->
+  <path d="M148,210 L148,340 L246,340 L246,210 Z" fill="#4a8be8"/>
+  <!-- Right wall on right page -->
+  <path d="M266,210 L266,340 L364,340 L364,210 Z" fill="#4a8be8"/>
+
+  <!-- Door (centered, straddles spine) -->
+  <rect x="220" y="268" width="72" height="72" rx="6" fill="#1a1a2e"/>
+  <ellipse cx="256" cy="268" rx="36" ry="18" fill="#1a1a2e"/>
+  <circle cx="284" cy="305" r="5" fill="#e8ff47"/>
+
+  <!-- Windows -->
+  <rect x="162" y="224" width="44" height="38" rx="4" fill="#b8e0ff"/>
+  <line x1="184" y1="224" x2="184" y2="262" stroke="#4a8be8" stroke-width="2.5"/>
+  <line x1="162" y1="243" x2="206" y2="243" stroke="#4a8be8" stroke-width="2.5"/>
+
+  <rect x="306" y="224" width="44" height="38" rx="4" fill="#b8e0ff"/>
+  <line x1="328" y1="224" x2="328" y2="262" stroke="#4a8be8" stroke-width="2.5"/>
+  <line x1="306" y1="243" x2="350" y2="243" stroke="#4a8be8" stroke-width="2.5"/>
+
+  <!-- Text lines on lower part of pages -->
+  <!-- Left page lines -->
+  <line x1="88" y1="368" x2="232" y2="368" stroke="#c5bdb0" stroke-width="5" stroke-linecap="round"/>
+  <line x1="88" y1="393" x2="210" y2="393" stroke="#c5bdb0" stroke-width="5" stroke-linecap="round"/>
+  <line x1="88" y1="418" x2="225" y2="418" stroke="#c5bdb0" stroke-width="5" stroke-linecap="round"/>
+  <!-- Right page lines -->
+  <line x1="280" y1="368" x2="424" y2="368" stroke="#c5bdb0" stroke-width="5" stroke-linecap="round"/>
+  <line x1="280" y1="393" x2="400" y2="393" stroke="#c5bdb0" stroke-width="5" stroke-linecap="round"/>
+  <line x1="280" y1="418" x2="415" y2="418" stroke="#c5bdb0" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Chimney -->
+  <rect x="294" y="82" width="26" height="52" rx="4" fill="#c8df20"/>
+</svg>

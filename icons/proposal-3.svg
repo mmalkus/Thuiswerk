@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="#1a1a2e"/>
+
+  <!-- Closed book body -->
+  <rect x="110" y="260" width="292" height="190" rx="14" fill="#3a7bd5"/>
+  <!-- Book spine left edge -->
+  <rect x="110" y="260" width="28" height="190" rx="10" fill="#2a5ba5"/>
+  <!-- Page stack right edge (white pages) -->
+  <rect x="390" y="268" width="12" height="174" rx="3" fill="#e8e8e8"/>
+  <rect x="382" y="272" width="8" height="166" rx="2" fill="#f5f5f5"/>
+  <!-- Book cover shine -->
+  <path d="M145,275 Q160,268 180,272" stroke="rgba(255,255,255,0.3)" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+  <!-- House growing out of book (book is the base/foundation) -->
+  <!-- House walls -->
+  <rect x="158" y="145" width="196" height="128" rx="0" fill="#2a5ba5"/>
+  <!-- House roof -->
+  <polygon points="256,58 138,152 374,152" fill="#e8ff47"/>
+  <!-- Chimney -->
+  <rect x="300" y="72" width="28" height="52" rx="4" fill="#c8df20"/>
+  <!-- Chimney smoke puffs -->
+  <circle cx="314" cy="60" r="10" fill="rgba(255,255,255,0.15)"/>
+  <circle cx="324" cy="48" r="7" fill="rgba(255,255,255,0.1)"/>
+
+  <!-- Door (sits on book) -->
+  <rect x="228" y="210" width="56" height="63" rx="5" fill="#1a1a2e"/>
+  <circle cx="276" cy="243" r="5" fill="#e8ff47"/>
+
+  <!-- Windows -->
+  <rect x="165" y="162" width="50" height="42" rx="4" fill="#a0d0ff"/>
+  <line x1="190" y1="162" x2="190" y2="204" stroke="#1a1a2e" stroke-width="3"/>
+  <line x1="165" y1="183" x2="215" y2="183" stroke="#1a1a2e" stroke-width="3"/>
+
+  <rect x="297" y="162" width="50" height="42" rx="4" fill="#a0d0ff"/>
+  <line x1="322" y1="162" x2="322" y2="204" stroke="#1a1a2e" stroke-width="3"/>
+  <line x1="297" y1="183" x2="347" y2="183" stroke="#1a1a2e" stroke-width="3"/>
+
+  <!-- Book title lines on cover -->
+  <line x1="155" y1="310" x2="390" y2="310" stroke="rgba(255,255,255,0.2)" stroke-width="6" stroke-linecap="round"/>
+  <line x1="155" y1="335" x2="320" y2="335" stroke="rgba(255,255,255,0.15)" stroke-width="5" stroke-linecap="round"/>
+</svg>
