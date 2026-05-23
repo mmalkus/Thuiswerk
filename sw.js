@@ -1,4 +1,4 @@
-const CACHE = 'thuiswerk-v5';
+const CACHE = 'thuiswerk-v6';
 const ASSETS = [
   '/Thuiswerk/',
   '/Thuiswerk/index.html',

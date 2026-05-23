@@ -107,7 +107,21 @@
   .r-btn-o:hover { background: var(--accent); color: #000; }
   .r-btn-s { flex: 1; background: var(--accent); color: #000; border: 2px solid var(--accent); border-radius: 8px; font-family: 'Nunito', sans-serif; font-size: .88rem; font-weight: 900; padding: 13px 8px; cursor: pointer; }
   .r-btn-s:hover { opacity: .85; }
+
+  html[data-theme="light"] {
+    --bg: #f0fff4; --surface: #ffffff; --surface2: #dcfce7;
+    --border: #86efac; --accent: #16a34a; --text: #052e16;
+    --muted: #4ade80; --bad: #dc2626; --blue: #0284c7; --orange: #ea580c;
+  }
+  html[data-theme="light"] html, html[data-theme="light"] body { background: var(--bg); }
+  html[data-theme="light"] .feat-province { fill: rgba(22,163,74,.18) !important; stroke: rgba(22,163,74,.5) !important; }
+  html[data-theme="light"] .feat-country  { fill: rgba(22,163,74,.12) !important; stroke: rgba(22,163,74,.35) !important; }
+  html[data-theme="light"] .feat-river    { stroke: #0284c7 !important; }
+  html[data-theme="light"] .feat-mountain { fill: rgba(194,65,12,.15) !important; stroke: rgba(194,65,12,.4) !important; }
+  html[data-theme="light"] .feat-sea      { fill: rgba(2,132,199,.12) !important; stroke: rgba(2,132,199,.3) !important; }
+  html[data-theme="light"] .feat-city     { fill: #bbf7d0 !important; stroke: #16a34a !important; }
 </style>
+<script>(function(){var t=localStorage.getItem('thuiswerk_theme');if(t)document.documentElement.dataset.theme=t;})();</script>
 </head>
 <body>
 <script>
@@ -298,7 +312,7 @@ function geomToD(geom, proj) {
 }
 
 /* ══ SVG Rendering ══════════════════════════════════════════════════════════ */
-function renderMap(highlightId, hlClass, wrongId) {
+function renderMap(highlightId, hlClass, wrongId, labels) {
   const svg = document.getElementById('mapSvg');
   const W = svg.clientWidth || 800, H = svg.clientHeight || 500;
   svg.setAttribute('viewBox', '0 0 '+W+' '+H);
@@ -319,6 +333,21 @@ function renderMap(highlightId, hlClass, wrongId) {
       html += featHtml(feat, proj, quizSet.has(feat.type), clickMode, highlightId, hlClass, wrongId);
     }
   }
+
+  if (labels && labels.length) {
+    for (const {feat, color} of labels) {
+      const centroid = feat.centroid || feat.coords;
+      if (!centroid) continue;
+      const [x, y] = proj(centroid);
+      const name = (feat.names[lang] || feat.names.nl).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+      html += '<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'"'+
+        ' text-anchor="middle" dominant-baseline="central"'+
+        ' font-size="13" font-weight="800" font-family="Nunito,sans-serif"'+
+        ' fill="'+color+'" stroke="#000" stroke-width="3" paint-order="stroke fill"'+
+        ' pointer-events="none">'+name+'</text>';
+    }
+  }
+
   svg.innerHTML = html;
 }
 
@@ -456,10 +485,16 @@ function handleAnswer(clickedId, typed) {
   results.push({ feat, correct, typed: typed || '' });
 
   const wrongId = (!correct && clickedId) ? clickedId : null;
-  renderMap(feat.id, 'feat-ok', wrongId);
+
+  const labels = [{ feat, color: 'var(--accent)' }];
+  if (!correct && clickedId && clickedId !== '__wrong__' && clickedId !== '__timeout__') {
+    const clickedFeat = currentMapData.features.find(f => f.id === clickedId);
+    if (clickedFeat) labels.push({ feat: clickedFeat, color: 'var(--bad)' });
+  }
+  renderMap(feat.id, 'feat-ok', wrongId, labels);
 
   if (correct) setFeedback(u('correct'), 'var(--accent)');
-  else         setFeedback(u('wrong') + ' ' + (feat.names[lang]||feat.names.nl), 'var(--bad)');
+  else         setFeedback(u('wrong'), 'var(--bad)');
 
   qIdx++;
   setTimeout(() => nextQuestion(), 1400);

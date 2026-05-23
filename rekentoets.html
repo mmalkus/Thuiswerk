@@ -388,7 +388,14 @@
   }
   .page-footer a { color: var(--muted); text-decoration: none; }
   .page-footer a:hover { color: var(--accent); }
+
+  html[data-theme="light"] {
+    --bg: #fefce8; --surface: #ffffff; --surface2: #fef9c3;
+    --border: #fde68a; --accent: #ca8a04; --accent2: #ea580c;
+    --text: #1c1917; --muted: #78716c; --bad: #dc2626;
+  }
 </style>
+<script>(function(){var t=localStorage.getItem('thuiswerk_theme');if(t)document.documentElement.dataset.theme=t;})();</script>
 </head>
 <body>
 <script>
