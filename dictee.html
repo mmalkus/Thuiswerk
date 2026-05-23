@@ -32,6 +32,7 @@
   .wb-hd { display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none; margin-bottom:4px; }
   .wb-lbl { color:#3b9eff; font-size:0.82rem; font-weight:800; }
   .wb-tog { color:#aac8e8; font-size:0.75rem; font-weight:700; }
+  body.tw-sidebar-active .tw-lang-toggle { display: none; }
 </style>
 </head>
 <body>
@@ -546,7 +547,7 @@ function App() {
     <div style={S.page}>
       <div style={{fontFamily:"'Fredoka One',cursive",fontSize:"2.5rem",color:C.navy,textShadow:`3px 3px 0 ${C.yellow}`,marginBottom:3,textAlign:"center"}}>{ui.appTitle}</div>
       <div style={{fontSize:"0.92rem",color:C.blue,fontWeight:800,marginBottom:8,textAlign:"center"}}>{ui.appSubtitle}</div>
-      <div style={{display:"flex",gap:5,marginBottom:14}}>
+      <div className="tw-lang-toggle" style={{display:"flex",gap:5,marginBottom:14}}>
         {Object.keys(LANGUAGES).map(lc=>(
           <button key={lc} style={S.chip(lang===lc)} onClick={()=>switchLang(lc)}>{LANGUAGES[lc].label}</button>
         ))}

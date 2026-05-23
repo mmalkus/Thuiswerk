@@ -1,4 +1,6 @@
 (function () {
+  document.body.classList.add('tw-sidebar-active');
+
   var cfg = window.THUISWERK_APP || {};
   var isDark = cfg.theme === 'dark';
   var primary = cfg.primaryColor || '#818cf8';

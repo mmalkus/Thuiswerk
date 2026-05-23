@@ -379,6 +379,8 @@
   }
   .pop { animation: pop-in 0.2s ease-out; }
 
+  body.tw-sidebar-active .lang-toggle-wrap { display: none; }
+
   /* footer */
   .page-footer {
     text-align: center; margin-top: 8px; padding-bottom: 8px;
@@ -408,7 +410,7 @@
       <div class="start-top">
         <div class="start-title"><span id="startTitleText">Rekentoets</span><br><span id="startSubtitle">⚡ 60 sec</span></div>
         <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
-          <div style="display:flex; gap:6px;">
+          <div class="lang-toggle-wrap" style="display:flex; gap:6px;">
             <button class="lang-chip op-chip selected" data-lc="nl" onclick="switchLang('nl')" style="padding:6px 12px; font-size:12px;">NL</button>
             <button class="lang-chip op-chip" data-lc="en" onclick="switchLang('en')" style="padding:6px 12px; font-size:12px;">EN</button>
           </div>
