@@ -9,7 +9,7 @@
  *
  * Data sources:
  *   World countries  – world-atlas@2 npm package (Natural Earth 110m, public domain)
- *   NL provinces     – PDOK / CBS WFS (Dutch government open data)
+ *   NL provinces     – Natural Earth 10m admin-1, lakes clipped out via polygon-clipping
  *   Everything else  – Natural Earth 50m via Mapbox CDN (public domain)
  *
  * Usage:
@@ -22,6 +22,7 @@ import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 import { feature as topoFeature } from 'topojson-client';
 import isoCountries from 'i18n-iso-countries';
+import pc from 'polygon-clipping';
 
 const require  = createRequire(import.meta.url);
 const __dir    = dirname(fileURLToPath(import.meta.url));
@@ -106,6 +107,34 @@ function coordsOf(g) {
 
 function inBox([minX, minY, maxX, maxY], coords) {
   return coords.some(([x, y]) => x >= minX && x <= maxX && y >= minY && y <= maxY);
+}
+
+// ── Polygon clipping helpers ──────────────────────────────────────────────────
+
+function toClipPoly(g) {
+  if (g.type === 'Polygon')      return [g.coordinates];
+  if (g.type === 'MultiPolygon') return g.coordinates;
+  return null;
+}
+
+function fromClipResult(result) {
+  if (!result || result.length === 0) return null;
+  if (result.length === 1) return { type: 'Polygon', coordinates: result[0] };
+  return { type: 'MultiPolygon', coordinates: result };
+}
+
+function subtractGeometries(geom, clips) {
+  if (!geom || !clips.length) return geom;
+  const subject = toClipPoly(geom);
+  if (!subject) return geom;
+  const clipPolys = clips.map(toClipPoly).filter(Boolean);
+  if (!clipPolys.length) return geom;
+  try {
+    const result = pc.difference(subject, ...clipPolys);
+    return fromClipResult(result) || geom;
+  } catch {
+    return geom;
+  }
 }
 
 // ── Name tables ───────────────────────────────────────────────────────────────
@@ -292,8 +321,15 @@ async function buildCountries(placesGeo) {
 
 const NL_BBOX = [3.3, 50.7, 7.3, 53.6];
 
-async function buildNL(provGeo, placesGeo, places10mGeo, riversGeo) {
+async function buildNL(provGeo, placesGeo, places10mGeo, riversGeo, lakesGeo) {
   console.log('\nBuilding topo-nl.json...');
+
+  // Lakes within NL bbox — used to punch holes in province polygons.
+  // Flevoland (NL-FL) is a polder that sits *inside* the IJsselmeer polygon;
+  // subtracting would erase it, so we skip it there.
+  const nlLakeGeoms = lakesGeo.features
+    .filter(f => inBox(NL_BBOX, coordsOf(f.geometry)))
+    .map(f => f.geometry);
 
   const features = [];
 
@@ -311,12 +347,18 @@ async function buildNL(provGeo, placesGeo, places10mGeo, riversGeo) {
     if (!code) code = Object.keys(NL_PROV).find(c => NL_PROV[c].toLowerCase() === name.toLowerCase());
     if (!code) continue;
 
+    // Subtract inland water bodies from province polygons so IJsselmeer/
+    // Markermeer/Lauwersmeer render as gaps rather than solid land.
+    const geom = code === 'NL-FL'
+      ? f.geometry
+      : subtractGeometries(f.geometry, nlLakeGeoms);
+
     features.push({
       id:       code,
       type:     'province',
       names:    { nl: NL_PROV[code], en: NL_PROV[code] },
       centroid: centroid(f.geometry),
-      geometry: roundGeometry(f.geometry),
+      geometry: roundGeometry(geom),
     });
   }
 
@@ -457,7 +499,7 @@ async function buildPhysical(riversGeo, regionGeo, marineGeo) {
 
 async function main() {
   console.log('Fetching source data...');
-  const [placesGeo, places10mGeo, provGeo, rivers50mGeo, rivers10mGeo, regionGeo, marineGeo] = await Promise.all([
+  const [placesGeo, places10mGeo, provGeo, rivers50mGeo, rivers10mGeo, regionGeo, marineGeo, lakesGeo] = await Promise.all([
     fetchCached(`${NE}/ne_50m_populated_places.geojson`,          'ne_50m_populated_places.geojson'),
     fetchCached(`${NE}/ne_10m_populated_places.geojson`,          'ne_10m_populated_places.geojson'),
     fetchCached(NE_ADMIN1,                                         'ne_10m_admin1.geojson'),
@@ -465,11 +507,12 @@ async function main() {
     fetchCached(`${NE}/ne_10m_rivers_lake_centerlines.geojson`,   'ne_10m_rivers.geojson'),
     fetchCached(`${NE}/ne_50m_geography_regions_polys.geojson`,   'ne_50m_regions.geojson'),
     fetchCached(`${NE}/ne_50m_geography_marine_polys.geojson`,    'ne_50m_marine.geojson'),
+    fetchCached(`${NE}/ne_10m_lakes.geojson`,                     'ne_10m_lakes.geojson'),
   ]);
 
   console.log('\nBuilding output files...');
   await buildCountries(placesGeo);
-  await buildNL(provGeo, placesGeo, places10mGeo, rivers10mGeo);
+  await buildNL(provGeo, placesGeo, places10mGeo, rivers10mGeo, lakesGeo);
   await buildPhysical(rivers50mGeo, regionGeo, marineGeo);
 
   console.log('\nDone. Run `cd .. && git status` to review new files.');

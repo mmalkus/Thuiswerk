@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "i18n-iso-countries": "^7.11.0",
+    "polygon-clipping": "^0.15.7",
     "topojson-client": "^3.1.0",
     "world-atlas": "^2.0.2"
   }
