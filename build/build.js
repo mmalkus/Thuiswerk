@@ -321,82 +321,17 @@ async function buildCountries(placesGeo) {
 
 const NL_BBOX = [3.3, 50.7, 7.3, 53.6];
 
-// Houtribdijk (N302) divides IJsselmeer (north) from Markermeer (south).
-// Endpoints: Enkhuizen → Lelystad
-const HOUTRIB_W = [5.292, 52.704];
-const HOUTRIB_E = [5.462, 52.514];
-
-// Clip polygons used to split the combined IJsselmeer polygon at the dike.
-const CLIP_IJSSELMEER  = [[[3,55],[8,55],[8,HOUTRIB_E[1]],HOUTRIB_E,HOUTRIB_W,[3,HOUTRIB_W[1]],[3,55]]];
-const CLIP_MARKERMEER  = [[[3,50],[8,50],[8,HOUTRIB_E[1]],HOUTRIB_E,HOUTRIB_W,[3,HOUTRIB_W[1]],[3,50]]];
-
-// NL map bounding box as a clip polygon for trimming large marine features.
-const CLIP_NL_BBOX = [[[NL_BBOX[0],NL_BBOX[1]],[NL_BBOX[2],NL_BBOX[1]],[NL_BBOX[2],NL_BBOX[3]],[NL_BBOX[0],NL_BBOX[3]],[NL_BBOX[0],NL_BBOX[1]]]];
-
-function intersectClip(geom, clipPoly) {
-  const subject = toClipPoly(geom);
-  if (!subject) return null;
-  try {
-    return fromClipResult(pc.intersection(subject, clipPoly));
-  } catch {
-    return null;
-  }
-}
-
-async function buildNL(provGeo, placesGeo, places10mGeo, riversGeo, lakesGeo, marineGeo) {
+async function buildNL(provGeo, placesGeo, places10mGeo, riversGeo, lakesGeo) {
   console.log('\nBuilding topo-nl.json...');
 
-  const nlLakes = lakesGeo.features.filter(f => inBox(NL_BBOX, coordsOf(f.geometry)));
-
-  // Lakes within NL bbox — used to punch holes in province polygons.
+  // Lakes within NL bbox — used to clip province polygons so water shows as gaps.
   // Flevoland (NL-FL) is a polder that sits *inside* the IJsselmeer polygon;
   // subtracting would erase it, so we skip it there.
-  const nlLakeGeoms = nlLakes.map(f => f.geometry);
+  const nlLakeGeoms = lakesGeo.features
+    .filter(f => inBox(NL_BBOX, coordsOf(f.geometry)))
+    .map(f => f.geometry);
 
   const features = [];
-
-  // ── Inland water bodies (sea type) — rendered first so provinces draw over them ──
-  const ijsselFeat = nlLakes.find(f => f.properties.name === 'IJsselmeer');
-  if (ijsselFeat) {
-    const ijsselGeom    = intersectClip(ijsselFeat.geometry, CLIP_IJSSELMEER);
-    const markermeerGeom = intersectClip(ijsselFeat.geometry, CLIP_MARKERMEER);
-
-    if (ijsselGeom) features.push({
-      id: 'sea-ijsselmeer', type: 'sea',
-      names: { nl: 'IJsselmeer', en: 'IJsselmeer' },
-      centroid: centroid(ijsselGeom),
-      geometry: roundGeometry(ijsselGeom),
-    });
-    if (markermeerGeom) features.push({
-      id: 'sea-markermeer', type: 'sea',
-      names: { nl: 'Markermeer', en: 'Markermeer' },
-      centroid: centroid(markermeerGeom),
-      geometry: roundGeometry(markermeerGeom),
-    });
-  }
-
-  const lauwersFeat = nlLakes.find(f => (f.properties.name_nl || f.properties.name) === 'Lauwersmeer'
-    || f.properties.name === 'Lauwerszee');
-  if (lauwersFeat) features.push({
-    id: 'sea-lauwersmeer', type: 'sea',
-    names: { nl: 'Lauwersmeer', en: 'Lauwersmeer' },
-    centroid: centroid(lauwersFeat.geometry),
-    geometry: roundGeometry(lauwersFeat.geometry),
-  });
-
-  // North Sea — clip the large marine polygon to the NL map extent.
-  const northSeaFeat = marineGeo.features.find(f =>
-    (f.properties.name || '') === 'North Sea'
-  );
-  if (northSeaFeat) {
-    const clipped = intersectClip(northSeaFeat.geometry, CLIP_NL_BBOX);
-    if (clipped) features.push({
-      id: 'sea-noordzee', type: 'sea',
-      names: { nl: 'Noordzee', en: 'North Sea' },
-      centroid: centroid(clipped),
-      geometry: roundGeometry(clipped),
-    });
-  }
 
   // Provinces — Natural Earth 10m admin-1 filtered to NL
   for (const f of provGeo.features.filter(f =>
@@ -467,7 +402,7 @@ async function buildNL(provGeo, placesGeo, places10mGeo, riversGeo, lakesGeo, ma
 
   writeOut('topo-nl.json', {
     id: 'nl', label: { nl: 'Nederland', en: 'Netherlands' },
-    category: 'europe', contains: ['province', 'city', 'river', 'sea'],
+    category: 'europe', contains: ['province', 'city', 'river'],
     features,
   });
 }
@@ -577,7 +512,7 @@ async function main() {
 
   console.log('\nBuilding output files...');
   await buildCountries(placesGeo);
-  await buildNL(provGeo, placesGeo, places10mGeo, rivers10mGeo, lakesGeo, marineGeo);
+  await buildNL(provGeo, placesGeo, places10mGeo, rivers10mGeo, lakesGeo);
   await buildPhysical(rivers50mGeo, regionGeo, marineGeo);
 
   console.log('\nDone. Run `cd .. && git status` to review new files.');
