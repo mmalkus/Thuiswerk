@@ -15,8 +15,40 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
 <style>
-  body { background:#0f172a; }
-  html[data-theme="light"] body { background:#e0f4ff; }
+  :root {
+    --d-bg:         #0f172a;
+    --d-surface:    #1e293b;
+    --d-card:       #1e293b;
+    --d-border:     #334155;
+    --d-text:       #e2e8f0;
+    --d-muted:      #94a3b8;
+    --d-hint:       #64748b;
+    --d-divider:    #334155;
+    --d-accent:     #3b9eff;
+    --d-yellow:     #ffd94a;
+    --d-good:       #4ecb71;
+    --d-bad:        #ff5c6a;
+    --d-orange:     #ff8c42;
+    --d-card-shadow:0 7px 0 #0d1a2e, 0 12px 28px rgba(0,0,0,0.4);
+  }
+  html[data-theme="light"] {
+    --d-bg:         #e0f4ff;
+    --d-surface:    #e0f4ff;
+    --d-card:       #ffffff;
+    --d-border:     #b8d8f5;
+    --d-text:       #1a3a5c;
+    --d-muted:      #7fb8e0;
+    --d-hint:       #336080;
+    --d-divider:    #e0f0ff;
+    --d-accent:     #3b9eff;
+    --d-yellow:     #ffd94a;
+    --d-good:       #4ecb71;
+    --d-bad:        #ff5c6a;
+    --d-orange:     #ff8c42;
+    --d-card-shadow:0 7px 0 #b8d8f5, 0 12px 28px rgba(59,158,255,0.12);
+  }
+  body { background: var(--d-bg); }
+  html[data-theme="light"] body { background: var(--d-bg); }
   @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
   input:focus { border-color:#3b9eff !important; outline:none; }
   html[data-theme="light"] input:focus { background:#fff !important; }
@@ -113,13 +145,15 @@ const WEIGHT_MODES = {
   zwaar:  { weights: [1, 5, 10, 15] },
 };
 
-const COLORS = {
-  dark:  { sky:"#1e293b", page:"#0f172a", blue:"#3b9eff", navy:"#e2e8f0", yellow:"#ffd94a", green:"#4ecb71", red:"#ff5c6a", white:"#1e293b", orange:"#ff8c42", border:"#334155", muted:"#94a3b8", hint:"#64748b", divider:"#334155", cardShadow:"0 7px 0 #0d1a2e, 0 12px 28px rgba(0,0,0,0.4)", errBg:"#fff0f1" },
-  light: { sky:"#e0f4ff", page:"#e0f4ff", blue:"#3b9eff", navy:"#1a3a5c", yellow:"#ffd94a", green:"#4ecb71", red:"#ff5c6a", white:"#fff",    orange:"#ff8c42", border:"#b8d8f5", muted:"#7fb8e0", hint:"#336080", divider:"#e0f0ff", cardShadow:"0 7px 0 #b8d8f5, 0 12px 28px rgba(59,158,255,0.12)", errBg:"#fff0f1" },
+const C = {
+  sky:'var(--d-surface)', page:'var(--d-bg)',    blue:'var(--d-accent)',
+  navy:'var(--d-text)',   yellow:'var(--d-yellow)', green:'var(--d-good)',
+  red:'var(--d-bad)',     white:'var(--d-card)',  orange:'var(--d-orange)',
+  border:'var(--d-border)', muted:'var(--d-muted)', hint:'var(--d-hint)',
+  divider:'var(--d-divider)', cardShadow:'var(--d-card-shadow)',
 };
 
-function makeC(theme) { return COLORS[theme] || COLORS.dark; }
-function makeS(C) { return {
+function makeS() { return {
   page: {minHeight:"100vh",background:C.page,display:"flex",flexDirection:"column",alignItems:"center",padding:"22px 13px 60px",fontFamily:"'Nunito',sans-serif"},
   card: {background:C.white,borderRadius:22,padding:"20px 18px 16px",width:"100%",maxWidth:500,boxShadow:C.cardShadow,marginBottom:16},
   lbl:  {fontWeight:800,color:C.navy,fontSize:"0.87rem",display:"block",marginBottom:4,marginTop:11},
@@ -130,6 +164,7 @@ function makeS(C) { return {
   prog: p=>({height:"100%",background:`linear-gradient(90deg,${C.blue},#6ec6ff)`,borderRadius:99,width:p+"%",transition:"width 0.4s ease"}),
   inp:  s=>({width:"100%",border:`3px solid ${s==="correct"?C.green:s==="wrong"?C.red:C.border}`,borderRadius:13,padding:"12px 15px",fontFamily:"inherit",fontSize:"1.3rem",fontWeight:800,color:C.navy,background:s==="correct"?"#edfff3":s==="wrong"?"#fff0f1":C.sky,outline:"none",textAlign:"center",letterSpacing:1}),
 }; }
+const S = makeS();
 
 // ── Fouthistorie via localStorage ─────────────────────────────────────────────
 function loadHistory() {
@@ -210,7 +245,7 @@ function exportJSON(woorden) {
 
 
 // ── Woordenbank tab ───────────────────────────────────────────────────────────
-function WoordenBankTab({ woorden, setWoorden, labels, levelLabels, wbLevel, setWbLevel, history, ui, C, S }) {
+function WoordenBankTab({ woorden, setWoorden, labels, levelLabels, wbLevel, setWbLevel, history, ui }) {
   const [open, setOpen]     = useState({});
   const [inputs, setInputs] = useState({});
   const data = woorden[wbLevel] || {};
@@ -281,7 +316,7 @@ function WoordenBankTab({ woorden, setWoorden, labels, levelLabels, wbLevel, set
 }
 
 // ── Fouthistorie tab ──────────────────────────────────────────────────────────
-function FoutTab({ history, setHistory, ui, C, S }) {
+function FoutTab({ history, setHistory, ui }) {
   const entries = Object.entries(history)
     .filter(([,v])=>v.wrong>0)
     .sort((a,b)=>b[1].wrong-a[1].wrong);
@@ -335,19 +370,6 @@ function loadInitFav() {
 
 // ── Hoofdapp ──────────────────────────────────────────────────────────────────
 function App() {
-  const [theme, setTheme] = useState(
-    () => document.documentElement.dataset.theme || localStorage.getItem('thuiswerk_theme') || 'dark'
-  );
-  useEffect(() => {
-    const obs = new MutationObserver(() =>
-      setTheme(document.documentElement.dataset.theme || 'dark')
-    );
-    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-    return () => obs.disconnect();
-  }, []);
-  const C = makeC(theme);
-  const S = makeS(C);
-
   const [lang, setLang]             = useState(window._initLang);
   const [ui,   setUi]               = useState(window._i18n[window._initLang]?.dictee || null);
   const [woorden, setWoorden]       = useState(window._words[window._initLang] || null);
@@ -611,11 +633,11 @@ function App() {
 
           {tab==="woordenbank" && (
             <WoordenBankTab woorden={woorden} setWoorden={setWoorden} labels={labels} levelLabels={levelLabels}
-              wbLevel={wbLevel} setWbLevel={setWbLevel} history={history} ui={ui} C={C} S={S}/>
+              wbLevel={wbLevel} setWbLevel={setWbLevel} history={history} ui={ui}/>
           )}
 
           {tab==="fouten" && (
-            <FoutTab history={history} setHistory={setHistory} ui={ui} C={C} S={S}/>
+            <FoutTab history={history} setHistory={setHistory} ui={ui}/>
           )}
         </div>
 

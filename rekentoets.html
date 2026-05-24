@@ -405,7 +405,7 @@
 <script>
   window.THUISWERK_APP = {
     id: 'reken',
-    theme: 'dark',
+    theme: localStorage.getItem('thuiswerk_theme') || 'dark',
     primaryColor: '#e8ff47',
     bgColor: '#161616',
     textColor: '#f0f0f0',

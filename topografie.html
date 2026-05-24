@@ -124,7 +124,7 @@
 </head>
 <body>
 <script>
-window.THUISWERK_APP = { id: 'topo', theme: 'dark', primaryColor: '#4ade80', textColor: '#dff5df' };
+window.THUISWERK_APP = { id: 'topo', theme: localStorage.getItem('thuiswerk_theme') || 'dark', primaryColor: '#4ade80', bgColor: '#080f08', textColor: '#dff5df' };
 window._i18n = window._i18n || {};
 window._initLang = (function () {
   try {

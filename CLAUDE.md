@@ -133,7 +133,7 @@ html[data-theme="light"] {
 
 The sidebar injects its own `--tw-*` variables and reads the app's `primaryColor` from `THUISWERK_APP`.
 
-**Note:** Dictee is the exception — it uses React inline styles with a `COLORS` object instead of CSS variables. New apps should follow the CSS variable pattern.
+Dictee follows this convention via `--d-` prefixed variables (to avoid collisions with `--tw-` sidebar variables). The `C` constant in `dictee.html` maps semantic names to CSS variable strings (`C.blue = 'var(--d-accent)'`), so React inline styles automatically respond to theme changes through the cascade without any JS state.
 
 ## Internationalization (i18n)
 
@@ -384,14 +384,11 @@ Outputs the four `topo-*.json` files from Natural Earth (world-atlas npm + Mapbo
 
 ## Known Inconsistencies
 
-These exist in the codebase and should be fixed when touching the relevant file:
-
-| Location | Issue |
-|----------|-------|
-| `rekentoets.html` | `THUISWERK_APP.theme` is hardcoded `'dark'`; should read from `localStorage` |
-| `topografie.html` | `THUISWERK_APP` is missing `bgColor`; sidebar falls back to a generic default |
-| `dictee.html` | Colors are in a React `COLORS` object instead of CSS variables; makes theming harder |
-| `topografie.html` | Some map chip labels are hardcoded strings, not looked up from i18n (falls back gracefully via `applyLanguage`) |
+None outstanding. Previously noted issues have been resolved:
+- All three apps now read `THUISWERK_APP.theme` from `localStorage` rather than hardcoding `'dark'`
+- `topografie.html` now includes `bgColor` in its `THUISWERK_APP` registration
+- `dictee.html` color system converted from a JS `COLORS` object to CSS custom properties (`--d-*`)
+- Topografie map chip labels were already translated via `applyLanguage`; the hardcoded HTML is just a Dutch fallback overwritten on first load
 
 ---
 
