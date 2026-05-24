@@ -69,7 +69,7 @@
 
   /* ── Game Screen ── */
   #gameScreen { position: fixed; inset: 0; z-index: 50; background: var(--bg); overflow: hidden; }
-  .g-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; flex-shrink: 0; border-bottom: 1px solid var(--border); gap: 12px; }
+  .g-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px 10px 72px; flex-shrink: 0; border-bottom: 1px solid var(--border); gap: 12px; }
   .g-title { font-size: .75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); flex: 1; }
   .g-progress { font-size: .85rem; font-weight: 900; color: var(--accent); }
   .g-stop { background: transparent; border: 1px solid var(--border); border-radius: 5px; color: var(--muted); font-family: 'Nunito', sans-serif; font-size: .78rem; font-weight: 800; padding: 4px 10px; cursor: pointer; }
@@ -124,7 +124,7 @@
 </head>
 <body>
 <script>
-window.THUISWERK_APP = { id: 'topo', theme: 'dark', primaryColor: '#4ade80', textColor: '#dff5df' };
+window.THUISWERK_APP = { id: 'topo', theme: localStorage.getItem('thuiswerk_theme') || 'dark', primaryColor: '#4ade80', bgColor: '#080f08', textColor: '#dff5df' };
 window._i18n = window._i18n || {};
 window._initLang = (function () {
   try {
@@ -696,6 +696,7 @@ function applyLanguage(lc) {
   document.getElementById('sSecLabel').textContent   = d.secLabel   || 'sec';
   document.getElementById('sCountLabel').textContent = d.countLabel || 'Aantal vragen';
   document.getElementById('startBtn').textContent    = d.startBtn   || '▶ Start';
+  document.getElementById('gTitle').textContent      = d.appTitle   || '🗺️ Topografie';
   document.getElementById('gStop').textContent       = d.stopBtn    || '✕ stop';
   document.getElementById('timerOnChip').textContent  = d.timerOn  || '⏱ Aan';
   document.getElementById('timerOffChip').textContent = d.timerOff || '∞ Uit';

@@ -77,7 +77,7 @@
 
   .start-top {
     display: flex; justify-content: space-between; align-items: flex-start;
-    margin-bottom: 24px;
+    margin-bottom: 24px; padding-left: 28px;
   }
   .start-title {
     font-family: 'Unbounded', sans-serif;
@@ -195,7 +195,7 @@
   /* ── QUIZ SCREEN ── */
   .quiz-header {
     display: flex; justify-content: space-between; align-items: baseline;
-    margin-bottom: 16px;
+    margin-bottom: 16px; padding-left: 52px;
   }
   .quiz-title {
     font-family: 'Unbounded', sans-serif; font-size: 10px;
@@ -405,7 +405,7 @@
 <script>
   window.THUISWERK_APP = {
     id: 'reken',
-    theme: 'dark',
+    theme: localStorage.getItem('thuiswerk_theme') || 'dark',
     primaryColor: '#e8ff47',
     bgColor: '#161616',
     textColor: '#f0f0f0',
