@@ -12,9 +12,9 @@
   "lang": "nl",
   "icons": [
     {
-      "src": "icons/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "icons/icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ],
@@ -25,14 +25,14 @@
       "short_name": "Dictee",
       "description": "Woordje spellen oefenen",
       "url": "/Thuiswerk/dictee.html",
-      "icons": [{ "src": "icons/icon.svg", "sizes": "any" }]
+      "icons": [{ "src": "icons/icon.png", "sizes": "1024x1024" }]
     },
     {
       "name": "Rekentoets",
       "short_name": "Rekenen",
       "description": "Rekensommen oefenen",
       "url": "/Thuiswerk/rekentoets.html",
-      "icons": [{ "src": "icons/icon.svg", "sizes": "any" }]
+      "icons": [{ "src": "icons/icon.png", "sizes": "1024x1024" }]
     }
   ]
 }
