@@ -277,6 +277,56 @@ Add a shortcut entry if the app should be launchable directly from the PWA icon.
 
 ---
 
+## Creating a Word List for Dictee
+
+Word lists are JSON files with a specific structure. Users can import a custom list via the "📁 Import JSON" button in the Woordenbank tab; the app persists it in `localStorage` under `dictee_custom_words` so it survives page reloads.
+
+### File format
+
+```json
+{
+  "_level_labels": {
+    "groep5": "Groep 5",
+    "groep6": "Groep 6"
+  },
+  "_labels": {
+    "all": "Gemengd",
+    "ei_ij": "ei of ij",
+    "dt":    "d / dt / t"
+  },
+  "groep5": {
+    "all": ["fiets", "huis", "trein", "goud"],
+    "ei_ij": ["fiets", "trein"],
+    "dt":    ["houd", "rijdt"]
+  },
+  "groep6": {
+    "all": ["architect", "balkon", "theater"]
+  }
+}
+```
+
+**Rules:**
+- Top-level keys starting with `_` are metadata; all others are levels (shown as tabs/options in the UI).
+- `_level_labels` maps level keys to display names. If omitted, the raw key is shown.
+- `_labels` maps category keys to display names. If omitted, the raw key is shown.
+- Within each level, `"all"` is the mixed/default pool shown when no category filter is selected. All other keys are named categories the user can filter by.
+- Words should be lowercase strings. The app lowercases user input before comparing, so case in the list doesn't matter.
+- A level with only an `"all"` key (no named categories) is valid — the category chips simply won't appear for that level.
+
+### Adding a built-in word list (for a new language)
+
+Create `words-xx.json` at the repo root following the format above, then:
+
+1. Add it to the `ASSETS` array in `sw.js` so it's cached offline.
+2. In `dictee.html`, the `loadWords(lc)` function fetches `words-{lc}.json` automatically — no code change needed as long as the filename matches the locale code.
+3. Add `words-xx.json` entries to both `i18n-xx.json` files if the level/category labels need translating (they are embedded in the JSON itself, so typically no i18n change is required).
+
+### Exporting the current list
+
+The "⬇ Export JSON" button in the Woordenbank tab downloads the active word list (default or imported) as `woordenlijst.json`. This is useful for creating a starting point to edit.
+
+---
+
 ## Adding a New Language
 
 ### 1. Create the i18n file
