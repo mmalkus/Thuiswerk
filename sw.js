@@ -8,7 +8,7 @@ const ASSETS = [
   '/Thuiswerk/shared.css',
   '/Thuiswerk/sidebar.js',
   '/Thuiswerk/manifest.json',
-  '/Thuiswerk/icons/icon.svg',
+  '/Thuiswerk/icons/icon.png',
   '/Thuiswerk/i18n-nl.json',
   '/Thuiswerk/i18n-en.json',
   '/Thuiswerk/words-nl.json',
