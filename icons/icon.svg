@@ -1,172 +1,182 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&amp;display=swap');
+    </style>
+  </defs>
 
   <!-- Background -->
-  <rect width="1000" height="1000" rx="210" ry="210" fill="#faf8f3"/>
+  <rect width="1000" height="1000" rx="200" ry="200" fill="#faf8f3"/>
 
-  <!-- House outline -->
+  <!-- House — junction at y=305 so text baseline (y=315) sits slightly
+       inside the rectangular wall area, matching the reference layout -->
   <polyline
-    points="118,285 118,820 500,58 882,285 882,820"
+    points="76,305 76,900 500,56 924,305 924,900"
     fill="none" stroke="#1a3564" stroke-width="30"
     stroke-linecap="round" stroke-linejoin="round"/>
 
-  <!-- Small blue heart above the S -->
-  <path d="M500,162 C500,162 508,149 520,149 C532,149 540,159 540,169
-           C540,182 522,196 500,206 C478,196 460,182 460,169
-           C460,159 468,149 480,149 C492,149 500,162 500,162Z"
+  <!-- Small blue heart above S -->
+  <path d="M504,145 C504,145 514,131 527,131 C540,131 549,143 549,154
+           C549,169 527,184 504,194 C481,184 459,169 459,154
+           C459,143 468,131 481,131 C494,131 504,145 504,145Z"
         fill="#1e88e5"/>
 
-  <!-- THUISWERK rainbow text -->
-  <text font-family="'Arial Black','Helvetica Neue',Arial,sans-serif"
-        font-size="128" font-weight="900">
-    <tspan x="145" y="272" fill="#e53935">T</tspan>
-    <tspan x="232" y="272" fill="#f57c00">H</tspan>
-    <tspan x="325" y="272" fill="#fdd835">U</tspan>
-    <tspan x="403" y="272" fill="#43a047">I</tspan>
-    <tspan x="438" y="272" fill="#1e88e5">S</tspan>
-    <tspan x="524" y="272" fill="#8e24aa">W</tspan>
-    <tspan x="637" y="272" fill="#43a047">E</tspan>
-    <tspan x="723" y="272" fill="#f57c00">R</tspan>
-    <tspan x="810" y="272" fill="#e53935">K</tspan>
+  <!-- THUISWERK — baseline y=315, clearly inside the house gable -->
+  <text font-family="'Fredoka One','Arial Rounded MT Bold','Arial Black',sans-serif"
+        font-size="135" font-weight="900" letter-spacing="5">
+    <tspan x="100" y="315" fill="#e53935">T</tspan>
+    <tspan x="192" y="315" fill="#f57c00">H</tspan>
+    <tspan x="291" y="315" fill="#fdd835">U</tspan>
+    <tspan x="373" y="315" fill="#43a047">I</tspan>
+    <tspan x="406" y="315" fill="#1e88e5">S</tspan>
+    <tspan x="498" y="315" fill="#8e24aa">W</tspan>
+    <tspan x="615" y="315" fill="#43a047">E</tspan>
+    <tspan x="708" y="315" fill="#f57c00">R</tspan>
+    <tspan x="798" y="315" fill="#e53935">K</tspan>
   </text>
 
-  <!-- Window left side -->
-  <rect x="133" y="400" width="108" height="104" rx="6" fill="#4fc3f7"/>
-  <line x1="187" y1="400" x2="187" y2="504" stroke="white" stroke-width="6"/>
-  <line x1="133" y1="452" x2="241" y2="452" stroke="white" stroke-width="6"/>
-  <rect x="133" y="400" width="108" height="104" rx="6" fill="none"
+  <!-- Window left -->
+  <rect x="82"  y="390" width="108" height="104" rx="6" fill="#4fc3f7"/>
+  <line x1="136" y1="390" x2="136" y2="494" stroke="white" stroke-width="6"/>
+  <line x1="82"  y1="442" x2="190" y2="442" stroke="white" stroke-width="6"/>
+  <rect x="82"  y="390" width="108" height="104" rx="6" fill="none"
         stroke="#0288d1" stroke-width="4"/>
 
-  <!-- Pink heart right side -->
-  <path d="M823,462 C823,462 840,440 860,440 C880,440 895,457 895,475
-           C895,502 860,530 823,550 C786,530 751,502 751,475
-           C751,457 766,440 786,440 C806,440 823,462 823,462Z"
+  <!-- Pink heart right -->
+  <path d="M826,440 C826,440 843,418 863,418 C883,418 898,436 898,454
+           C898,481 864,509 826,529 C788,509 754,481 754,454
+           C754,436 769,418 789,418 C809,418 826,440 826,440Z"
         fill="#f48fb1"/>
 
   <!-- Desk -->
-  <rect x="52" y="822" width="896" height="68" rx="12" fill="#c17f3a"/>
-  <rect x="52" y="822" width="896" height="20" rx="12" fill="#d4893f"/>
+  <rect x="44" y="830" width="912" height="66" rx="12" fill="#c17f3a"/>
+  <rect x="44" y="830" width="912" height="20" rx="12" fill="#d4893f"/>
 
   <!-- Book stack left -->
-  <rect x="60" y="758" width="158" height="66" rx="8" fill="#6a1b9a"/>
-  <rect x="60" y="758" width="20" height="66" rx="6" fill="#8e24aa"/>
-  <rect x="70" y="708" width="148" height="52" rx="8" fill="#e65100"/>
-  <rect x="70" y="708" width="20" height="52" rx="6" fill="#f57c00"/>
-  <rect x="80" y="662" width="138" height="48" rx="8" fill="#2e7d32"/>
-  <rect x="80" y="662" width="20" height="48" rx="6" fill="#388e3c"/>
+  <rect x="50"  y="764" width="150" height="68" rx="8" fill="#6a1b9a"/>
+  <rect x="50"  y="764" width="20"  height="68" rx="6" fill="#8e24aa"/>
+  <rect x="60"  y="712" width="140" height="54" rx="8" fill="#e65100"/>
+  <rect x="60"  y="712" width="20"  height="54" rx="6" fill="#f57c00"/>
+  <rect x="70"  y="666" width="130" height="48" rx="8" fill="#2e7d32"/>
+  <rect x="70"  y="666" width="20"  height="48" rx="6" fill="#388e3c"/>
 
   <!-- Open notebook -->
-  <path d="M288,878 L288,816 Q292,795 445,793 L500,793 L500,878Z"
+  <path d="M286,884 L286,820 Q290,799 444,797 L500,797 L500,884Z"
         fill="#fafafa" stroke="#1565c0" stroke-width="4" stroke-linejoin="round"/>
-  <path d="M712,878 L712,816 Q708,795 555,793 L500,793 L500,878Z"
+  <path d="M714,884 L714,820 Q710,799 556,797 L500,797 L500,884Z"
         fill="#fafafa" stroke="#1565c0" stroke-width="4" stroke-linejoin="round"/>
-  <rect x="496" y="793" width="8" height="85" fill="#0d47a1"/>
-  <line x1="308" y1="822" x2="490" y2="822" stroke="#bbdefb" stroke-width="2"/>
-  <line x1="308" y1="838" x2="490" y2="838" stroke="#bbdefb" stroke-width="2"/>
-  <line x1="308" y1="854" x2="490" y2="854" stroke="#bbdefb" stroke-width="2"/>
-  <line x1="308" y1="870" x2="490" y2="870" stroke="#bbdefb" stroke-width="2"/>
-  <line x1="510" y1="822" x2="692" y2="822" stroke="#bbdefb" stroke-width="2"/>
-  <line x1="510" y1="838" x2="692" y2="838" stroke="#bbdefb" stroke-width="2"/>
-  <line x1="510" y1="854" x2="692" y2="854" stroke="#bbdefb" stroke-width="2"/>
-  <line x1="510" y1="870" x2="692" y2="870" stroke="#bbdefb" stroke-width="2"/>
+  <rect x="496" y="797" width="8" height="87" fill="#0d47a1"/>
+  <line x1="306" y1="826" x2="490" y2="826" stroke="#bbdefb" stroke-width="2"/>
+  <line x1="306" y1="842" x2="490" y2="842" stroke="#bbdefb" stroke-width="2"/>
+  <line x1="306" y1="858" x2="490" y2="858" stroke="#bbdefb" stroke-width="2"/>
+  <line x1="306" y1="874" x2="490" y2="874" stroke="#bbdefb" stroke-width="2"/>
+  <line x1="510" y1="826" x2="694" y2="826" stroke="#bbdefb" stroke-width="2"/>
+  <line x1="510" y1="842" x2="694" y2="842" stroke="#bbdefb" stroke-width="2"/>
+  <line x1="510" y1="858" x2="694" y2="858" stroke="#bbdefb" stroke-width="2"/>
+  <line x1="510" y1="874" x2="694" y2="874" stroke="#bbdefb" stroke-width="2"/>
 
   <!-- Pencil cup right -->
-  <rect x="754" y="680" width="14" height="78" rx="4" fill="#1565c0"/>
-  <polygon points="754,680 768,680 761,655" fill="#fffde7"/>
-  <rect x="781" y="686" width="14" height="72" rx="4" fill="#b71c1c"/>
-  <polygon points="781,686 795,686 788,661" fill="#fffde7"/>
-  <rect x="808" y="674" width="14" height="84" rx="4" fill="#1b5e20"/>
-  <polygon points="808,674 822,674 815,649" fill="#fffde7"/>
-  <rect x="746" y="753" width="90" height="80" rx="10" fill="#1976d2"/>
-  <rect x="746" y="753" width="90" height="18" rx="8" fill="#42a5f5"/>
+  <rect x="754" y="688" width="14" height="74" rx="4" fill="#1565c0"/>
+  <polygon points="754,688 768,688 761,663" fill="#fffde7"/>
+  <rect x="782" y="694" width="14" height="68" rx="4" fill="#b71c1c"/>
+  <polygon points="782,694 796,694 789,669" fill="#fffde7"/>
+  <rect x="810" y="680" width="14" height="82" rx="4" fill="#1b5e20"/>
+  <polygon points="810,680 824,680 817,655" fill="#fffde7"/>
+  <rect x="746" y="758" width="90" height="78" rx="10" fill="#1976d2"/>
+  <rect x="746" y="758" width="90" height="18" rx="8" fill="#42a5f5"/>
 
   <!-- Plant far right -->
-  <path d="M870,826 L884,768 L950,768 L964,826Z" fill="#c62828"/>
-  <rect x="866" y="818" width="105" height="18" rx="5" fill="#b71c1c"/>
-  <rect x="884" y="768" width="66" height="12" rx="4" fill="#4e342e"/>
-  <line x1="917" y1="780" x2="917" y2="742" stroke="#388e3c" stroke-width="7"/>
-  <ellipse cx="917" cy="722" rx="28" ry="52" fill="#2e7d32"
-           transform="rotate(-22 917 722)"/>
-  <ellipse cx="917" cy="718" rx="26" ry="48" fill="#43a047"
-           transform="rotate(18 917 718)"/>
-  <ellipse cx="910" cy="710" rx="22" ry="42" fill="#388e3c"
-           transform="rotate(-48 910 710)"/>
+  <path d="M868,828 L882,770 L952,770 L966,828Z" fill="#c62828"/>
+  <rect x="863" y="820" width="108" height="18" rx="5" fill="#b71c1c"/>
+  <rect x="882" y="770" width="70"  height="12" rx="4" fill="#4e342e"/>
+  <line x1="917" y1="782" x2="917" y2="744" stroke="#388e3c" stroke-width="7"/>
+  <ellipse cx="917" cy="724" rx="28" ry="52" fill="#2e7d32"
+           transform="rotate(-22 917 724)"/>
+  <ellipse cx="917" cy="720" rx="26" ry="48" fill="#43a047"
+           transform="rotate(18 917 720)"/>
+  <ellipse cx="910" cy="712" rx="22" ry="42" fill="#388e3c"
+           transform="rotate(-48 910 712)"/>
 
   <!-- ── GIRL ── -->
 
   <!-- Pigtails behind head -->
-  <ellipse cx="354" cy="580" rx="34" ry="65" fill="#5d3a1a"
-           transform="rotate(-16 354 580)"/>
-  <ellipse cx="646" cy="580" rx="34" ry="65" fill="#5d3a1a"
-           transform="rotate(16 646 580)"/>
+  <ellipse cx="374" cy="584" rx="21" ry="50" fill="#5d3a1a"
+           transform="rotate(-18 374 584)"/>
+  <ellipse cx="626" cy="584" rx="21" ry="50" fill="#5d3a1a"
+           transform="rotate(18 626 584)"/>
 
   <!-- Neck -->
-  <rect x="470" y="592" width="60" height="52" rx="12" fill="#f5c17a"/>
+  <rect x="480" y="600" width="40" height="38" rx="9" fill="#f5c17a"/>
 
-  <!-- Body / yellow shirt -->
-  <path d="M325,632 Q325,620 352,614 L435,600 Q500,594 565,600 L648,614
-           Q675,620 675,632 L685,808 Q685,820 500,820 Q315,820 315,808Z"
+  <!-- Body — narrow trapezoid shirt (200px wide) -->
+  <path d="M400,642 Q400,633 415,628 L458,618 Q500,612 542,618 L585,628
+           Q600,633 600,642 L608,820 Q608,830 500,830 Q392,830 392,820Z"
         fill="#f9a825"/>
-  <path d="M378,610 Q500,600 622,610"
-        fill="none" stroke="#fbc02d" stroke-width="8"
+  <path d="M420,622 Q500,613 580,622"
+        fill="none" stroke="#fbc02d" stroke-width="6"
         stroke-linecap="round" opacity="0.5"/>
 
-  <!-- Left arm -->
-  <path d="M335,665 Q282,705 260,758 Q248,782 270,788
-           Q290,796 312,766 Q336,730 380,700"
-        fill="none" stroke="#f5c17a" stroke-width="52" stroke-linecap="round"/>
+  <!-- Left upper arm — close to body, reaching down -->
+  <path d="M402,658 Q382,696 376,730"
+        fill="none" stroke="#f5c17a" stroke-width="30" stroke-linecap="round"/>
+  <!-- Left forearm — resting on desk/book -->
+  <path d="M374,732 Q384,762 430,778"
+        fill="none" stroke="#f5c17a" stroke-width="28" stroke-linecap="round"/>
 
-  <!-- Right arm -->
-  <path d="M665,665 Q718,705 740,758 Q752,782 730,788
-           Q710,796 688,766 Q664,730 620,700"
-        fill="none" stroke="#f5c17a" stroke-width="52" stroke-linecap="round"/>
+  <!-- Right upper arm — close to body, reaching down -->
+  <path d="M598,658 Q618,696 624,730"
+        fill="none" stroke="#f5c17a" stroke-width="30" stroke-linecap="round"/>
+  <!-- Right forearm — resting on desk/book -->
+  <path d="M626,732 Q616,762 570,778"
+        fill="none" stroke="#f5c17a" stroke-width="28" stroke-linecap="round"/>
 
   <!-- Head -->
-  <ellipse cx="500" cy="490" rx="138" ry="128" fill="#f5c17a"/>
+  <ellipse cx="500" cy="506" rx="108" ry="100" fill="#f5c17a"/>
 
-  <!-- Hair top block -->
-  <path d="M366,485 Q362,362 500,340 Q638,362 634,485
-           Q630,438 500,426 Q370,438 366,485Z"
+  <!-- Hair top -->
+  <path d="M396,500 Q392,396 500,374 Q608,396 604,500
+           Q600,458 500,446 Q400,458 396,500Z"
         fill="#5d3a1a"/>
-  <!-- Hair left side -->
-  <path d="M366,485 Q354,518 360,552 Q370,574 384,558 Q392,532 384,500Z"
+  <!-- Hair left fringe -->
+  <path d="M396,500 Q384,528 390,558 Q398,576 410,562 Q416,540 408,512Z"
         fill="#5d3a1a"/>
-  <!-- Hair right side -->
-  <path d="M634,485 Q646,518 640,552 Q630,574 616,558 Q608,532 616,500Z"
+  <!-- Hair right fringe -->
+  <path d="M604,500 Q616,528 610,558 Q602,576 590,562 Q584,540 592,512Z"
         fill="#5d3a1a"/>
 
   <!-- Ears -->
-  <ellipse cx="365" cy="500" rx="22" ry="26" fill="#f5c17a"/>
-  <ellipse cx="635" cy="500" rx="22" ry="26" fill="#f5c17a"/>
+  <ellipse cx="394" cy="510" rx="15" ry="19" fill="#f5c17a"/>
+  <ellipse cx="606" cy="510" rx="15" ry="19" fill="#f5c17a"/>
 
   <!-- Left eye -->
-  <ellipse cx="452" cy="490" rx="24" ry="26" fill="white"/>
-  <circle cx="452" cy="494" r="16" fill="#111"/>
-  <circle cx="446" cy="487" r="6" fill="white"/>
+  <ellipse cx="464" cy="504" rx="18" ry="20" fill="white"/>
+  <circle  cx="464" cy="508" r="12" fill="#111"/>
+  <circle  cx="458" cy="501" r="4"  fill="white"/>
   <!-- Right eye -->
-  <ellipse cx="548" cy="490" rx="24" ry="26" fill="white"/>
-  <circle cx="548" cy="494" r="16" fill="#111"/>
-  <circle cx="542" cy="487" r="6" fill="white"/>
+  <ellipse cx="536" cy="504" rx="18" ry="20" fill="white"/>
+  <circle  cx="536" cy="508" r="12" fill="#111"/>
+  <circle  cx="530" cy="501" r="4"  fill="white"/>
 
   <!-- Eyebrows -->
-  <path d="M432,466 Q452,456 472,466"
-        fill="none" stroke="#3e2008" stroke-width="8" stroke-linecap="round"/>
-  <path d="M528,466 Q548,456 568,466"
-        fill="none" stroke="#3e2008" stroke-width="8" stroke-linecap="round"/>
+  <path d="M448,480 Q464,470 480,480"
+        fill="none" stroke="#3e2008" stroke-width="7" stroke-linecap="round"/>
+  <path d="M520,480 Q536,470 552,480"
+        fill="none" stroke="#3e2008" stroke-width="7" stroke-linecap="round"/>
 
   <!-- Nose -->
-  <circle cx="500" cy="516" r="6" fill="#e8a070" opacity="0.6"/>
+  <circle cx="500" cy="524" r="5" fill="#e8a070" opacity="0.6"/>
 
   <!-- Smile -->
-  <path d="M464,540 Q500,565 536,540"
-        fill="none" stroke="#c07048" stroke-width="9" stroke-linecap="round"/>
+  <path d="M470,546 Q500,570 530,546"
+        fill="none" stroke="#c07048" stroke-width="8" stroke-linecap="round"/>
 
-  <!-- Rosy cheeks -->
-  <ellipse cx="415" cy="524" rx="38" ry="26" fill="#f48fb1" opacity="0.45"/>
-  <ellipse cx="585" cy="524" rx="38" ry="26" fill="#f48fb1" opacity="0.45"/>
+  <!-- Cheeks -->
+  <ellipse cx="428" cy="532" rx="28" ry="20" fill="#f48fb1" opacity="0.45"/>
+  <ellipse cx="572" cy="532" rx="28" ry="20" fill="#f48fb1" opacity="0.45"/>
 
   <!-- Pencil in left hand -->
-  <line x1="288" y1="782" x2="390" y2="730"
-        stroke="#1565c0" stroke-width="14" stroke-linecap="round"/>
-  <polygon points="390,730 398,716 384,720" fill="#fffde7"/>
+  <line x1="306" y1="774" x2="398" y2="726"
+        stroke="#1565c0" stroke-width="12" stroke-linecap="round"/>
+  <polygon points="398,726 406,712 392,716" fill="#fffde7"/>
 
 </svg>
