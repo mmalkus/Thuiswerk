@@ -173,6 +173,17 @@ function loadHistory() {
 function saveHistory(h) {
   try { localStorage.setItem("dictee_history", JSON.stringify(h)); } catch {}
 }
+
+// ── Aangepaste woordenlijst via localStorage ───────────────────────────────────
+function loadCustomWords() {
+  try { return JSON.parse(localStorage.getItem("dictee_custom_words") || "null"); } catch { return null; }
+}
+function saveCustomWords(w) {
+  try { localStorage.setItem("dictee_custom_words", JSON.stringify(w)); } catch {}
+}
+function clearCustomWords() {
+  try { localStorage.removeItem("dictee_custom_words"); } catch {}
+}
 function recordResult(history, word, correct) {
   const h = { ...history };
   if (!h[word]) h[word] = { correct: 0, wrong: 0 };
@@ -372,8 +383,9 @@ function loadInitFav() {
 function App() {
   const [lang, setLang]             = useState(window._initLang);
   const [ui,   setUi]               = useState(window._i18n[window._initLang]?.dictee || null);
-  const [woorden, setWoorden]       = useState(window._words[window._initLang] || null);
-  const [geladen, setGeladen]       = useState(false);
+  const _savedCustom = loadCustomWords();
+  const [woorden, setWoorden]       = useState(_savedCustom || window._words[window._initLang] || null);
+  const [geladen, setGeladen]       = useState(_savedCustom !== null);
   const [history, setHistoryState]  = useState(loadHistory);
   const [screen, setScreen]         = useState("setup");
   const [tab, setTab]               = useState("oefenen");
@@ -481,6 +493,7 @@ function App() {
         const parsed=JSON.parse(ev.target.result);
         const levelKeys=Object.keys(parsed).filter(k=>!k.startsWith('_'));
         if(levelKeys.length===0) throw new Error(ui.fileErrorFormat);
+        saveCustomWords(parsed);
         setWoorden(parsed); setSelCats([]); setGeladen(true); setError("");
         setLevel(levelKeys[0]); setWbLevel(levelKeys[0]);
       } catch(err){setError(ui.fileErrorPrefix+err.message);}
@@ -651,7 +664,7 @@ function App() {
           <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
             <button style={S.btn(C.sky,C.blue,true)} onClick={()=>fileRef.current?.click()}>{ui.fileImportBtn}</button>
             <button style={S.btn("#edfff3","#2a8a4a",true)} onClick={()=>exportJSON(woorden)}>{ui.fileExportBtn}</button>
-            {geladen && <button style={S.btn("#fff0f1",C.red,true)} onClick={()=>{setWoorden(window._words[lang]);setGeladen(false);setSelCats([]);}}>{ui.fileResetBtn}</button>}
+            {geladen && <button style={S.btn("#fff0f1",C.red,true)} onClick={()=>{clearCustomWords();setWoorden(window._words[lang]);setGeladen(false);setSelCats([]);}}>{ui.fileResetBtn}</button>}
           </div>
           <input ref={fileRef} type="file" accept=".json" style={{display:"none"}} onChange={handleFileLoad}/>
         </div>

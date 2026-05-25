@@ -185,138 +185,17 @@ Template substitution: use `str.replace('{key}', value)` for dynamic values.
 
 ---
 
-## Adding a New App
+## Skills (slash commands)
 
-Follow these steps to add a fourth app (e.g., `spelletje.html`):
+Procedural tasks have dedicated slash commands defined in `.claude/commands/`. Invoke them by typing the command name; Claude will ask for any missing details before starting.
 
-### 1. Create the HTML file
+| Command | What it does |
+|---|---|
+| `/add-app` | Scaffolds a new standalone app — creates the HTML file, i18n entries, `sw.js` registration, and launcher card |
+| `/add-language` | Adds a new UI language — i18n file, sidebar chip, `sw.js` registration, and optional Dictee word list |
+| `/add-wordlist` | Creates or documents a Dictee word list (built-in for a new language, or a custom importable JSON) |
 
-Copy the structure of `rekentoets.html` as a starting point. Key sections:
-
-**`<head>`** — include `shared.css`, Google Fonts, viewport + PWA meta tags:
-```html
-<link rel="stylesheet" href="shared.css">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#YOUR_COLOR">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="App Name">
-<link rel="manifest" href="manifest.json">
-```
-
-**CSS** — define `:root` color variables + light-mode overrides:
-```css
-:root { --bg: …; --surface: …; --border: …; --text: …; --muted: …; --accent: …; }
-html[data-theme="light"] { /* override all of the above */ }
-```
-
-**HTML screens** — use the `.screen` / `.screen.active` pattern:
-```html
-<div class="screen active" id="setupScreen">…</div>
-<div class="screen" id="quizScreen">
-  <div class="quiz-header">     <!-- add padding-left per sidebar clearance rule -->
-    <span id="myTitle">App Name</span>
-    …
-  </div>
-  …
-</div>
-<div class="screen" id="resultScreen">…</div>
-```
-
-**Screen switching:**
-```javascript
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-```
-
-**Before `sidebar.js`** — register the app and wire i18n:
-```javascript
-window.THUISWERK_APP = {
-  id: 'myapp',
-  theme: localStorage.getItem('thuiswerk_theme') || 'dark',
-  primaryColor: '#YOUR_COLOR',
-  bgColor: '#YOUR_DARK_BG',
-  textColor: '#YOUR_TEXT_COLOR',
-  getSettings: () => ({ /* serialize state */ }),
-  applySettings: s => { /* restore state */ },
-};
-```
-
-**Last line of `<body>`:**
-```html
-<script src="sidebar.js"></script>
-```
-
-### 2. Add i18n entries
-
-In both `i18n-nl.json` and `i18n-en.json`, add a top-level key:
-```json
-"myapp": {
-  "appTitle": "Mijn App",
-  "startBtn": "▶ Start",
-  "stopBtn": "✕ stop"
-}
-```
-
-### 3. Register in `sw.js`
-
-Add the new file to the `ASSETS` array so it's cached for offline use:
-```javascript
-'spelletje.html',
-```
-
-### 4. Add a launcher card in `index.html`
-
-Follow the pattern of the existing launcher cards. Include a link to the new file and a short description.
-
-### 5. Update `manifest.json` (optional)
-
-Add a shortcut entry if the app should be launchable directly from the PWA icon.
-
----
-
-## Adding a New Language
-
-### 1. Create the i18n file
-
-Copy `i18n-en.json` to `i18n-xx.json` (replace `xx` with the BCP-47 language code, e.g. `de`, `fr`). Translate all values; keep all keys identical.
-
-### 2. Add word lists for Dictee
-
-Create `words-xx.json` with the same grade-level structure as `words-nl.json`:
-```json
-{
-  "grade1": ["word1", "word2", …],
-  "grade2": […]
-}
-```
-
-### 3. Add the language chip in `sidebar.js`
-
-In the `render()` function, add the new chip alongside the existing NL/EN chips:
-```javascript
-'<button class="tw-chip lang-chip' + (lc==='de' ? ' on' : '') +
-'" onclick="window._twSB.lang(\'de\')">DE</button>'
-```
-
-Also update the toggle logic that checks chip text content:
-```javascript
-if (c.textContent === 'DE') c.classList.toggle('on', lc === 'de');
-```
-
-### 4. Register all app files in `sw.js`
-
-Add the new `i18n-xx.json` (and `words-xx.json` if applicable) to the `ASSETS` array.
-
-### 5. Update each app's `applyLanguage` / `switchLang`
-
-Each app's language-switch function assumes the i18n file exists and calls `loadI18n(lc)`. No app-specific changes are needed as long as the new file follows the same key structure.
-
-### 6. Update `manifest.json`
-
-If the new language becomes the primary language, update the `lang` field.
+The full step-by-step instructions for each task live in the corresponding `.claude/commands/*.md` file rather than here, keeping this file focused on architecture.
 
 ---
 
