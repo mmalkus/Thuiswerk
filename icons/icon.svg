@@ -1,4 +1,172 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="96" fill="#1a1a2e"/>
-  <text x="256" y="340" font-size="280" text-anchor="middle" font-family="serif">🏠</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+
+  <!-- Background -->
+  <rect width="1000" height="1000" rx="210" ry="210" fill="#faf8f3"/>
+
+  <!-- House outline -->
+  <polyline
+    points="118,285 118,820 500,58 882,285 882,820"
+    fill="none" stroke="#1a3564" stroke-width="30"
+    stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Small blue heart above the S -->
+  <path d="M500,162 C500,162 508,149 520,149 C532,149 540,159 540,169
+           C540,182 522,196 500,206 C478,196 460,182 460,169
+           C460,159 468,149 480,149 C492,149 500,162 500,162Z"
+        fill="#1e88e5"/>
+
+  <!-- THUISWERK rainbow text -->
+  <text font-family="'Arial Black','Helvetica Neue',Arial,sans-serif"
+        font-size="128" font-weight="900">
+    <tspan x="145" y="272" fill="#e53935">T</tspan>
+    <tspan x="232" y="272" fill="#f57c00">H</tspan>
+    <tspan x="325" y="272" fill="#fdd835">U</tspan>
+    <tspan x="403" y="272" fill="#43a047">I</tspan>
+    <tspan x="438" y="272" fill="#1e88e5">S</tspan>
+    <tspan x="524" y="272" fill="#8e24aa">W</tspan>
+    <tspan x="637" y="272" fill="#43a047">E</tspan>
+    <tspan x="723" y="272" fill="#f57c00">R</tspan>
+    <tspan x="810" y="272" fill="#e53935">K</tspan>
+  </text>
+
+  <!-- Window left side -->
+  <rect x="133" y="400" width="108" height="104" rx="6" fill="#4fc3f7"/>
+  <line x1="187" y1="400" x2="187" y2="504" stroke="white" stroke-width="6"/>
+  <line x1="133" y1="452" x2="241" y2="452" stroke="white" stroke-width="6"/>
+  <rect x="133" y="400" width="108" height="104" rx="6" fill="none"
+        stroke="#0288d1" stroke-width="4"/>
+
+  <!-- Pink heart right side -->
+  <path d="M823,462 C823,462 840,440 860,440 C880,440 895,457 895,475
+           C895,502 860,530 823,550 C786,530 751,502 751,475
+           C751,457 766,440 786,440 C806,440 823,462 823,462Z"
+        fill="#f48fb1"/>
+
+  <!-- Desk -->
+  <rect x="52" y="822" width="896" height="68" rx="12" fill="#c17f3a"/>
+  <rect x="52" y="822" width="896" height="20" rx="12" fill="#d4893f"/>
+
+  <!-- Book stack left -->
+  <rect x="60" y="758" width="158" height="66" rx="8" fill="#6a1b9a"/>
+  <rect x="60" y="758" width="20" height="66" rx="6" fill="#8e24aa"/>
+  <rect x="70" y="708" width="148" height="52" rx="8" fill="#e65100"/>
+  <rect x="70" y="708" width="20" height="52" rx="6" fill="#f57c00"/>
+  <rect x="80" y="662" width="138" height="48" rx="8" fill="#2e7d32"/>
+  <rect x="80" y="662" width="20" height="48" rx="6" fill="#388e3c"/>
+
+  <!-- Open notebook -->
+  <path d="M288,878 L288,816 Q292,795 445,793 L500,793 L500,878Z"
+        fill="#fafafa" stroke="#1565c0" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M712,878 L712,816 Q708,795 555,793 L500,793 L500,878Z"
+        fill="#fafafa" stroke="#1565c0" stroke-width="4" stroke-linejoin="round"/>
+  <rect x="496" y="793" width="8" height="85" fill="#0d47a1"/>
+  <line x1="308" y1="822" x2="490" y2="822" stroke="#bbdefb" stroke-width="2"/>
+  <line x1="308" y1="838" x2="490" y2="838" stroke="#bbdefb" stroke-width="2"/>
+  <line x1="308" y1="854" x2="490" y2="854" stroke="#bbdefb" stroke-width="2"/>
+  <line x1="308" y1="870" x2="490" y2="870" stroke="#bbdefb" stroke-width="2"/>
+  <line x1="510" y1="822" x2="692" y2="822" stroke="#bbdefb" stroke-width="2"/>
+  <line x1="510" y1="838" x2="692" y2="838" stroke="#bbdefb" stroke-width="2"/>
+  <line x1="510" y1="854" x2="692" y2="854" stroke="#bbdefb" stroke-width="2"/>
+  <line x1="510" y1="870" x2="692" y2="870" stroke="#bbdefb" stroke-width="2"/>
+
+  <!-- Pencil cup right -->
+  <rect x="754" y="680" width="14" height="78" rx="4" fill="#1565c0"/>
+  <polygon points="754,680 768,680 761,655" fill="#fffde7"/>
+  <rect x="781" y="686" width="14" height="72" rx="4" fill="#b71c1c"/>
+  <polygon points="781,686 795,686 788,661" fill="#fffde7"/>
+  <rect x="808" y="674" width="14" height="84" rx="4" fill="#1b5e20"/>
+  <polygon points="808,674 822,674 815,649" fill="#fffde7"/>
+  <rect x="746" y="753" width="90" height="80" rx="10" fill="#1976d2"/>
+  <rect x="746" y="753" width="90" height="18" rx="8" fill="#42a5f5"/>
+
+  <!-- Plant far right -->
+  <path d="M870,826 L884,768 L950,768 L964,826Z" fill="#c62828"/>
+  <rect x="866" y="818" width="105" height="18" rx="5" fill="#b71c1c"/>
+  <rect x="884" y="768" width="66" height="12" rx="4" fill="#4e342e"/>
+  <line x1="917" y1="780" x2="917" y2="742" stroke="#388e3c" stroke-width="7"/>
+  <ellipse cx="917" cy="722" rx="28" ry="52" fill="#2e7d32"
+           transform="rotate(-22 917 722)"/>
+  <ellipse cx="917" cy="718" rx="26" ry="48" fill="#43a047"
+           transform="rotate(18 917 718)"/>
+  <ellipse cx="910" cy="710" rx="22" ry="42" fill="#388e3c"
+           transform="rotate(-48 910 710)"/>
+
+  <!-- ── GIRL ── -->
+
+  <!-- Pigtails behind head -->
+  <ellipse cx="354" cy="580" rx="34" ry="65" fill="#5d3a1a"
+           transform="rotate(-16 354 580)"/>
+  <ellipse cx="646" cy="580" rx="34" ry="65" fill="#5d3a1a"
+           transform="rotate(16 646 580)"/>
+
+  <!-- Neck -->
+  <rect x="470" y="592" width="60" height="52" rx="12" fill="#f5c17a"/>
+
+  <!-- Body / yellow shirt -->
+  <path d="M325,632 Q325,620 352,614 L435,600 Q500,594 565,600 L648,614
+           Q675,620 675,632 L685,808 Q685,820 500,820 Q315,820 315,808Z"
+        fill="#f9a825"/>
+  <path d="M378,610 Q500,600 622,610"
+        fill="none" stroke="#fbc02d" stroke-width="8"
+        stroke-linecap="round" opacity="0.5"/>
+
+  <!-- Left arm -->
+  <path d="M335,665 Q282,705 260,758 Q248,782 270,788
+           Q290,796 312,766 Q336,730 380,700"
+        fill="none" stroke="#f5c17a" stroke-width="52" stroke-linecap="round"/>
+
+  <!-- Right arm -->
+  <path d="M665,665 Q718,705 740,758 Q752,782 730,788
+           Q710,796 688,766 Q664,730 620,700"
+        fill="none" stroke="#f5c17a" stroke-width="52" stroke-linecap="round"/>
+
+  <!-- Head -->
+  <ellipse cx="500" cy="490" rx="138" ry="128" fill="#f5c17a"/>
+
+  <!-- Hair top block -->
+  <path d="M366,485 Q362,362 500,340 Q638,362 634,485
+           Q630,438 500,426 Q370,438 366,485Z"
+        fill="#5d3a1a"/>
+  <!-- Hair left side -->
+  <path d="M366,485 Q354,518 360,552 Q370,574 384,558 Q392,532 384,500Z"
+        fill="#5d3a1a"/>
+  <!-- Hair right side -->
+  <path d="M634,485 Q646,518 640,552 Q630,574 616,558 Q608,532 616,500Z"
+        fill="#5d3a1a"/>
+
+  <!-- Ears -->
+  <ellipse cx="365" cy="500" rx="22" ry="26" fill="#f5c17a"/>
+  <ellipse cx="635" cy="500" rx="22" ry="26" fill="#f5c17a"/>
+
+  <!-- Left eye -->
+  <ellipse cx="452" cy="490" rx="24" ry="26" fill="white"/>
+  <circle cx="452" cy="494" r="16" fill="#111"/>
+  <circle cx="446" cy="487" r="6" fill="white"/>
+  <!-- Right eye -->
+  <ellipse cx="548" cy="490" rx="24" ry="26" fill="white"/>
+  <circle cx="548" cy="494" r="16" fill="#111"/>
+  <circle cx="542" cy="487" r="6" fill="white"/>
+
+  <!-- Eyebrows -->
+  <path d="M432,466 Q452,456 472,466"
+        fill="none" stroke="#3e2008" stroke-width="8" stroke-linecap="round"/>
+  <path d="M528,466 Q548,456 568,466"
+        fill="none" stroke="#3e2008" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Nose -->
+  <circle cx="500" cy="516" r="6" fill="#e8a070" opacity="0.6"/>
+
+  <!-- Smile -->
+  <path d="M464,540 Q500,565 536,540"
+        fill="none" stroke="#c07048" stroke-width="9" stroke-linecap="round"/>
+
+  <!-- Rosy cheeks -->
+  <ellipse cx="415" cy="524" rx="38" ry="26" fill="#f48fb1" opacity="0.45"/>
+  <ellipse cx="585" cy="524" rx="38" ry="26" fill="#f48fb1" opacity="0.45"/>
+
+  <!-- Pencil in left hand -->
+  <line x1="288" y1="782" x2="390" y2="730"
+        stroke="#1565c0" stroke-width="14" stroke-linecap="round"/>
+  <polygon points="390,730 398,716 384,720" fill="#fffde7"/>
+
 </svg>
