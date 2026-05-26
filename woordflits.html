@@ -540,7 +540,8 @@
       <ul class="result-list" id="resultList"></ul>
       <div class="result-btns">
         <button class="btn-outline" id="settingsResultBtn" onclick="resetGame()">⚙ Instellingen</button>
-        <button class="btn-solid"   id="retryBtn"         onclick="startGame()">↩ Opnieuw</button>
+        <button class="btn-outline" id="wrongOnlyBtn"      onclick="startWithMistakes()" style="display:none;">🔄 Fouten</button>
+        <button class="btn-solid"   id="retryBtn"          onclick="startGame()">↩ Opnieuw</button>
       </div>
     </div>
   </div>
@@ -591,6 +592,7 @@
     document.getElementById('wordInput').placeholder = u.inputPlaceholder;
     document.getElementById('checkBtn').textContent = u.checkBtn;
     document.getElementById('settingsResultBtn').textContent = u.settingsBtn;
+    document.getElementById('wrongOnlyBtn').textContent = u.wrongBtn;
     document.getElementById('retryBtn').textContent = u.retryBtn;
     document.querySelectorAll('.lang-chip').forEach(function (el) {
       el.classList.toggle('selected', el.dataset.lc === lc);
@@ -601,7 +603,7 @@
 
   // ── settings ──────────────────────────────────────────────────────────────────
   var settings = {
-    length: 4,
+    lengths: [4],
     flashMs: 1000,
     inputMode: 'type',
     wordCount: 10,
@@ -638,27 +640,32 @@
     const lengths = Object.keys(words).map(Number).sort(function (a, b) { return a - b; });
     if (!lengths.length) return;
 
-    if (!lengths.includes(settings.length)) {
-      settings.length = lengths[0];
-    }
+    settings.lengths = (settings.lengths || []).filter(function (l) { return lengths.includes(l); });
+    if (!settings.lengths.length) settings.lengths = [lengths[0]];
 
     wrap.innerHTML = '';
     const u = window._i18n[lc] && window._i18n[lc].woordflits;
     const suffix = u ? u.lettersLabel : '';
     lengths.forEach(function (len) {
       const btn = document.createElement('div');
-      btn.className = 'chip' + (len === settings.length ? ' selected' : '');
+      btn.className = 'chip' + (settings.lengths.includes(len) ? ' selected' : '');
       btn.dataset.len = String(len);
       btn.textContent = len + (suffix ? ' ' + suffix : '');
-      btn.onclick = function () { selectLength(this); };
+      btn.onclick = function () { toggleLength(this); };
       wrap.appendChild(btn);
     });
   }
 
-  function selectLength(el) {
-    document.querySelectorAll('[data-len]').forEach(function (e) { e.classList.remove('selected'); });
-    el.classList.add('selected');
-    settings.length = parseInt(el.dataset.len);
+  function toggleLength(el) {
+    const len = parseInt(el.dataset.len);
+    if (el.classList.contains('selected')) {
+      if (document.querySelectorAll('[data-len].selected').length <= 1) return;
+      el.classList.remove('selected');
+      settings.lengths = settings.lengths.filter(function (l) { return l !== len; });
+    } else {
+      el.classList.add('selected');
+      if (!settings.lengths.includes(len)) settings.lengths.push(len);
+    }
   }
 
   function updateStartSubtitle() {
@@ -670,8 +677,8 @@
   }
 
   function readSettings() {
-    const selLen = document.querySelector('[data-len].selected');
-    if (selLen) settings.length = parseInt(selLen.dataset.len);
+    const selLens = Array.from(document.querySelectorAll('[data-len].selected')).map(function (el) { return parseInt(el.dataset.len); });
+    if (selLens.length) settings.lengths = selLens;
     const selMs = document.querySelector('[data-ms].selected');
     if (selMs) settings.flashMs = parseInt(selMs.dataset.ms);
     const selMode = document.querySelector('[data-mode].selected');
@@ -691,7 +698,7 @@
       el.classList.toggle('selected', el.dataset.mode === settings.inputMode);
     });
     document.querySelectorAll('[data-len]').forEach(function (el) {
-      el.classList.toggle('selected', parseInt(el.dataset.len) === settings.length);
+      el.classList.toggle('selected', (settings.lengths || []).includes(parseInt(el.dataset.len)));
     });
     updateStartSubtitle();
   }
@@ -704,7 +711,14 @@
     }
     const words = window._words[lang];
     if (!words) return [];
-    return (words[settings.length] || []).slice();
+    const pool = [];
+    const seen = new Set();
+    (settings.lengths || []).forEach(function (len) {
+      (words[String(len)] || []).forEach(function (w) {
+        if (!seen.has(w)) { seen.add(w); pool.push(w); }
+      });
+    });
+    return pool;
   }
 
   function shuffle(arr) {
@@ -719,6 +733,7 @@
   // ── game state ────────────────────────────────────────────────────────────────
   let gameWords = [];
   let current = 0, score = 0, results = [];
+  let sessionMistakes = [];
   let flashTimeout = null;
   let gamePhase = 'idle';
   let recognition = null;
@@ -733,7 +748,7 @@
       return;
     }
     gameWords = shuffle(pool).slice(0, settings.wordCount);
-    current = 0; score = 0; results = [];
+    current = 0; score = 0; results = []; sessionMistakes = [];
     showScreen('gameScreen');
     buildDots();
     showWord();
@@ -843,6 +858,7 @@
     } else {
       updateDot(current, 'wrong');
       setFeedback(u ? t(u.wrong, word) : '✗ Fout', 'var(--bad)');
+      if (!sessionMistakes.includes(word)) sessionMistakes.push(word);
     }
 
     // reveal word briefly after answer
@@ -878,7 +894,11 @@
     gamePhase = 'idle';
     showScreen('resultScreen');
 
+    const wrongBtn = document.getElementById('wrongOnlyBtn');
+    wrongBtn.style.display = sessionMistakes.length > 0 ? '' : 'none';
+
     const u = window._i18n[lang] && window._i18n[lang].woordflits;
+    if (u) wrongBtn.textContent = u.wrongBtn;
     document.getElementById('resultScore').textContent = score;
     document.getElementById('resultLabel').textContent = u ? t(u.scoreLabel, gameWords.length) : 'van ' + gameWords.length;
 
@@ -908,6 +928,16 @@
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;');
+  }
+
+  function startWithMistakes() {
+    if (!sessionMistakes.length) return;
+    gameWords = shuffle(sessionMistakes);
+    sessionMistakes = [];
+    current = 0; score = 0; results = [];
+    showScreen('gameScreen');
+    buildDots();
+    showWord();
   }
 
   function resetGame() {

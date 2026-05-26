@@ -153,6 +153,7 @@
     "wrong": "✗ Fout — het woord was {word}",
     "scoreLabel": "van de {word} goed",
     "settingsBtn": "⚙ Instellingen",
+    "wrongBtn": "🔄 Fouten herhalen",
     "retryBtn": "↩ Opnieuw",
     "noWords": "Geen woorden gevonden. Kies een lengte of voeg eigen woorden toe.",
     "noSpeech": "Spraakherkenning wordt niet ondersteund in deze browser."

@@ -153,6 +153,7 @@
     "wrong": "✗ Wrong — the word was {word}",
     "scoreLabel": "out of {word} correct",
     "settingsBtn": "⚙ Settings",
+    "wrongBtn": "🔄 Repeat mistakes",
     "retryBtn": "↩ Again",
     "noWords": "No words found. Choose a length or add custom words.",
     "noSpeech": "Speech recognition is not supported in this browser."
