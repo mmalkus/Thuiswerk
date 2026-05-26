@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="nl" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Woordflits</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ff8c42">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Woordflits">
+<link rel="stylesheet" href="shared.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Unbounded:wght@400;700;900&display=swap');
+
+  :root {
+    --bg:       #0a0805;
+    --surface:  #171005;
+    --surface2: #1e1508;
+    --border:   #2e200a;
+    --accent:   #ff8c42;
+    --accent2:  #ffb347;
+    --text:     #f5ede0;
+    --muted:    #9a8060;
+    --good:     #47ff8a;
+    --bad:      #ff4747;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 16px 0 40px;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 50% 0%, #201008 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .container {
+    width: 100%; max-width: 440px;
+    padding: 20px;
+    position: relative; z-index: 1;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── SHARED CARD ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    position: relative; overflow: hidden;
+  }
+  .card::after {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.4;
+  }
+
+  /* ── START SCREEN ── */
+  #startScreen .card { padding: 36px 28px 28px; }
+
+  .start-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 24px; padding-left: 28px;
+  }
+  .start-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 22px; font-weight: 900; line-height: 1.2;
+  }
+  .start-title span { color: var(--accent); }
+
+  .settings-toggle {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--muted);
+    font-size: 18px; cursor: pointer;
+    padding: 8px 12px;
+    transition: color 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+  .settings-toggle:hover { color: var(--accent); border-color: var(--accent); }
+  .settings-toggle.active { color: var(--accent); border-color: var(--accent); background: #1e1400; }
+
+  .settings-panel {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.35s ease;
+  }
+  .settings-panel.open { max-height: 900px; }
+
+  .settings-inner {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface2);
+    padding: 18px;
+    margin-bottom: 18px;
+  }
+
+  .settings-row { margin-bottom: 16px; }
+  .settings-row:last-child { margin-bottom: 0; }
+
+  .settings-label {
+    font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .chip-group { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--muted);
+    font-family: 'DM Mono', monospace; font-size: 12px;
+    padding: 7px 12px; cursor: pointer;
+    transition: all 0.15s; user-select: none;
+  }
+  .chip:hover { border-color: #444; color: var(--text); }
+  .chip.selected {
+    background: #1e1000; border-color: var(--accent); color: var(--accent);
+  }
+
+  .num-input {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 5px; color: var(--text);
+    font-family: 'DM Mono', monospace; font-size: 14px;
+    padding: 7px 10px; width: 68px; text-align: center;
+    outline: none;
+    -moz-appearance: textfield;
+  }
+  .num-input::-webkit-outer-spin-button,
+  .num-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .num-input:focus { border-color: var(--accent); }
+
+  .custom-textarea {
+    width: 100%; box-sizing: border-box;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text);
+    font-family: 'DM Mono', monospace; font-size: 12px;
+    padding: 10px; resize: vertical; min-height: 72px;
+    outline: none; line-height: 1.5;
+  }
+  .custom-textarea:focus { border-color: var(--accent); }
+  .custom-textarea::placeholder { color: var(--muted); }
+
+  .history-strip { margin-bottom: 18px; }
+  .history-label {
+    font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 8px;
+  }
+  .history-bars { display: flex; gap: 5px; align-items: flex-end; height: 44px; }
+  .h-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .h-bar { width: 100%; border-radius: 3px 3px 0 0; min-height: 4px; }
+  .h-bar-label { font-size: 9px; color: var(--muted); text-align: center; }
+
+  .start-btn {
+    background: var(--accent); color: #000;
+    border: none; border-radius: 7px;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 14px; font-weight: 700;
+    padding: 16px; cursor: pointer;
+    width: 100%; letter-spacing: 0.04em;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .start-btn:hover  { opacity: 0.85; }
+  .start-btn:active { transform: scale(0.97); }
+
+  /* ── GAME SCREEN ── */
+  .game-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 16px; padding-left: 52px;
+  }
+  .game-title {
+    font-family: 'Unbounded', sans-serif; font-size: 10px;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted);
+  }
+  .progress-label { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; }
+
+  /* ── FLASH CARD ── */
+  .flash-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .flash-card::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.4;
+  }
+
+  .flash-bar-wrap {
+    height: 3px; background: var(--border);
+  }
+  .flash-bar {
+    height: 100%; background: var(--accent); width: 100%;
+  }
+
+  .word-display {
+    padding: 40px 20px;
+    text-align: center; min-height: 120px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .flash-word {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 48px; font-weight: 900;
+    color: var(--text); line-height: 1;
+    word-break: break-word;
+  }
+
+  .word-hint {
+    font-family: 'DM Mono', monospace;
+    font-size: 24px; color: var(--border);
+    letter-spacing: 6px; word-break: break-all;
+  }
+
+  .input-area {
+    padding: 14px 18px 18px;
+    border-top: 1px solid var(--border);
+    display: flex; gap: 10px; align-items: center;
+  }
+  .word-input {
+    flex: 1; background: var(--bg); border: 2px solid var(--border);
+    border-radius: 6px; color: var(--text);
+    font-family: 'Unbounded', sans-serif; font-size: 20px; font-weight: 700;
+    text-align: center; padding: 12px 10px;
+    outline: none; min-height: 52px;
+    transition: border-color 0.15s;
+    letter-spacing: 2px;
+  }
+  .word-input:focus { border-color: var(--accent); }
+  .word-input.correct { border-color: var(--good); background: #0a1f10; }
+  .word-input.wrong   { border-color: var(--bad);  background: #1f0a0a; }
+  .word-input::placeholder { color: var(--muted); font-size: 13px; font-weight: 400; letter-spacing: 0; }
+
+  .check-btn {
+    background: var(--accent); color: #000;
+    border: none; border-radius: 6px;
+    font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 700;
+    padding: 12px 14px; cursor: pointer; white-space: nowrap; min-height: 52px;
+    transition: transform 0.1s, opacity 0.1s;
+  }
+  .check-btn:hover  { opacity: 0.85; }
+  .check-btn:active { transform: scale(0.95); }
+
+  .speak-area {
+    padding: 16px 20px 20px;
+    border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  .mic-btn {
+    width: 72px; height: 72px;
+    background: var(--surface2); border: 2px solid var(--border);
+    border-radius: 50%; font-size: 28px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.15s; user-select: none;
+  }
+  .mic-btn:hover { border-color: var(--accent); background: #1e1400; }
+  .mic-btn.listening {
+    border-color: var(--bad); background: #1f0a0a;
+    animation: mic-pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes mic-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,71,71,0.4); }
+    50%       { box-shadow: 0 0 0 10px rgba(255,71,71,0); }
+  }
+  .recognized-text {
+    font-size: 13px; color: var(--muted); text-align: center;
+    min-height: 18px; font-style: italic;
+  }
+
+  .feedback {
+    text-align: center; font-size: 12px; font-weight: 500;
+    height: 16px; color: var(--muted);
+    letter-spacing: 0.05em; transition: color 0.2s; margin-bottom: 12px;
+  }
+
+  .dots { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
+  .dot {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--border);
+    transition: background 0.3s;
+  }
+  .dot.correct { background: var(--good); }
+  .dot.wrong   { background: var(--bad); }
+  .dot.active  { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+
+  /* ── RESULT SCREEN ── */
+  .result-card { padding: 32px 24px; }
+  .result-top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .result-score {
+    font-family: 'Unbounded', sans-serif; font-size: 64px; font-weight: 900;
+    color: var(--accent); line-height: 1;
+  }
+  .result-meta { text-align: right; }
+  .result-label {
+    color: var(--muted); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  .result-info { font-size: 13px; color: var(--text); }
+
+  .result-list {
+    list-style: none; max-height: 240px;
+    overflow-y: auto; margin-bottom: 20px;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  }
+  .result-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 10px; border-radius: 4px; margin-bottom: 3px; font-size: 13px;
+  }
+  .result-item.correct-row { background: #0a1f10; }
+  .result-item.wrong-row   { background: #1f0a0a; }
+  .result-item .ri-word  { color: var(--text); font-weight: 700; min-width: 90px; }
+  .result-item .ri-given { font-size: 11px; color: var(--bad); flex: 1; text-align: center; }
+  .result-item .ri-mark  { font-size: 14px; }
+
+  .result-btns { display: flex; gap: 8px; }
+  .btn-outline {
+    flex: 1; background: transparent; color: var(--accent);
+    border: 2px solid var(--accent); border-radius: 6px;
+    font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 700;
+    padding: 14px 8px; cursor: pointer; letter-spacing: 0.04em;
+    transition: background 0.15s, color 0.15s;
+  }
+  .btn-outline:hover { background: var(--accent); color: #000; }
+  .btn-solid {
+    flex: 1; background: var(--accent); color: #000;
+    border: 2px solid var(--accent); border-radius: 6px;
+    font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 700;
+    padding: 14px 8px; cursor: pointer; letter-spacing: 0.04em;
+    transition: opacity 0.15s;
+  }
+  .btn-solid:hover { opacity: 0.85; }
+
+  @keyframes pop-in {
+    0%   { transform: scale(0.93); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .pop { animation: pop-in 0.2s ease-out; }
+
+  /* ── LIGHT THEME ── */
+  html[data-theme="light"] {
+    --bg: #fff8f0; --surface: #ffffff; --surface2: #fff0e0;
+    --border: #ffd0a0; --accent: #ea580c; --accent2: #d97706;
+    --text: #1c0d00; --muted: #78664a; --bad: #dc2626; --good: #16a34a;
+  }
+  html[data-theme="light"] body::before {
+    background: radial-gradient(ellipse 60% 50% at 50% 0%, #fff0e0 0%, transparent 70%);
+  }
+  html[data-theme="light"] .chip.selected { background: #fff0e0; }
+  html[data-theme="light"] .settings-toggle.active { background: #fff0e0; }
+  html[data-theme="light"] .word-input.correct { background: #f0fdf4; }
+  html[data-theme="light"] .word-input.wrong   { background: #fef2f2; }
+  html[data-theme="light"] .mic-btn.listening  { background: #fee2e2; }
+  html[data-theme="light"] .result-item.correct-row { background: #f0fdf4; }
+  html[data-theme="light"] .result-item.wrong-row   { background: #fef2f2; }
+</style>
+<script>(function(){var t=localStorage.getItem('thuiswerk_theme');if(t)document.documentElement.dataset.theme=t;})();</script>
+</head>
+<body>
+<script>
+  window.THUISWERK_APP = {
+    id: 'woordflits',
+    theme: localStorage.getItem('thuiswerk_theme') || 'dark',
+    primaryColor: '#ff8c42',
+    bgColor: '#171005',
+    textColor: '#f5ede0',
+  };
+
+  window._i18n  = window._i18n  || {};
+  window._words = window._words || {};
+
+  window._initLang = (function () {
+    try {
+      var favId = new URLSearchParams(location.search).get('fav');
+      if (favId) {
+        var favs = JSON.parse(localStorage.getItem('thuiswerk_favorites') || '[]');
+        var fav  = favs.find(function (f) { return f.id === favId && f.app === 'woordflits'; });
+        if (fav && fav.settings && fav.settings.lang) return fav.settings.lang;
+      }
+    } catch (e) {}
+    return localStorage.getItem('thuiswerk_lang') || 'nl';
+  }());
+
+  function loadI18n(lc) {
+    return window._i18n[lc]
+      ? Promise.resolve(window._i18n[lc])
+      : fetch('i18n-' + lc + '.json').then(function (r) { return r.json(); })
+          .then(function (d) { window._i18n[lc] = d; return d; });
+  }
+
+  function loadWords(lc) {
+    return window._words[lc]
+      ? Promise.resolve(window._words[lc])
+      : fetch('wordflits-' + lc + '.json').then(function (r) { return r.json(); })
+          .then(function (d) { window._words[lc] = d; return d; });
+  }
+
+  window.APP_READY = Promise.all([loadI18n(window._initLang), loadWords(window._initLang)]);
+</script>
+
+<div class="container">
+
+  <!-- ══ START SCREEN ══ -->
+  <div class="screen active" id="startScreen">
+    <div class="card" style="padding:28px 24px 24px;">
+
+      <div class="start-top">
+        <div class="start-title">
+          <span id="startTitleText">⚡ Woordflits</span><br>
+          <span id="startSubtitle" style="color:var(--muted);font-size:13px;font-weight:400;font-family:'DM Mono',monospace;">⚡ 1s</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+          <div style="display:flex;gap:6px;">
+            <button class="lang-chip chip selected" data-lc="nl" onclick="switchLang('nl')" style="padding:6px 12px;font-size:12px;">NL</button>
+            <button class="lang-chip chip" data-lc="en" onclick="switchLang('en')" style="padding:6px 12px;font-size:12px;">EN</button>
+          </div>
+          <button class="settings-toggle" id="settingsToggle" onclick="toggleSettings()" title="Instellingen">⚙</button>
+        </div>
+      </div>
+
+      <!-- SETTINGS PANEL -->
+      <div class="settings-panel" id="settingsPanel">
+        <div class="settings-inner">
+
+          <div class="settings-row">
+            <div class="settings-label" id="labelLength">Woordlengte</div>
+            <div class="chip-group" id="lengthChips"></div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-label" id="labelFlash">Flitsduur</div>
+            <div class="chip-group">
+              <div class="chip" data-ms="500"  onclick="setFlash(this)">0,5s</div>
+              <div class="chip selected" data-ms="1000" onclick="setFlash(this)">1s</div>
+              <div class="chip" data-ms="2000" onclick="setFlash(this)">2s</div>
+              <div class="chip" data-ms="4000" onclick="setFlash(this)">4s</div>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-label" id="labelMode">Modus</div>
+            <div class="chip-group">
+              <div class="chip selected" data-mode="type"  onclick="setMode(this)" id="chipType">⌨️ Typen</div>
+              <div class="chip"          data-mode="speak" onclick="setMode(this)" id="chipSpeak">🎤 Spreken</div>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-label" id="labelCount">Aantal woorden</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input class="num-input" type="number" id="wordCountInput" value="10" min="3" max="50">
+              <span style="color:var(--muted);font-size:12px;" id="labelWords">woorden</span>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-label" id="labelCustom">Eigen woorden (één per regel)</div>
+            <textarea class="custom-textarea" id="customWords" placeholder="Laat leeg voor woorden uit de woordenbank"></textarea>
+            <div style="font-size:10px;color:var(--muted);margin-top:4px;" id="customHint">Als dit gevuld is, worden eigen woorden gebruikt.</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- HISTORY -->
+      <div class="history-strip" id="historyStrip" style="display:none;">
+        <div class="history-label" id="historyLabel">Laatste pogingen</div>
+        <div class="history-bars" id="historyBars"></div>
+      </div>
+
+      <button class="start-btn" id="startBtn" onclick="startGame()">▶ Start →</button>
+    </div>
+  </div>
+
+  <!-- ══ GAME SCREEN ══ -->
+  <div class="screen" id="gameScreen">
+    <div class="game-header">
+      <span class="game-title" id="gameTitleText">Woordflits</span>
+      <span class="progress-label" id="progressLabel">1 / 10</span>
+      <button id="stopBtn" onclick="stopGame()"
+        style="background:transparent;border:1px solid var(--border);border-radius:5px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;padding:4px 10px;cursor:pointer;transition:color .15s,border-color .15s;"
+        onmouseover="this.style.color='var(--bad)';this.style.borderColor='var(--bad)'"
+        onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">✕ stop</button>
+    </div>
+
+    <div class="flash-card" id="flashCard">
+      <div class="flash-bar-wrap">
+        <div class="flash-bar" id="flashBar"></div>
+      </div>
+
+      <div class="word-display">
+        <div class="flash-word" id="flashWord"></div>
+        <div class="word-hint"  id="wordHint"  style="display:none;"></div>
+      </div>
+
+      <!-- type mode input -->
+      <div class="input-area" id="inputArea" style="display:none;">
+        <input type="text" class="word-input" id="wordInput"
+          placeholder="Typ het woord..."
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+          onkeydown="if(event.key==='Enter')checkAnswer()">
+        <button class="check-btn" id="checkBtn" onclick="checkAnswer()">OK ↵</button>
+      </div>
+
+      <!-- speak mode input -->
+      <div class="speak-area" id="speakArea" style="display:none;">
+        <div class="mic-btn" id="micBtn" onclick="toggleListening()">🎤</div>
+        <div class="recognized-text" id="recognizedText"></div>
+      </div>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <!-- ══ RESULT SCREEN ══ -->
+  <div class="screen" id="resultScreen">
+    <div class="card result-card">
+      <div class="result-top">
+        <div class="result-score" id="resultScore"></div>
+        <div class="result-meta">
+          <div class="result-label" id="resultLabel">van de 10 goed</div>
+          <div class="result-info" id="resultInfo"></div>
+        </div>
+      </div>
+      <ul class="result-list" id="resultList"></ul>
+      <div class="result-btns">
+        <button class="btn-outline" id="settingsResultBtn" onclick="resetGame()">⚙ Instellingen</button>
+        <button class="btn-solid"   id="retryBtn"         onclick="startGame()">↩ Opnieuw</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <a href="https://github.com/mmalkus/Thuiswerk" target="_blank">GitHub</a>
+    · MIT License © 2026 Maurits Malkus
+  </div>
+
+</div>
+
+<script>
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const hasSpeech = !!SpeechRec;
+
+  let lang = window._initLang;
+
+  function t(str, val) { return String(str).replace(/\{\w+\}/, String(val)); }
+
+  function switchLang(lc) {
+    Promise.all([loadI18n(lc), loadWords(lc)]).then(function () { applyLanguage(lc); });
+  }
+
+  function applyLanguage(lc) {
+    lang = lc;
+    localStorage.setItem('thuiswerk_lang', lc);
+    document.getElementById('htmlRoot').lang = lc === 'en' ? 'en' : 'nl';
+    const u = window._i18n[lc] && window._i18n[lc].woordflits;
+    if (!u) return;
+    const title = u.appTitle.replace(/⚡\s?/, '');
+    document.title = title;
+    document.getElementById('startTitleText').textContent = u.appTitle;
+    document.getElementById('settingsToggle').title = u.settingsTitle;
+    document.getElementById('labelLength').textContent = u.lengthLabel;
+    document.getElementById('labelFlash').textContent = u.flashLabel;
+    document.getElementById('labelMode').textContent = u.modeLabel;
+    document.getElementById('chipType').textContent = u.modeType;
+    document.getElementById('chipSpeak').textContent = u.modeSpeak;
+    document.getElementById('labelCount').textContent = u.countLabel;
+    document.getElementById('labelWords').textContent = u.wordsLabel;
+    document.getElementById('labelCustom').textContent = u.customLabel;
+    document.getElementById('customWords').placeholder = u.customPlaceholder;
+    document.getElementById('customHint').textContent = u.customHint;
+    document.getElementById('historyLabel').textContent = u.lastAttempts;
+    document.getElementById('startBtn').textContent = u.startBtn;
+    document.getElementById('gameTitleText').textContent = u.appTitle;
+    document.getElementById('stopBtn').textContent = u.stopBtn;
+    document.getElementById('wordInput').placeholder = u.inputPlaceholder;
+    document.getElementById('checkBtn').textContent = u.checkBtn;
+    document.getElementById('settingsResultBtn').textContent = u.settingsBtn;
+    document.getElementById('retryBtn').textContent = u.retryBtn;
+    document.querySelectorAll('.lang-chip').forEach(function (el) {
+      el.classList.toggle('selected', el.dataset.lc === lc);
+    });
+    buildLengthChips(lc);
+    updateStartSubtitle();
+  }
+
+  // ── settings ──────────────────────────────────────────────────────────────────
+  var settings = {
+    length: 4,
+    flashMs: 1000,
+    inputMode: 'type',
+    wordCount: 10,
+    customWords: '',
+  };
+
+  function toggleSettings() {
+    document.getElementById('settingsPanel').classList.toggle('open');
+    document.getElementById('settingsToggle').classList.toggle('active');
+  }
+
+  function setFlash(el) {
+    document.querySelectorAll('[data-ms]').forEach(function (e) { e.classList.remove('selected'); });
+    el.classList.add('selected');
+    settings.flashMs = parseInt(el.dataset.ms);
+    updateStartSubtitle();
+  }
+
+  function setMode(el) {
+    document.querySelectorAll('[data-mode]').forEach(function (e) { e.classList.remove('selected'); });
+    el.classList.add('selected');
+    settings.inputMode = el.dataset.mode;
+    if (el.dataset.mode === 'speak' && !hasSpeech) {
+      const u = window._i18n[lang] && window._i18n[lang].woordflits;
+      alert(u ? u.noSpeech : 'Spraakherkenning niet ondersteund in deze browser.');
+      setMode(document.querySelector('[data-mode="type"]'));
+    }
+  }
+
+  function buildLengthChips(lc) {
+    const wrap = document.getElementById('lengthChips');
+    const words = window._words[lc];
+    if (!words) return;
+    const lengths = Object.keys(words).map(Number).sort(function (a, b) { return a - b; });
+    if (!lengths.length) return;
+
+    if (!lengths.includes(settings.length)) {
+      settings.length = lengths[0];
+    }
+
+    wrap.innerHTML = '';
+    const u = window._i18n[lc] && window._i18n[lc].woordflits;
+    const suffix = u ? u.lettersLabel : '';
+    lengths.forEach(function (len) {
+      const btn = document.createElement('div');
+      btn.className = 'chip' + (len === settings.length ? ' selected' : '');
+      btn.dataset.len = String(len);
+      btn.textContent = len + (suffix ? ' ' + suffix : '');
+      btn.onclick = function () { selectLength(this); };
+      wrap.appendChild(btn);
+    });
+  }
+
+  function selectLength(el) {
+    document.querySelectorAll('[data-len]').forEach(function (e) { e.classList.remove('selected'); });
+    el.classList.add('selected');
+    settings.length = parseInt(el.dataset.len);
+  }
+
+  function updateStartSubtitle() {
+    const ms = settings.flashMs;
+    const sec = ms < 1000
+      ? (ms / 1000).toFixed(1).replace('.', ',') + 's'
+      : (ms / 1000) + 's';
+    document.getElementById('startSubtitle').textContent = '⚡ ' + sec;
+  }
+
+  function readSettings() {
+    const selLen = document.querySelector('[data-len].selected');
+    if (selLen) settings.length = parseInt(selLen.dataset.len);
+    const selMs = document.querySelector('[data-ms].selected');
+    if (selMs) settings.flashMs = parseInt(selMs.dataset.ms);
+    const selMode = document.querySelector('[data-mode].selected');
+    if (selMode) settings.inputMode = selMode.dataset.mode;
+    settings.wordCount = Math.max(3, Math.min(50, parseInt(document.getElementById('wordCountInput').value) || 10));
+    settings.customWords = document.getElementById('customWords').value.trim();
+    localStorage.setItem('woordflits_settings', JSON.stringify(settings));
+  }
+
+  function applySettingsToUI() {
+    document.getElementById('wordCountInput').value = settings.wordCount;
+    document.getElementById('customWords').value = settings.customWords || '';
+    document.querySelectorAll('[data-ms]').forEach(function (el) {
+      el.classList.toggle('selected', parseInt(el.dataset.ms) === settings.flashMs);
+    });
+    document.querySelectorAll('[data-mode]').forEach(function (el) {
+      el.classList.toggle('selected', el.dataset.mode === settings.inputMode);
+    });
+    document.querySelectorAll('[data-len]').forEach(function (el) {
+      el.classList.toggle('selected', parseInt(el.dataset.len) === settings.length);
+    });
+    updateStartSubtitle();
+  }
+
+  // ── word pool ─────────────────────────────────────────────────────────────────
+  function getWordPool() {
+    const custom = (document.getElementById('customWords').value || '').trim();
+    if (custom) {
+      return custom.split('\n').map(function (w) { return w.trim(); }).filter(Boolean);
+    }
+    const words = window._words[lang];
+    if (!words) return [];
+    return (words[settings.length] || []).slice();
+  }
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // ── game state ────────────────────────────────────────────────────────────────
+  let gameWords = [];
+  let current = 0, score = 0, results = [];
+  let flashTimeout = null;
+  let gamePhase = 'idle';
+  let recognition = null;
+  let history = JSON.parse(localStorage.getItem('woordflits_history') || '[]');
+
+  function startGame() {
+    readSettings();
+    const pool = getWordPool();
+    if (pool.length === 0) {
+      const u = window._i18n[lang] && window._i18n[lang].woordflits;
+      alert(u ? u.noWords : 'Geen woorden gevonden.');
+      return;
+    }
+    gameWords = shuffle(pool).slice(0, settings.wordCount);
+    current = 0; score = 0; results = [];
+    showScreen('gameScreen');
+    buildDots();
+    showWord();
+  }
+
+  function stopGame() {
+    clearTimeout(flashTimeout);
+    stopRecognition();
+    gamePhase = 'idle';
+    showScreen('startScreen');
+    renderHistory();
+  }
+
+  function buildDots() {
+    const wrap = document.getElementById('dots');
+    wrap.innerHTML = '';
+    for (let i = 0; i < gameWords.length; i++) {
+      const d = document.createElement('div');
+      d.className = 'dot' + (i === 0 ? ' active' : '');
+      d.id = 'dot-' + i;
+      wrap.appendChild(d);
+    }
+  }
+
+  function updateDot(idx, cls) {
+    const d = document.getElementById('dot-' + idx);
+    if (d) d.className = 'dot ' + cls;
+    const next = document.getElementById('dot-' + (idx + 1));
+    if (next) next.classList.add('active');
+  }
+
+  function showWord() {
+    gamePhase = 'flashing';
+    const word = gameWords[current];
+    document.getElementById('progressLabel').textContent = (current + 1) + ' / ' + gameWords.length;
+    document.getElementById('feedback').textContent = '';
+
+    // scale font size by word length
+    const len = word.replace(/\s/g, '').length;
+    const fs = len <= 6 ? 48 : len <= 10 ? 36 : len <= 14 ? 28 : 22;
+    const fw = document.getElementById('flashWord');
+    fw.style.fontSize = fs + 'px';
+    fw.textContent = word;
+    fw.style.display = '';
+
+    document.getElementById('wordHint').style.display = 'none';
+    document.getElementById('inputArea').style.display = 'none';
+    document.getElementById('speakArea').style.display = 'none';
+    document.getElementById('wordInput').value = '';
+    document.getElementById('wordInput').className = 'word-input';
+
+    // countdown bar
+    const bar = document.getElementById('flashBar');
+    bar.style.transition = 'none';
+    bar.style.width = '100%';
+    void bar.offsetWidth;
+    bar.style.transition = 'width ' + settings.flashMs + 'ms linear';
+    bar.style.width = '0%';
+
+    // pop
+    const card = document.getElementById('flashCard');
+    card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop');
+
+    flashTimeout = setTimeout(startInput, settings.flashMs);
+  }
+
+  function startInput() {
+    gamePhase = 'inputting';
+    const word = gameWords[current];
+
+    document.getElementById('flashWord').style.display = 'none';
+
+    const hint = document.getElementById('wordHint');
+    hint.textContent = word.split('').map(function (c) { return c === ' ' ? '  ' : '_'; }).join(' ');
+    hint.style.display = '';
+
+    if (settings.inputMode === 'speak') {
+      document.getElementById('speakArea').style.display = 'flex';
+      startRecognition();
+    } else {
+      document.getElementById('inputArea').style.display = 'flex';
+      setTimeout(function () { document.getElementById('wordInput').focus(); }, 50);
+    }
+  }
+
+  function checkAnswer() {
+    if (gamePhase !== 'inputting') return;
+    const answer = document.getElementById('wordInput').value.trim();
+    if (!answer) return;
+    submitAnswer(answer);
+  }
+
+  function submitAnswer(answer) {
+    if (gamePhase !== 'inputting') return;
+    gamePhase = 'feedback';
+    stopRecognition();
+
+    const word = gameWords[current];
+    const correct = answer.toLowerCase() === word.toLowerCase();
+    const u = window._i18n[lang] && window._i18n[lang].woordflits;
+    results.push({ word: word, given: answer, correct: correct });
+
+    if (correct) {
+      score++;
+      updateDot(current, 'correct');
+      setFeedback(u ? u.correct : '✓ Goed!', 'var(--good)');
+    } else {
+      updateDot(current, 'wrong');
+      setFeedback(u ? t(u.wrong, word) : '✗ Fout', 'var(--bad)');
+    }
+
+    // reveal word briefly after answer
+    document.getElementById('wordHint').style.display = 'none';
+    const fw = document.getElementById('flashWord');
+    fw.textContent = word;
+    fw.style.display = '';
+
+    if (settings.inputMode === 'type') {
+      document.getElementById('wordInput').className = 'word-input ' + (correct ? 'correct' : 'wrong');
+    } else {
+      document.getElementById('recognizedText').textContent = answer;
+    }
+
+    current++;
+    if (current >= gameWords.length) {
+      setTimeout(endGame, 800);
+    } else {
+      setTimeout(showWord, 800);
+    }
+  }
+
+  function setFeedback(msg, color) {
+    const el = document.getElementById('feedback');
+    el.textContent = msg; el.style.color = color;
+  }
+
+  function endGame() {
+    history.push({ score: score, total: gameWords.length, date: Date.now() });
+    if (history.length > 10) history = history.slice(-10);
+    localStorage.setItem('woordflits_history', JSON.stringify(history));
+
+    gamePhase = 'idle';
+    showScreen('resultScreen');
+
+    const u = window._i18n[lang] && window._i18n[lang].woordflits;
+    document.getElementById('resultScore').textContent = score;
+    document.getElementById('resultLabel').textContent = u ? t(u.scoreLabel, gameWords.length) : 'van ' + gameWords.length;
+
+    const ms = settings.flashMs;
+    const secStr = ms < 1000
+      ? (ms / 1000).toFixed(1).replace('.', ',') + 's'
+      : (ms / 1000) + 's';
+    document.getElementById('resultInfo').textContent = '⚡ ' + secStr;
+
+    const list = document.getElementById('resultList');
+    list.innerHTML = '';
+    results.forEach(function (r) {
+      const li = document.createElement('li');
+      li.className = 'result-item ' + (r.correct ? 'correct-row' : 'wrong-row');
+      const givenHtml = r.correct ? '' :
+        '<span class="ri-given">' + escHtml(r.given || '—') + '</span>';
+      li.innerHTML =
+        '<span class="ri-word">' + escHtml(r.word) + '</span>' +
+        givenHtml +
+        '<span class="ri-mark">' + (r.correct ? '✓' : '✗') + '</span>';
+      list.appendChild(li);
+    });
+  }
+
+  function escHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  function resetGame() {
+    showScreen('startScreen');
+    renderHistory();
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(function (s) { s.classList.remove('active'); });
+    document.getElementById(id).classList.add('active');
+  }
+
+  // ── history ───────────────────────────────────────────────────────────────────
+  function renderHistory() {
+    const strip = document.getElementById('historyStrip');
+    const bars  = document.getElementById('historyBars');
+    if (history.length === 0) { strip.style.display = 'none'; return; }
+    strip.style.display = 'block';
+    bars.innerHTML = '';
+    history.forEach(function (h) {
+      const total = h.total || 10;
+      const pct = (h.score / total) * 100;
+      const color = pct >= 90 ? 'var(--good)' : pct >= 60 ? 'var(--accent)' : 'var(--bad)';
+      const wrap = document.createElement('div');
+      wrap.className = 'h-bar-wrap';
+      wrap.innerHTML =
+        '<div class="h-bar" style="height:' + Math.max(4, pct * 0.36) + 'px;background:' + color + ';"></div>' +
+        '<div class="h-bar-label">' + h.score + '</div>';
+      bars.appendChild(wrap);
+    });
+  }
+
+  // ── speech recognition ────────────────────────────────────────────────────────
+  function startRecognition() {
+    if (!hasSpeech) return;
+    stopRecognition();
+    recognition = new SpeechRec();
+    recognition.lang = lang === 'en' ? 'en-GB' : 'nl-NL';
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    const micBtn = document.getElementById('micBtn');
+    const recTxt = document.getElementById('recognizedText');
+    micBtn.classList.add('listening');
+    const u = window._i18n[lang] && window._i18n[lang].woordflits;
+    recTxt.textContent = u ? u.listeningMsg : 'Luisteren...';
+
+    recognition.onresult = function (e) {
+      let interim = '', final = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) final += e.results[i][0].transcript;
+        else interim += e.results[i][0].transcript;
+      }
+      recTxt.textContent = final || interim || (u ? u.listeningMsg : 'Luisteren...');
+      if (final) {
+        micBtn.classList.remove('listening');
+        submitAnswer(final.trim());
+      }
+    };
+    recognition.onerror = function () {
+      micBtn.classList.remove('listening');
+      recTxt.textContent = '';
+    };
+    recognition.onend = function () {
+      micBtn.classList.remove('listening');
+    };
+    try { recognition.start(); } catch (e) {}
+  }
+
+  function stopRecognition() {
+    if (recognition) {
+      try { recognition.stop(); } catch (e) {}
+      recognition = null;
+    }
+    document.getElementById('micBtn').classList.remove('listening');
+  }
+
+  function toggleListening() {
+    if (gamePhase !== 'inputting') return;
+    if (document.getElementById('micBtn').classList.contains('listening')) {
+      stopRecognition();
+    } else {
+      startRecognition();
+    }
+  }
+
+  // ── init ──────────────────────────────────────────────────────────────────────
+  var savedSettings = JSON.parse(localStorage.getItem('woordflits_settings') || 'null');
+  if (savedSettings) Object.assign(settings, savedSettings);
+
+  (function () {
+    try {
+      var favId = new URLSearchParams(window.location.search).get('fav');
+      if (!favId) return;
+      var favs = JSON.parse(localStorage.getItem('thuiswerk_favorites') || '[]');
+      var fav = favs.find(function (f) { return f.id === favId && f.app === 'woordflits'; });
+      if (fav && fav.settings) {
+        var s = fav.settings;
+        if (s.lang) lang = s.lang;
+        Object.assign(settings, s);
+        delete settings.lang;
+      }
+    } catch (e) {}
+  })();
+
+  window.APP_READY.then(function () {
+    applySettingsToUI();
+    applyLanguage(lang);
+    renderHistory();
+
+    window.addEventListener('thuiswerk:setLang', function (e) {
+      if (e.detail !== lang) {
+        Promise.all([loadI18n(e.detail), loadWords(e.detail)]).then(function () {
+          applyLanguage(e.detail);
+        });
+      }
+    });
+
+    window.THUISWERK_APP.getSettings = function () {
+      readSettings();
+      return Object.assign({ lang: lang }, settings);
+    };
+    window.THUISWERK_APP.applySettings = function (s) {
+      if (s.lang) applyLanguage(s.lang);
+      var ns = Object.assign({}, s); delete ns.lang;
+      Object.assign(settings, ns);
+      applySettingsToUI();
+    };
+  });
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  }
+</script>
+<script src="sidebar.js"></script>
+</body>
+</html>

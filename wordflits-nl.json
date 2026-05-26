@@ -1,0 +1,43 @@
+{
+  "3": [
+    "aap", "arm", "bad", "bal", "bak", "bij", "bom", "bos", "bus", "dag",
+    "dak", "dam", "dop", "gas", "gat", "gek", "hal", "hek", "ijs", "kan",
+    "kat", "kip", "kom", "kop", "kus", "lap", "lip", "man", "mes", "net",
+    "oor", "pen", "pet", "pot", "rug", "rij", "tak", "top", "vis", "was",
+    "zon", "zee", "web", "bij", "put"
+  ],
+  "4": [
+    "adem", "band", "been", "bier", "boom", "boot", "bord", "cent", "deur",
+    "dier", "eend", "fles", "glas", "haar", "hand", "helm", "hoed", "hoek",
+    "hond", "huis", "jaar", "kaas", "kerk", "kind", "koek", "lamp", "lied",
+    "lijn", "maan", "meer", "mond", "muur", "naam", "nest", "neus", "park",
+    "plek", "punt", "raam", "rand", "ring", "stad", "stok", "taal", "tand",
+    "tijd", "tuin", "veld", "vier", "vlak", "wand", "warm", "wolf", "zuil"
+  ],
+  "5": [
+    "appel", "beest", "bloem", "bodem", "brief", "droom", "dwerg", "engel",
+    "fiets", "grijs", "grond", "hamer", "haven", "hemel", "kamer", "knoop",
+    "kraan", "licht", "lucht", "macht", "nacht", "naald", "negen", "paard",
+    "pasta", "piano", "plant", "prins", "regen", "ronde", "sleep", "sport",
+    "staan", "storm", "taart", "tante", "trein", "vlees", "vogel", "water",
+    "worst", "zeven", "zwaan", "zwart", "paars"
+  ],
+  "6": [
+    "dorpen", "herfst", "huizen", "katten", "keuken", "klasse", "koffie",
+    "landen", "lachen", "lessen", "mensen", "rijden", "school", "slapen",
+    "sneeuw", "steden", "strand", "straat", "vriend", "vissen", "vogels",
+    "winter", "wortel", "zingen", "dansen", "werken", "zomers", "kleine",
+    "houten", "appels"
+  ],
+  "7": [
+    "bewegen", "bloemen", "branden", "drinken", "familie", "fietsen",
+    "groeien", "hartjes", "kleuren", "machine", "paarden", "plezier",
+    "project", "rekenen", "scholen", "sporten", "station", "sterren",
+    "treinen", "vliegen"
+  ],
+  "8": [
+    "antwoord", "avontuur", "bezoeken", "computer", "dankbaar", "geweldig",
+    "kinderen", "leerling", "reiziger", "speciaal", "tekening", "vakantie",
+    "vrijheid", "vrienden"
+  ]
+}

@@ -33,6 +33,13 @@
       "description": "Rekensommen oefenen",
       "url": "/Thuiswerk/rekentoets.html",
       "icons": [{ "src": "icons/icon.png", "sizes": "1024x1024" }]
+    },
+    {
+      "name": "Woordflits",
+      "short_name": "Flits",
+      "description": "Snel lezen oefenen",
+      "url": "/Thuiswerk/woordflits.html",
+      "icons": [{ "src": "icons/icon.png", "sizes": "1024x1024" }]
     }
   ]
 }
