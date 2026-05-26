@@ -4,10 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Thuiswerk** is a Progressive Web App (PWA) for Dutch and English primary school education, featuring three standalone apps delivered as single-page HTML files:
+**Thuiswerk** is a Progressive Web App (PWA) for Dutch and English primary school education, featuring four standalone apps delivered as single-page HTML files:
 - **Dictee** (`dictee.html`) — Spelling practice with text-to-speech; React 18 via CDN
 - **Rekentoets** (`rekentoets.html`) — Arithmetic quiz; vanilla JS
 - **Topografie** (`topografie.html`) — Geography/map game with SVG maps; vanilla JS
+- **Woordflits** (`woordflits.html`) — Speed-reading flash cards: word flashes briefly, user types or speaks it back; vanilla JS
 
 The site is fully client-side with offline support via service worker. No build step required for the apps themselves.
 

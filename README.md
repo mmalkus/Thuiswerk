@@ -6,6 +6,9 @@ Educational tools for primary school children. Open the app in your browser — 
 
 ## Apps
 
+### ⚡ Woordflits (Word Flash)
+Speed-reading practice: a word flashes on screen briefly, then disappears. Type or speak the word back from memory. Choose the word length (3–8 letters), flash duration (0.5 s–4 s), and input mode (keyboard or microphone). Includes a "repeat mistakes" option to drill the words you missed.
+
 ### 🗺️ Topografie (Geography)
 Learn to recognise Dutch provinces, cities and rivers, European countries and capitals, or physical geography features. Two modes: click the correct region on the map, or type the name of a highlighted feature. Fuzzy matching accepts minor spelling mistakes.
 
