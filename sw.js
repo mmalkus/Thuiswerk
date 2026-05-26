@@ -1,10 +1,11 @@
-const CACHE = 'thuiswerk-v8';
+const CACHE = 'thuiswerk-v9';
 const ASSETS = [
   '/Thuiswerk/',
   '/Thuiswerk/index.html',
   '/Thuiswerk/dictee.html',
   '/Thuiswerk/rekentoets.html',
   '/Thuiswerk/topografie.html',
+  '/Thuiswerk/woordflits.html',
   '/Thuiswerk/shared.css',
   '/Thuiswerk/sidebar.js',
   '/Thuiswerk/manifest.json',
@@ -17,6 +18,8 @@ const ASSETS = [
   '/Thuiswerk/topo-europe.json',
   '/Thuiswerk/topo-world.json',
   '/Thuiswerk/topo-physical.json',
+  '/Thuiswerk/wordflits-nl.json',
+  '/Thuiswerk/wordflits-en.json',
 ];
 
 self.addEventListener('install', e => {
