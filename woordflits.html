@@ -460,6 +460,17 @@
           </div>
 
           <div class="settings-row">
+            <div class="settings-label" id="labelWeight">⚖️ Weging op fouten</div>
+            <div class="chip-group">
+              <div class="chip"          data-weight="uit"     onclick="setWeight(this)">Uit</div>
+              <div class="chip"          data-weight="licht"   onclick="setWeight(this)">Licht</div>
+              <div class="chip selected" data-weight="normaal" onclick="setWeight(this)">Normaal</div>
+              <div class="chip"          data-weight="zwaar"   onclick="setWeight(this)">Zwaar</div>
+            </div>
+            <div style="font-size:10px;color:var(--muted);margin-top:4px;" id="weightHint"></div>
+          </div>
+
+          <div class="settings-row">
             <div class="settings-label" id="labelCount">Aantal woorden</div>
             <div style="display:flex;gap:8px;align-items:center;">
               <input class="num-input" type="number" id="wordCountInput" value="10" min="3" max="50">
@@ -540,7 +551,6 @@
       <ul class="result-list" id="resultList"></ul>
       <div class="result-btns">
         <button class="btn-outline" id="settingsResultBtn" onclick="resetGame()">⚙ Instellingen</button>
-        <button class="btn-outline" id="wrongOnlyBtn"      onclick="startWithMistakes()" style="display:none;">🔄 Fouten</button>
         <button class="btn-solid"   id="retryBtn"          onclick="startGame()">↩ Opnieuw</button>
       </div>
     </div>
@@ -592,8 +602,14 @@
     document.getElementById('wordInput').placeholder = u.inputPlaceholder;
     document.getElementById('checkBtn').textContent = u.checkBtn;
     document.getElementById('settingsResultBtn').textContent = u.settingsBtn;
-    document.getElementById('wrongOnlyBtn').textContent = u.wrongBtn;
     document.getElementById('retryBtn').textContent = u.retryBtn;
+    if (u.weightLabel) document.getElementById('labelWeight').textContent = u.weightLabel;
+    if (u.weightHint)  document.getElementById('weightHint').textContent  = u.weightHint;
+    if (u.weightModes) {
+      document.querySelectorAll('[data-weight]').forEach(function (el) {
+        if (u.weightModes[el.dataset.weight]) el.textContent = u.weightModes[el.dataset.weight];
+      });
+    }
     document.querySelectorAll('.lang-chip').forEach(function (el) {
       el.classList.toggle('selected', el.dataset.lc === lc);
     });
@@ -602,12 +618,20 @@
   }
 
   // ── settings ──────────────────────────────────────────────────────────────────
+  var WEIGHT_MODES = {
+    uit:    [1, 1, 1, 1],
+    licht:  [1, 2, 3, 3],
+    normaal:[1, 3, 6, 6],
+    zwaar:  [1, 5, 10, 15],
+  };
+
   var settings = {
     lengths: [4],
     flashMs: 1000,
     inputMode: 'type',
     wordCount: 10,
     customWords: '',
+    weightMode: 'normaal',
   };
 
   function toggleSettings() {
@@ -631,6 +655,12 @@
       alert(u ? u.noSpeech : 'Spraakherkenning niet ondersteund in deze browser.');
       setMode(document.querySelector('[data-mode="type"]'));
     }
+  }
+
+  function setWeight(el) {
+    document.querySelectorAll('[data-weight]').forEach(function (e) { e.classList.remove('selected'); });
+    el.classList.add('selected');
+    settings.weightMode = el.dataset.weight;
   }
 
   function buildLengthChips(lc) {
@@ -685,6 +715,8 @@
     if (selMode) settings.inputMode = selMode.dataset.mode;
     settings.wordCount = Math.max(3, Math.min(50, parseInt(document.getElementById('wordCountInput').value) || 10));
     settings.customWords = document.getElementById('customWords').value.trim();
+    const selWeight = document.querySelector('[data-weight].selected');
+    if (selWeight) settings.weightMode = selWeight.dataset.weight;
     localStorage.setItem('woordflits_settings', JSON.stringify(settings));
   }
 
@@ -696,6 +728,9 @@
     });
     document.querySelectorAll('[data-mode]').forEach(function (el) {
       el.classList.toggle('selected', el.dataset.mode === settings.inputMode);
+    });
+    document.querySelectorAll('[data-weight]').forEach(function (el) {
+      el.classList.toggle('selected', el.dataset.weight === (settings.weightMode || 'normaal'));
     });
     document.querySelectorAll('[data-len]').forEach(function (el) {
       el.classList.toggle('selected', (settings.lengths || []).includes(parseInt(el.dataset.len)));
@@ -730,14 +765,36 @@
     return a;
   }
 
+  function weightedSample(pool, n, wHist, mode) {
+    const wts = WEIGHT_MODES[mode] || WEIGHT_MODES.normaal;
+    const weighted = pool.map(function (w) {
+      const errs = Math.min((wHist[w] && wHist[w].wrong) || 0, wts.length - 1);
+      return { w: w, weight: wts[errs] };
+    });
+    const used = new Set();
+    const result = [];
+    function total() {
+      return weighted.reduce(function (s, x) { return used.has(x.w) ? s : s + x.weight; }, 0);
+    }
+    while (result.length < Math.min(n, pool.length)) {
+      let r = Math.random() * total();
+      for (let i = 0; i < weighted.length; i++) {
+        if (used.has(weighted[i].w)) continue;
+        r -= weighted[i].weight;
+        if (r <= 0) { result.push(weighted[i].w); used.add(weighted[i].w); break; }
+      }
+    }
+    return result;
+  }
+
   // ── game state ────────────────────────────────────────────────────────────────
   let gameWords = [];
   let current = 0, score = 0, results = [];
-  let sessionMistakes = [];
   let flashTimeout = null;
   let gamePhase = 'idle';
   let recognition = null;
-  let history = JSON.parse(localStorage.getItem('woordflits_history') || '[]');
+  let scoreHistory = JSON.parse(localStorage.getItem('woordflits_history') || '[]');
+  let wordHistory = JSON.parse(localStorage.getItem('woordflits_word_history') || '{}');
 
   function startGame() {
     readSettings();
@@ -747,8 +804,10 @@
       alert(u ? u.noWords : 'Geen woorden gevonden.');
       return;
     }
-    gameWords = shuffle(pool).slice(0, settings.wordCount);
-    current = 0; score = 0; results = []; sessionMistakes = [];
+    gameWords = settings.weightMode === 'uit'
+      ? shuffle(pool).slice(0, settings.wordCount)
+      : weightedSample(pool, settings.wordCount, wordHistory, settings.weightMode);
+    current = 0; score = 0; results = [];
     showScreen('gameScreen');
     buildDots();
     showWord();
@@ -851,15 +910,18 @@
     const u = window._i18n[lang] && window._i18n[lang].woordflits;
     results.push({ word: word, given: answer, correct: correct });
 
+    if (!wordHistory[word]) wordHistory[word] = { correct: 0, wrong: 0 };
     if (correct) {
       score++;
+      wordHistory[word].correct++;
       updateDot(current, 'correct');
       setFeedback(u ? u.correct : '✓ Goed!', 'var(--good)');
     } else {
+      wordHistory[word].wrong++;
       updateDot(current, 'wrong');
       setFeedback(u ? t(u.wrong, word) : '✗ Fout', 'var(--bad)');
-      if (!sessionMistakes.includes(word)) sessionMistakes.push(word);
     }
+    localStorage.setItem('woordflits_word_history', JSON.stringify(wordHistory));
 
     // reveal word briefly after answer
     document.getElementById('wordHint').style.display = 'none';
@@ -887,18 +949,14 @@
   }
 
   function endGame() {
-    history.push({ score: score, total: gameWords.length, date: Date.now() });
-    if (history.length > 10) history = history.slice(-10);
-    localStorage.setItem('woordflits_history', JSON.stringify(history));
+    scoreHistory.push({ score: score, total: gameWords.length, date: Date.now() });
+    if (scoreHistory.length > 10) scoreHistory = scoreHistory.slice(-10);
+    localStorage.setItem('woordflits_history', JSON.stringify(scoreHistory));
 
     gamePhase = 'idle';
     showScreen('resultScreen');
 
-    const wrongBtn = document.getElementById('wrongOnlyBtn');
-    wrongBtn.style.display = sessionMistakes.length > 0 ? '' : 'none';
-
     const u = window._i18n[lang] && window._i18n[lang].woordflits;
-    if (u) wrongBtn.textContent = u.wrongBtn;
     document.getElementById('resultScore').textContent = score;
     document.getElementById('resultLabel').textContent = u ? t(u.scoreLabel, gameWords.length) : 'van ' + gameWords.length;
 
@@ -930,16 +988,6 @@
       .replace(/>/g, '&gt;');
   }
 
-  function startWithMistakes() {
-    if (!sessionMistakes.length) return;
-    gameWords = shuffle(sessionMistakes);
-    sessionMistakes = [];
-    current = 0; score = 0; results = [];
-    showScreen('gameScreen');
-    buildDots();
-    showWord();
-  }
-
   function resetGame() {
     showScreen('startScreen');
     renderHistory();
@@ -954,10 +1002,10 @@
   function renderHistory() {
     const strip = document.getElementById('historyStrip');
     const bars  = document.getElementById('historyBars');
-    if (history.length === 0) { strip.style.display = 'none'; return; }
+    if (scoreHistory.length === 0) { strip.style.display = 'none'; return; }
     strip.style.display = 'block';
     bars.innerHTML = '';
-    history.forEach(function (h) {
+    scoreHistory.forEach(function (h) {
       const total = h.total || 10;
       const pct = (h.score / total) * 100;
       const color = pct >= 90 ? 'var(--good)' : pct >= 60 ? 'var(--accent)' : 'var(--bad)';

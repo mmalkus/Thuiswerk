@@ -153,7 +153,9 @@
     "wrong": "✗ Fout — het woord was {word}",
     "scoreLabel": "van de {word} goed",
     "settingsBtn": "⚙ Instellingen",
-    "wrongBtn": "🔄 Fouten herhalen",
+    "weightLabel": "⚖️ Weging op fouten",
+    "weightHint": "Woorden met meer fouten komen vaker langs.",
+    "weightModes": { "uit": "Uit", "licht": "Licht (×2/×3)", "normaal": "Normaal (×3/×6)", "zwaar": "Zwaar (×5/×15)" },
     "retryBtn": "↩ Opnieuw",
     "noWords": "Geen woorden gevonden. Kies een lengte of voeg eigen woorden toe.",
     "noSpeech": "Spraakherkenning wordt niet ondersteund in deze browser."

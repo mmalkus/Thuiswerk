@@ -153,7 +153,9 @@
     "wrong": "✗ Wrong — the word was {word}",
     "scoreLabel": "out of {word} correct",
     "settingsBtn": "⚙ Settings",
-    "wrongBtn": "🔄 Repeat mistakes",
+    "weightLabel": "⚖️ Weight on mistakes",
+    "weightHint": "Words you get wrong will appear more often.",
+    "weightModes": { "uit": "Off", "licht": "Light (×2/×3)", "normaal": "Normal (×3/×6)", "zwaar": "Heavy (×5/×15)" },
     "retryBtn": "↩ Again",
     "noWords": "No words found. Choose a length or add custom words.",
     "noSpeech": "Speech recognition is not supported in this browser."
