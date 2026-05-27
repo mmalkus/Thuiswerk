@@ -18,6 +18,9 @@ Spelling practice with text-to-speech. Dutch (groep 3–8) and English (Year 1�
 ### 🔢 Rekentoets (Maths Quiz)
 Arithmetic quiz with configurable number ranges, operators (+, −, ×, ÷), and optional countdown timer. 20 questions per session with a score history chart.
 
+### 📐 Conversie (Unit Conversions)
+Metric unit conversion practice across four categories: distance (mm/cm/m/km), area (mm²/cm²/m²/ha/km²), volume (ml/cl/dl/l), and mass (mg/g/kg/t). Questions always have clean integer or simple decimal answers. Includes a decimal-point numpad key, configurable question count, optional timer, and score history.
+
 ---
 
 ## Install as app (PWA)

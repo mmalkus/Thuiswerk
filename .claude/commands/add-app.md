@@ -60,7 +60,16 @@ Follow the pattern of existing cards. Include a link to `{id}.html` and a short 
 
 Add a shortcut entry if the app should be launchable directly from the PWA icon.
 
-### 6. Verify
+### 6. Update `README.md`
+
+Add an entry for the new app under the **Apps** section, following the pattern of the existing entries:
+
+```markdown
+### {emoji} {name} ({English name})
+One or two sentences describing what the app practises, what settings are available, and any notable features.
+```
+
+### 7. Verify
 
 - Open the app in a browser and check the setup screen renders correctly.
 - Toggle dark/light theme via the sidebar and confirm colors update.
