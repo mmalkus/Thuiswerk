@@ -36,6 +36,10 @@
     --flash-card:    #18120a;
     --flash-accent:  #ff8c42;
     --flash-text:    #f5ede0;
+    --conv-bg:       #050e14;
+    --conv-card:     #0c1e28;
+    --conv-accent:   #47e8ff;
+    --conv-text:     #d0f8ff;
   }
 
   html, body {
@@ -157,6 +161,23 @@
   }
   .card-flash .arrow {
     color: var(--flash-accent);
+  }
+
+  /* Conversie card — dark cyan */
+  .card-conversie {
+    background: var(--conv-bg);
+    color: var(--conv-text);
+  }
+  .card-conversie .card-header {
+    background: var(--conv-card);
+    border-bottom: 1px solid #1a3a4e;
+  }
+  .card-conversie .tag {
+    background: var(--conv-accent);
+    color: #000;
+  }
+  .card-conversie .arrow {
+    color: var(--conv-accent);
   }
 
   /* Rekentoets card — dark */
@@ -394,6 +415,15 @@
     background: #fff0e0;
     border-bottom: 1px solid #ffd0a0;
   }
+
+  html[data-theme="light"] .card-conversie {
+    background: #e0f9ff;
+    color: #042029;
+  }
+  html[data-theme="light"] .card-conversie .card-header {
+    background: #c8f3ff;
+    border-bottom: 1px solid #7dd8e8;
+  }
 </style>
 <script>(function(){var t=localStorage.getItem('thuiswerk_theme');if(t)document.documentElement.dataset.theme=t;})();</script>
 </head>
@@ -441,6 +471,20 @@
     </div>
     <div class="card-body">
       <p class="card-desc" id="home-reken-desc">Oefen sommen met optellen, aftrekken, vermenigvuldigen en delen. Met timer en scoregrafiek.</p>
+      <div class="card-footer">
+        <span class="tag">NL · EN</span>
+        <span class="arrow">→</span>
+      </div>
+    </div>
+  </a>
+
+  <a href="conversie.html" class="card card-conversie">
+    <div class="card-header">
+      <span class="emoji">📐</span>
+      <span class="card-title" id="home-conversie-title">Conversie</span>
+    </div>
+    <div class="card-body">
+      <p class="card-desc" id="home-conversie-desc">Oefen omrekenen van maateenheden: lengte, oppervlakte, inhoud en gewicht.</p>
       <div class="card-footer">
         <span class="tag">NL · EN</span>
         <span class="arrow">→</span>
@@ -512,8 +556,10 @@
     document.getElementById('home-topo-desc').textContent     = h.topoDesc;
     document.getElementById('home-reken-title').textContent   = h.rekenTitle;
     document.getElementById('home-reken-desc').textContent    = h.rekenDesc;
-    document.getElementById('home-flash-title').textContent   = h.flashTitle;
-    document.getElementById('home-flash-desc').textContent    = h.flashDesc;
+    document.getElementById('home-flash-title').textContent      = h.flashTitle;
+    document.getElementById('home-flash-desc').textContent       = h.flashDesc;
+    document.getElementById('home-conversie-title').textContent  = h.conversieTitle;
+    document.getElementById('home-conversie-desc').textContent   = h.conversieDesc;
     document.getElementById('fav-heading').textContent        = '⭐ ' + h.favsHeading;
     document.getElementById('install-btn').textContent        = h.installBtn;
     document.getElementById('home-offline').textContent       = h.offline;
@@ -545,8 +591,8 @@
     if (favs.length === 0) { section.style.display = 'none'; return; }
     section.style.display = 'flex';
     list.innerHTML = favs.map(f => {
-      const icon  = f.app === 'dictee' ? '📝' : f.app === 'topo' ? '🗺️' : f.app === 'woordflits' ? '⚡' : '🔢';
-      const page  = f.app === 'dictee' ? 'dictee.html' : f.app === 'topo' ? 'topografie.html' : f.app === 'woordflits' ? 'woordflits.html' : 'rekentoets.html';
+      const icon  = f.app === 'dictee' ? '📝' : f.app === 'topo' ? '🗺️' : f.app === 'woordflits' ? '⚡' : f.app === 'conversie' ? '📐' : '🔢';
+      const page  = f.app === 'dictee' ? 'dictee.html' : f.app === 'topo' ? 'topografie.html' : f.app === 'woordflits' ? 'woordflits.html' : f.app === 'conversie' ? 'conversie.html' : 'rekentoets.html';
       const url   = page + '?fav=' + f.id;
       const delTitle = h ? h.favDelete : 'Verwijder';
       const badge = f.app === 'dictee'
@@ -555,6 +601,8 @@
         ? `<span class="fav-badge" style="background:#4ade80;color:#000">${h ? h.favBadgeTopo : 'Topo'}</span>`
         : f.app === 'woordflits'
         ? `<span class="fav-badge" style="background:#ff8c42;color:#000">${h ? h.favBadgeFlits : 'Flits'}</span>`
+        : f.app === 'conversie'
+        ? `<span class="fav-badge" style="background:#47e8ff;color:#000">${h ? h.favBadgeConversie : 'Conversie'}</span>`
         : `<span class="fav-badge" style="background:#e8ff47;color:#000">${h ? h.favBadgeReken : 'Rekenen'}</span>`;
       return `<div class="fav-item">
         <a href="${url}" class="fav-link">
