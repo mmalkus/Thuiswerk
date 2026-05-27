@@ -160,6 +160,33 @@
     "noWords": "No words found. Choose a length or add custom words.",
     "noSpeech": "Speech recognition is not supported in this browser."
   },
+  "conversie": {
+    "appTitle": "📐 Conversions",
+    "settingsTitle": "Settings",
+    "catLabel": "Categories",
+    "catLengte": "📏 Length",
+    "catOppervlakte": "⬛ Area",
+    "catInhoud": "🧪 Volume",
+    "catGewicht": "⚖️ Mass",
+    "countLabel": "Number of questions",
+    "vragenLabel": "questions",
+    "timerLabel": "Timer",
+    "timerOn": "⏱ On",
+    "timerOff": "∞ Off",
+    "secLabel": "sec",
+    "nVragen": "{n} questions",
+    "noTimer": "∞ No timer",
+    "timerSec": "⚡ {s} sec",
+    "lastAttempts": "Last attempts",
+    "startBtn": "Start practice →",
+    "quizTitle": "Conversions",
+    "stopBtn": "✕ stop",
+    "correct": "✓ Correct!",
+    "wrong": "✗ Wrong — answer was {ans}",
+    "outOf": "out of {n} correct",
+    "settingsBtn": "⚙ Settings",
+    "retryBtn": "↩ Again"
+  },
   "sidebar": {
     "home": "Back to Home",
     "language": "Language",
@@ -191,6 +218,9 @@
     "favBadgeTopo": "Topo",
     "favBadgeReken": "Maths",
     "installBtn": "📲 Install app",
-    "offline": "available offline"
+    "offline": "available offline",
+    "conversieTitle": "Conversions",
+    "conversieDesc": "Practice converting units of measurement: length, area, volume and mass.",
+    "favBadgeConversie": "Conversions"
   }
 }

@@ -160,6 +160,33 @@
     "noWords": "Geen woorden gevonden. Kies een lengte of voeg eigen woorden toe.",
     "noSpeech": "Spraakherkenning wordt niet ondersteund in deze browser."
   },
+  "conversie": {
+    "appTitle": "📐 Conversie",
+    "settingsTitle": "Instellingen",
+    "catLabel": "Categorieën",
+    "catLengte": "📏 Lengte",
+    "catOppervlakte": "⬛ Oppervlakte",
+    "catInhoud": "🧪 Inhoud",
+    "catGewicht": "⚖️ Gewicht",
+    "countLabel": "Aantal vragen",
+    "vragenLabel": "vragen",
+    "timerLabel": "Timer",
+    "timerOn": "⏱ Aan",
+    "timerOff": "∞ Uit",
+    "secLabel": "sec",
+    "nVragen": "{n} vragen",
+    "noTimer": "∞ Geen timer",
+    "timerSec": "⚡ {s} sec",
+    "lastAttempts": "Laatste pogingen",
+    "startBtn": "Start oefening →",
+    "quizTitle": "Conversie",
+    "stopBtn": "✕ stop",
+    "correct": "✓ Goed!",
+    "wrong": "✗ Fout — antwoord was {ans}",
+    "outOf": "van de {n} goed",
+    "settingsBtn": "⚙ Instellingen",
+    "retryBtn": "↩ Opnieuw"
+  },
   "sidebar": {
     "home": "Terug naar Home",
     "language": "Taal",
@@ -191,6 +218,9 @@
     "favBadgeTopo": "Topo",
     "favBadgeReken": "Rekenen",
     "installBtn": "📲 Installeer app",
-    "offline": "offline beschikbaar"
+    "offline": "offline beschikbaar",
+    "conversieTitle": "Conversie",
+    "conversieDesc": "Oefen omrekenen van maateenheden: lengte, oppervlakte, inhoud en gewicht.",
+    "favBadgeConversie": "Conversie"
   }
 }

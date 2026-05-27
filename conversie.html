@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="nl" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conversie</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#47e8ff">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Conversie">
+<link rel="stylesheet" href="shared.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Unbounded:wght@400;700;900&display=swap');
+
+  :root {
+    --bg:         #050e14;
+    --surface:    #0c1e28;
+    --surface2:   #112433;
+    --border:     #1a3a4e;
+    --accent:     #47e8ff;
+    --accent2:    #4ac8ff;
+    --text:       #f0f0f0;
+    --muted:      #5a8fa0;
+    --good:       #47ff8a;
+    --bad:        #ff4747;
+    --key-bg:     #0e1f2a;
+    --key-border: #1a3545;
+    --key-hover:  #152c3a;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 16px 0 40px;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 50% 0%, #002a3a 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .container {
+    width: 100%; max-width: 440px;
+    padding: 20px;
+    position: relative; z-index: 1;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    position: relative; overflow: hidden;
+  }
+  .card::after {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.4;
+  }
+
+  /* ── START SCREEN ── */
+  #startScreen .card { padding: 36px 28px 28px; }
+
+  .start-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 24px; padding-left: 28px;
+  }
+  .start-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 22px; font-weight: 900; line-height: 1.2;
+  }
+  .start-title span { color: var(--accent); }
+
+  .settings-toggle {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--muted);
+    font-size: 18px; cursor: pointer; padding: 8px 12px;
+    transition: color 0.15s, border-color 0.15s; flex-shrink: 0;
+  }
+  .settings-toggle:hover { color: var(--accent); border-color: var(--accent); }
+  .settings-toggle.active { color: var(--accent); border-color: var(--accent); background: #001e2a; }
+
+  .settings-panel { overflow: hidden; max-height: 0; transition: max-height 0.35s ease; }
+  .settings-panel.open { max-height: 800px; }
+
+  .settings-inner {
+    border: 1px solid var(--border); border-radius: 8px;
+    background: var(--surface2); padding: 18px; margin-bottom: 18px;
+  }
+  .settings-row { margin-bottom: 16px; }
+  .settings-row:last-child { margin-bottom: 0; }
+
+  .settings-label {
+    font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+  }
+
+  .range-group { display: flex; gap: 8px; align-items: center; }
+  .range-group span { color: var(--muted); font-size: 12px; }
+
+  .num-input {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 5px; color: var(--text);
+    font-family: 'DM Mono', monospace; font-size: 14px;
+    padding: 7px 10px; width: 68px; text-align: center; outline: none;
+    -moz-appearance: textfield;
+  }
+  .num-input::-webkit-outer-spin-button,
+  .num-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .num-input:focus { border-color: var(--accent); }
+
+  .op-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .op-chip {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--muted);
+    font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 700;
+    padding: 8px 14px; cursor: pointer; transition: all 0.15s; user-select: none;
+  }
+  .op-chip:hover { border-color: #244a5e; color: var(--text); }
+  .op-chip.selected { background: #001e2a; border-color: var(--accent); color: var(--accent); }
+
+  .history-strip { margin-bottom: 18px; }
+  .history-label {
+    font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 8px;
+  }
+  .history-bars { display: flex; gap: 5px; align-items: flex-end; height: 44px; }
+  .h-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .h-bar { width: 100%; border-radius: 3px 3px 0 0; min-height: 4px; transition: height 0.4s ease; }
+  .h-bar-label { font-size: 9px; color: var(--muted); text-align: center; }
+
+  .start-btn {
+    background: var(--accent); color: #000;
+    border: none; border-radius: 7px;
+    font-family: 'Unbounded', sans-serif; font-size: 14px; font-weight: 700;
+    padding: 16px; cursor: pointer; width: 100%; letter-spacing: 0.04em;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .start-btn:hover  { opacity: 0.85; }
+  .start-btn:active { transform: scale(0.97); }
+
+  /* ── QUIZ SCREEN ── */
+  .quiz-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 16px; padding-left: 52px;
+  }
+  .quiz-title {
+    font-family: 'Unbounded', sans-serif; font-size: 10px;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted);
+  }
+  .progress-label { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; }
+
+  .timer-wrap { margin-bottom: 16px; }
+  .timer-bar-bg {
+    width: 100%; height: 3px; background: var(--border);
+    border-radius: 2px; overflow: hidden; margin-bottom: 6px;
+  }
+  .timer-bar-fill {
+    height: 100%; background: var(--accent); border-radius: 2px; width: 100%;
+    transition: width 0.1s linear, background 0.5s;
+  }
+  .timer-bar-fill.warning { background: var(--accent2); }
+  .timer-bar-fill.danger  { background: var(--bad); }
+  .timer-num {
+    font-family: 'Unbounded', sans-serif; font-size: 13px;
+    color: var(--accent); transition: color 0.5s;
+  }
+  .timer-num.warning { color: var(--accent2); }
+  .timer-num.danger  { color: var(--bad); }
+
+  .question-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 24px 20px 20px;
+    margin-bottom: 12px; position: relative; overflow: hidden;
+  }
+  .question-card::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.4;
+  }
+
+  /* "3.5 km =" */
+  .question {
+    font-family: 'Unbounded', sans-serif; font-size: 30px; font-weight: 900;
+    text-align: center; color: var(--text); margin-bottom: 18px; line-height: 1.3;
+  }
+  .question .q-unit { color: var(--accent); font-size: 0.78em; }
+  .question .q-unit sup { font-size: 0.65em; }
+  .question .q-eq { color: var(--muted); }
+
+  .display-row { display: flex; gap: 10px; align-items: center; }
+
+  .answer-display {
+    flex: 1; background: var(--bg); border: 2px solid var(--border);
+    border-radius: 6px; color: var(--text);
+    font-family: 'Unbounded', sans-serif; font-size: 22px; font-weight: 700;
+    text-align: center; padding: 12px; min-height: 58px;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.15s, background 0.15s;
+    letter-spacing: 1px; user-select: none;
+  }
+  .answer-display.focused { border-color: var(--accent); }
+  .answer-display.correct { border-color: var(--good); background: #0a1f10; }
+  .answer-display.wrong   { border-color: var(--bad);  background: #1f0a0a; }
+  .answer-display .placeholder { color: var(--muted); font-size: 18px; }
+
+  .to-unit-label {
+    font-family: 'Unbounded', sans-serif; font-size: 18px; font-weight: 700;
+    color: var(--accent); white-space: nowrap; min-width: 48px; text-align: left;
+  }
+  .to-unit-label sup { font-size: 0.65em; }
+
+  .ok-btn {
+    background: var(--accent); color: #000;
+    border: none; border-radius: 6px;
+    font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 700;
+    padding: 12px 16px; cursor: pointer; white-space: nowrap; min-height: 58px;
+    transition: transform 0.1s, opacity 0.1s;
+  }
+  .ok-btn:hover  { opacity: 0.85; }
+  .ok-btn:active { transform: scale(0.95); }
+
+  .feedback {
+    text-align: center; font-size: 12px; font-weight: 500;
+    height: 16px; color: var(--muted);
+    letter-spacing: 0.05em; transition: color 0.2s; margin-bottom: 12px;
+  }
+
+  /* NUMPAD — 4 rows, decimal key in row 4 */
+  .numpad {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 7px; margin-bottom: 12px;
+  }
+  .key {
+    background: var(--key-bg); border: 1px solid var(--key-border);
+    border-radius: 8px; color: var(--text);
+    font-family: 'Unbounded', sans-serif; font-size: 19px; font-weight: 700;
+    padding: 16px 8px; cursor: pointer; text-align: center;
+    transition: background 0.1s, transform 0.08s, border-color 0.1s;
+    user-select: none; -webkit-tap-highlight-color: transparent;
+    position: relative; overflow: hidden;
+  }
+  .key:hover  { background: var(--key-hover); border-color: #244a5e; }
+  .key:active, .key.pressed { background: #002a38; border-color: var(--accent); transform: scale(0.93); }
+  .key.key-dec { font-size: 24px; color: var(--muted); }
+  .key.key-dec:hover { color: var(--text); }
+  .key.key-del { background: #1a1010; border-color: #3a2020; font-size: 17px; color: var(--bad); }
+  .key.key-del:hover { background: #221515; }
+  .key.key-del:active, .key.key-del.pressed { background: #2e1010; border-color: var(--bad); transform: scale(0.93); }
+
+  .ripple {
+    position: absolute; border-radius: 50%;
+    background: rgba(71,232,255,0.18);
+    transform: scale(0); animation: ripple-anim 0.35s linear;
+    pointer-events: none;
+  }
+  @keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
+
+  .dots { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--border); transition: background 0.3s; }
+  .dot.correct { background: var(--good); }
+  .dot.wrong   { background: var(--bad); }
+  .dot.active  { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+
+  /* ── RESULT SCREEN ── */
+  .result-card { padding: 32px 24px; }
+  .result-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .result-score {
+    font-family: 'Unbounded', sans-serif; font-size: 64px; font-weight: 900;
+    color: var(--accent); line-height: 1;
+  }
+  .result-meta { text-align: right; }
+  .result-label { color: var(--muted); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 4px; }
+  .result-cats { font-size: 13px; color: var(--text); }
+
+  .result-list {
+    list-style: none; max-height: 240px;
+    overflow-y: auto; margin-bottom: 20px;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  }
+  .result-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 10px; border-radius: 4px; margin-bottom: 3px; font-size: 12px;
+  }
+  .result-item.correct-row { background: #0a1f10; }
+  .result-item.wrong-row   { background: #1f0a0a; }
+  .result-item .sum  { color: var(--text); flex: 1; min-width: 0; }
+  .result-item .your { font-weight: 700; white-space: nowrap; margin-left: 6px; }
+  .result-item .actual { color: var(--muted); font-size: 11px; white-space: nowrap; margin-left: 4px; }
+  .result-item .chk { margin-left: 4px; }
+
+  .result-btns { display: flex; gap: 8px; }
+  .btn-outline {
+    flex: 1; background: transparent; color: var(--accent);
+    border: 2px solid var(--accent); border-radius: 6px;
+    font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 700;
+    padding: 14px 8px; cursor: pointer; letter-spacing: 0.04em;
+    transition: background 0.15s, color 0.15s;
+  }
+  .btn-outline:hover { background: var(--accent); color: #000; }
+  .btn-solid {
+    flex: 1; background: var(--accent); color: #000;
+    border: 2px solid var(--accent); border-radius: 6px;
+    font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 700;
+    padding: 14px 8px; cursor: pointer; letter-spacing: 0.04em;
+    transition: opacity 0.15s;
+  }
+  .btn-solid:hover { opacity: 0.85; }
+
+  @keyframes flash-red { 0% { background: rgba(255,71,71,0.15); } 100% { background: transparent; } }
+  .flash { animation: flash-red 0.4s ease-out; }
+  @keyframes pop-in { 0% { transform: scale(0.93); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  .pop { animation: pop-in 0.2s ease-out; }
+
+  html[data-theme="light"] {
+    --bg: #e8feff; --surface: #ffffff; --surface2: #d0f8ff;
+    --border: #7dd8e8; --accent: #0891a8; --accent2: #0674ba;
+    --text: #042029; --muted: #3a7a8a; --bad: #dc2626; --good: #16a34a;
+    --key-bg: #d0f8ff; --key-border: #7dd8e8; --key-hover: #b8f0ff;
+  }
+  html[data-theme="light"] body::before { background: radial-gradient(ellipse 60% 50% at 50% 0%, #b8f0ff 0%, transparent 70%); }
+  html[data-theme="light"] .key:hover { border-color: #5bbccc; }
+  html[data-theme="light"] .key:active,
+  html[data-theme="light"] .key.pressed { background: #c0f0ff; border-color: var(--accent); }
+  html[data-theme="light"] .key.key-del { background: #fff1f2; border-color: #fecaca; }
+  html[data-theme="light"] .key.key-del:hover { background: #fee2e2; }
+  html[data-theme="light"] .key.key-del:active,
+  html[data-theme="light"] .key.key-del.pressed { background: #fecaca; border-color: var(--bad); }
+  html[data-theme="light"] .answer-display.correct { background: #f0fdf4; }
+  html[data-theme="light"] .answer-display.wrong   { background: #fef2f2; }
+  html[data-theme="light"] .op-chip.selected { background: #c0f0ff; }
+  html[data-theme="light"] .settings-toggle.active { background: #c0f0ff; }
+</style>
+<script>(function(){var t=localStorage.getItem('thuiswerk_theme');if(t)document.documentElement.dataset.theme=t;})();</script>
+</head>
+<body>
+<script>
+  window.THUISWERK_APP = {
+    id: 'conversie',
+    theme: localStorage.getItem('thuiswerk_theme') || 'dark',
+    primaryColor: '#47e8ff',
+    bgColor: '#0c1e28',
+    textColor: '#f0f0f0',
+  };
+
+  window._i18n = window._i18n || {};
+
+  window._initLang = (function () {
+    try {
+      var favId = new URLSearchParams(location.search).get('fav');
+      if (favId) {
+        var favs = JSON.parse(localStorage.getItem('thuiswerk_favorites') || '[]');
+        var fav  = favs.find(function (f) { return f.id === favId && f.app === 'conversie'; });
+        if (fav && fav.settings && fav.settings.lang) return fav.settings.lang;
+      }
+    } catch (e) {}
+    return localStorage.getItem('thuiswerk_lang') || 'nl';
+  }());
+
+  function loadI18n(lc) {
+    return window._i18n[lc]
+      ? Promise.resolve(window._i18n[lc])
+      : fetch('i18n-' + lc + '.json').then(function (r) { return r.json(); })
+          .then(function (d) { window._i18n[lc] = d; return d; });
+  }
+
+  window.APP_READY = loadI18n(window._initLang);
+</script>
+
+<div class="container">
+
+  <!-- ══ START SCREEN ══ -->
+  <div class="screen active" id="startScreen">
+    <div class="card" style="padding:28px 24px 24px;">
+
+      <div class="start-top">
+        <div class="start-title">
+          <span id="startTitleText">📐 Conversie</span><br>
+          <span id="startSubtitle" style="font-size:13px;color:var(--muted);font-weight:400;">20 vragen</span>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+          <div style="display:flex; gap:6px;">
+            <button class="lang-chip op-chip selected" data-lc="nl" onclick="switchLang('nl')" style="padding:6px 12px; font-size:12px;">NL</button>
+            <button class="lang-chip op-chip" data-lc="en" onclick="switchLang('en')" style="padding:6px 12px; font-size:12px;">EN</button>
+          </div>
+          <button class="settings-toggle" id="settingsToggle" onclick="toggleSettings()" title="Instellingen">⚙</button>
+        </div>
+      </div>
+
+      <div class="settings-panel" id="settingsPanel">
+        <div class="settings-inner">
+
+          <div class="settings-row">
+            <div class="settings-label" id="labelCats">Categorieën</div>
+            <div class="op-group">
+              <div class="op-chip selected" data-cat="lengte"      onclick="toggleCat(this)" id="catLengte">📏 Lengte</div>
+              <div class="op-chip selected" data-cat="oppervlakte" onclick="toggleCat(this)" id="catOppervlakte">⬛ Oppervlakte</div>
+              <div class="op-chip selected" data-cat="inhoud"      onclick="toggleCat(this)" id="catInhoud">🧪 Inhoud</div>
+              <div class="op-chip selected" data-cat="gewicht"     onclick="toggleCat(this)" id="catGewicht">⚖️ Gewicht</div>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-label" id="labelCount">Aantal vragen</div>
+            <div class="range-group">
+              <input class="num-input" type="number" id="questionCount" value="20" min="5" max="50">
+              <span id="labelVragen" style="color:var(--muted);font-size:12px;">vragen</span>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div class="settings-label" id="labelTimer">Timer</div>
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <div class="op-chip selected" id="timerOnChip"  onclick="setTimerMode(true)">⏱ Aan</div>
+              <div class="op-chip"          id="timerOffChip" onclick="setTimerMode(false)">∞ Uit</div>
+              <div id="timerInputWrap" style="display:flex; gap:6px; align-items:center; margin-left:4px;">
+                <input class="num-input" type="number" id="timerSecs" value="120" min="10" max="600" style="width:60px;">
+                <span class="timer-sec-label" id="labelSec" style="color:var(--muted);font-size:12px;">sec</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="history-strip" id="historyStrip" style="display:none;">
+        <div class="history-label" id="historyLabel">Laatste pogingen</div>
+        <div class="history-bars" id="historyBars"></div>
+      </div>
+
+      <button class="start-btn" id="startBtn" onclick="startQuiz()">Start oefening →</button>
+    </div>
+  </div>
+
+  <!-- ══ QUIZ SCREEN ══ -->
+  <div class="screen" id="quizScreen">
+    <div class="quiz-header">
+      <span class="quiz-title" id="quizTitleText">Conversie</span>
+      <span class="progress-label" id="progressLabel">1 / 20</span>
+      <button id="stopBtn" onclick="stopQuiz()" style="background:transparent;border:1px solid var(--border);border-radius:5px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;padding:4px 10px;cursor:pointer;transition:color .15s,border-color .15s;" onmouseover="this.style.color='var(--bad)';this.style.borderColor='var(--bad)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">✕ stop</button>
+    </div>
+
+    <div class="timer-wrap">
+      <div class="timer-bar-bg"><div class="timer-bar-fill" id="timerBar"></div></div>
+      <span class="timer-num" id="timerNum">120</span>
+    </div>
+
+    <div class="question-card" id="questionCard">
+      <div class="question" id="questionText"></div>
+      <div class="display-row">
+        <div class="answer-display focused" id="answerDisplay">
+          <span class="placeholder">?</span>
+        </div>
+        <div class="to-unit-label" id="toUnitEl"></div>
+        <button class="ok-btn" onclick="submitAnswer()">OK ↵</button>
+      </div>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="numpad">
+      <button class="key" data-val="7" onclick="numpadPress('7')">7</button>
+      <button class="key" data-val="8" onclick="numpadPress('8')">8</button>
+      <button class="key" data-val="9" onclick="numpadPress('9')">9</button>
+      <button class="key" data-val="4" onclick="numpadPress('4')">4</button>
+      <button class="key" data-val="5" onclick="numpadPress('5')">5</button>
+      <button class="key" data-val="6" onclick="numpadPress('6')">6</button>
+      <button class="key" data-val="1" onclick="numpadPress('1')">1</button>
+      <button class="key" data-val="2" onclick="numpadPress('2')">2</button>
+      <button class="key" data-val="3" onclick="numpadPress('3')">3</button>
+      <button class="key key-dec" data-val="." onclick="numpadPress('.')">·</button>
+      <button class="key" data-val="0" onclick="numpadPress('0')">0</button>
+      <button class="key key-del" onclick="numpadDel()">⌫</button>
+    </div>
+
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <!-- ══ RESULT SCREEN ══ -->
+  <div class="screen" id="resultScreen">
+    <div class="card result-card">
+      <div class="result-top">
+        <div class="result-score" id="resultScore"></div>
+        <div class="result-meta">
+          <div class="result-label" id="resultLabel">van de 20 goed</div>
+          <div class="result-cats" id="resultCats"></div>
+        </div>
+      </div>
+      <ul class="result-list" id="resultList"></ul>
+      <div class="result-btns">
+        <button class="btn-outline" id="settingsResultBtn" onclick="resetQuiz()">⚙ Instellingen</button>
+        <button class="btn-solid"   id="retryBtn"          onclick="startQuiz()">↩ Opnieuw</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <a href="https://github.com/mmalkus/Thuiswerk" target="_blank">GitHub</a>
+    · MIT License © 2026 Maurits Malkus
+  </div>
+
+</div>
+
+<script>
+  // ── Conversion data ───────────────────────────────────────────────────────
+  const CONV_GROUPS = {
+    lengte: { pairs: [
+      { f: 'km',  t: 'm',   k: 1000,   v: [1,2,3,4,5,6,7,8,9,10,20,50,100] },
+      { f: 'm',   t: 'cm',  k: 100,    v: [1,2,3,4,5,6,7,8,9,10,20,50,100] },
+      { f: 'cm',  t: 'mm',  k: 10,     v: [1,2,3,4,5,6,7,8,9,10,20,50,100] },
+      { f: 'm',   t: 'mm',  k: 1000,   v: [1,2,3,4,5,10,20,50] },
+      { f: 'm',   t: 'km',  k: 0.001,  v: [500,1000,1500,2000,2500,3000,5000,10000,25000,50000] },
+      { f: 'cm',  t: 'm',   k: 0.01,   v: [50,100,150,200,250,300,500,750,1000,1500,2000,2500] },
+      { f: 'mm',  t: 'cm',  k: 0.1,    v: [5,10,15,20,25,30,50,75,100,150,200,250,500] },
+      { f: 'mm',  t: 'm',   k: 0.001,  v: [500,1000,1500,2000,2500,5000] },
+    ]},
+    oppervlakte: { pairs: [
+      { f: 'ha',   t: 'm²',  k: 10000,  v: [1,2,3,5,10,50,100] },
+      { f: 'm²',   t: 'ha',  k: 0.0001, v: [5000,10000,15000,20000,50000,100000] },
+      { f: 'km²',  t: 'ha',  k: 100,    v: [1,2,3,5,10,50,100] },
+      { f: 'ha',   t: 'km²', k: 0.01,   v: [50,100,150,200,500,1000] },
+      { f: 'm²',   t: 'cm²', k: 10000,  v: [1,2,3,5] },
+      { f: 'cm²',  t: 'm²',  k: 0.0001, v: [10000,20000,30000,50000] },
+      { f: 'cm²',  t: 'mm²', k: 100,    v: [1,2,5,10,20,50,100] },
+      { f: 'mm²',  t: 'cm²', k: 0.01,   v: [100,200,500,1000,1500,2000] },
+    ]},
+    inhoud: { pairs: [
+      { f: 'l',   t: 'ml',  k: 1000,  v: [1,2,3,4,5,10,20,50,100] },
+      { f: 'l',   t: 'dl',  k: 10,    v: [1,2,3,4,5,6,7,8,9,10,20,50] },
+      { f: 'l',   t: 'cl',  k: 100,   v: [1,2,3,5,10,20,50] },
+      { f: 'dl',  t: 'ml',  k: 100,   v: [1,2,3,5,10,20,50,100] },
+      { f: 'cl',  t: 'ml',  k: 10,    v: [1,2,3,5,10,20,50,100] },
+      { f: 'ml',  t: 'l',   k: 0.001, v: [500,1000,1500,2000,2500,3000,5000] },
+      { f: 'ml',  t: 'dl',  k: 0.01,  v: [50,100,150,200,250,500,1000] },
+      { f: 'ml',  t: 'cl',  k: 0.1,   v: [5,10,15,20,25,50,100,150,200] },
+      { f: 'dl',  t: 'l',   k: 0.1,   v: [5,10,15,20,25,50,100] },
+      { f: 'cl',  t: 'l',   k: 0.01,  v: [50,100,150,200,250,500] },
+      { f: 'dl',  t: 'cl',  k: 10,    v: [1,2,3,4,5,6,7,8,9,10] },
+      { f: 'cl',  t: 'dl',  k: 0.1,   v: [5,10,15,20,25,50,100] },
+    ]},
+    gewicht: { pairs: [
+      { f: 'kg',  t: 'g',   k: 1000,  v: [1,2,3,4,5,10,20,50,100] },
+      { f: 'g',   t: 'mg',  k: 1000,  v: [1,2,3,5,10,20,50,100] },
+      { f: 't',   t: 'kg',  k: 1000,  v: [1,2,3,5,10,50,100] },
+      { f: 'g',   t: 'kg',  k: 0.001, v: [500,1000,1500,2000,2500,5000,10000] },
+      { f: 'mg',  t: 'g',   k: 0.001, v: [500,1000,2000,5000,10000] },
+      { f: 'kg',  t: 't',   k: 0.001, v: [500,1000,1500,2000,2500,5000] },
+    ]},
+  };
+
+  function fmtU(u) {
+    return u.replace(/²/g, '<sup>2</sup>').replace(/³/g, '<sup>3</sup>');
+  }
+  function fmtN(n) {
+    return String(Math.round(n * 1e9) / 1e9);
+  }
+  function pickRandom(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  // ── Settings ──────────────────────────────────────────────────────────────
+  let settings = {
+    cats: ['lengte', 'oppervlakte', 'inhoud', 'gewicht'],
+    count: 20,
+    timerEnabled: true,
+    timerSecs: 120,
+  };
+
+  let lang = window._initLang;
+  function tpl(str, val) { return String(str).replace(/\{\w+\}/, val); }
+  function switchLang(lc) { loadI18n(lc).then(function() { applyLanguage(lc); }); }
+
+  function applyLanguage(lc) {
+    lang = lc;
+    localStorage.setItem('thuiswerk_lang', lc);
+    document.getElementById('htmlRoot').lang = lc === 'en' ? 'en' : 'nl';
+    const u = window._i18n[lc] && window._i18n[lc].conversie; if (!u) return;
+    document.title = u.appTitle;
+    document.getElementById('startTitleText').textContent = u.appTitle;
+    document.getElementById('settingsToggle').title = u.settingsTitle;
+    document.getElementById('labelCats').textContent = u.catLabel;
+    document.getElementById('catLengte').textContent = u.catLengte;
+    document.getElementById('catOppervlakte').textContent = u.catOppervlakte;
+    document.getElementById('catInhoud').textContent = u.catInhoud;
+    document.getElementById('catGewicht').textContent = u.catGewicht;
+    document.getElementById('labelCount').textContent = u.countLabel;
+    document.getElementById('labelVragen').textContent = u.vragenLabel;
+    document.getElementById('labelTimer').textContent = u.timerLabel;
+    document.getElementById('timerOnChip').textContent = u.timerOn;
+    document.getElementById('timerOffChip').textContent = u.timerOff;
+    document.querySelector('.timer-sec-label').textContent = u.secLabel;
+    document.getElementById('historyLabel').textContent = u.lastAttempts;
+    document.getElementById('startBtn').textContent = u.startBtn;
+    document.getElementById('quizTitleText').textContent = u.quizTitle;
+    document.getElementById('stopBtn').textContent = u.stopBtn;
+    document.getElementById('settingsResultBtn').textContent = u.settingsBtn;
+    document.getElementById('retryBtn').textContent = u.retryBtn;
+    document.querySelectorAll('.lang-chip').forEach(el => {
+      el.classList.toggle('selected', el.dataset.lc === lc);
+    });
+    updateStartSubtitle();
+  }
+
+  function updateStartSubtitle() {
+    const el = document.getElementById('startSubtitle');
+    const u = window._i18n[lang] && window._i18n[lang].conversie; if (!u) return;
+    const countText = tpl(u.nVragen, settings.count);
+    const timerText = settings.timerEnabled ? tpl(u.timerSec, settings.timerSecs) : u.noTimer;
+    el.textContent = countText + ' · ' + timerText;
+  }
+
+  // ── Settings UI ──────────────────────────────────────────────────────────
+  function toggleSettings() {
+    document.getElementById('settingsPanel').classList.toggle('open');
+    document.getElementById('settingsToggle').classList.toggle('active');
+  }
+
+  function toggleCat(el) {
+    const sel = document.querySelectorAll('.op-chip[data-cat].selected');
+    if (el.classList.contains('selected') && sel.length === 1) return;
+    el.classList.toggle('selected');
+  }
+
+  function setTimerMode(enabled) {
+    settings.timerEnabled = enabled;
+    document.getElementById('timerOnChip').classList.toggle('selected', enabled);
+    document.getElementById('timerOffChip').classList.toggle('selected', !enabled);
+    document.getElementById('timerInputWrap').style.opacity = enabled ? '1' : '0.3';
+    document.getElementById('timerInputWrap').style.pointerEvents = enabled ? 'auto' : 'none';
+    updateStartSubtitle();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('timerSecs').addEventListener('input', () => {
+      settings.timerSecs = Math.max(10, parseInt(document.getElementById('timerSecs').value) || 120);
+      updateStartSubtitle();
+    });
+    document.getElementById('questionCount').addEventListener('input', () => {
+      settings.count = Math.max(5, Math.min(50, parseInt(document.getElementById('questionCount').value) || 20));
+      updateStartSubtitle();
+    });
+  });
+
+  function readSettings() {
+    settings.cats = [...document.querySelectorAll('.op-chip[data-cat].selected')].map(e => e.dataset.cat);
+    if (settings.cats.length === 0) settings.cats = ['lengte'];
+    settings.count    = Math.max(5, Math.min(50, parseInt(document.getElementById('questionCount').value) || 20));
+    settings.timerSecs = Math.max(10, parseInt(document.getElementById('timerSecs').value) || 120);
+    localStorage.setItem('conversie_settings', JSON.stringify(settings));
+    updateStartSubtitle();
+  }
+
+  function applySettingsToUI() {
+    document.getElementById('questionCount').value = settings.count;
+    document.getElementById('timerSecs').value = settings.timerSecs;
+    document.querySelectorAll('.op-chip[data-cat]').forEach(el => {
+      el.classList.toggle('selected', settings.cats.includes(el.dataset.cat));
+    });
+    setTimerMode(settings.timerEnabled);
+  }
+
+  // ── Question generation ───────────────────────────────────────────────────
+  function generateQuestion() {
+    const allPairs = [];
+    settings.cats.forEach(cat => {
+      if (CONV_GROUPS[cat]) CONV_GROUPS[cat].pairs.forEach(p => allPairs.push(p));
+    });
+    const pair = pickRandom(allPairs);
+    const fromVal = pickRandom(pair.v);
+    const answer  = Math.round(fromVal * pair.k * 1e9) / 1e9;
+    return { fromVal, fromUnit: pair.f, toUnit: pair.t, answer };
+  }
+
+  function generateQuestions() {
+    const qs = [];
+    for (let i = 0; i < settings.count; i++) qs.push(generateQuestion());
+    return qs;
+  }
+
+  // ── Quiz state ────────────────────────────────────────────────────────────
+  let questions = [], current = 0, score = 0, results = [];
+  let timerInterval = null, timeLeft = 120, answered = false;
+  let currentValue = '';
+  let history = JSON.parse(localStorage.getItem('conversie_history') || '[]');
+
+  // ── Display ───────────────────────────────────────────────────────────────
+  function updateDisplay() {
+    const el = document.getElementById('answerDisplay');
+    el.innerHTML = currentValue === '' ? '<span class="placeholder">?</span>' : currentValue;
+  }
+  function setDisplayState(cls) {
+    document.getElementById('answerDisplay').className = 'answer-display ' + cls;
+  }
+
+  // ── Numpad ────────────────────────────────────────────────────────────────
+  function numpadPress(digit) {
+    if (answered) return;
+    if (digit === '.' && currentValue.includes('.')) return;
+    if (digit === '.' && currentValue === '') { currentValue = '0'; }
+    const digits = currentValue.replace('.', '').replace('-', '');
+    if (digit !== '.' && digits.length >= 8) return;
+    currentValue += digit;
+    updateDisplay();
+  }
+  function numpadDel() {
+    if (answered) return;
+    currentValue = currentValue.slice(0, -1);
+    updateDisplay();
+  }
+  function flashKey(val) {
+    const btn = val === 'del'
+      ? document.querySelector('.key-del')
+      : document.querySelector(`.key[data-val="${CSS.escape(val)}"]`);
+    if (!btn) return;
+    btn.classList.add('pressed');
+    setTimeout(() => btn.classList.remove('pressed'), 160);
+    const r = document.createElement('span');
+    r.className = 'ripple';
+    const bw = btn.offsetWidth, bh = btn.offsetHeight, size = Math.max(bw, bh);
+    r.style.cssText = `width:${size}px;height:${size}px;left:${bw/2-size/2}px;top:${bh/2-size/2}px`;
+    btn.appendChild(r);
+    setTimeout(() => r.remove(), 400);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (!document.getElementById('quizScreen').classList.contains('active')) return;
+    if (e.key >= '0' && e.key <= '9') { e.preventDefault(); flashKey(e.key); numpadPress(e.key); }
+    else if (e.key === '.') { e.preventDefault(); flashKey('.'); numpadPress('.'); }
+    else if (e.key === 'Backspace' || e.key === 'Delete') { e.preventDefault(); flashKey('del'); numpadDel(); }
+    else if (e.key === 'Enter') { e.preventDefault(); submitAnswer(); }
+  });
+
+  // ── Quiz flow ─────────────────────────────────────────────────────────────
+  function buildDots() {
+    const wrap = document.getElementById('dots');
+    wrap.innerHTML = '';
+    for (let i = 0; i < settings.count; i++) {
+      const d = document.createElement('div');
+      d.className = 'dot' + (i === 0 ? ' active' : '');
+      d.id = 'dot-' + i;
+      wrap.appendChild(d);
+    }
+  }
+
+  function updateDot(idx, cls) {
+    const d = document.getElementById('dot-' + idx); if (d) d.className = 'dot ' + cls;
+    const n = document.getElementById('dot-' + (idx + 1)); if (n) n.classList.add('active');
+  }
+
+  function showQuestion() {
+    answered = false; currentValue = '';
+    const q = questions[current];
+    document.getElementById('questionText').innerHTML =
+      `${fmtN(q.fromVal)} <span class="q-unit">${fmtU(q.fromUnit)}</span> <span class="q-eq">=</span>`;
+    document.getElementById('toUnitEl').innerHTML = fmtU(q.toUnit);
+    document.getElementById('progressLabel').textContent = `${current + 1} / ${settings.count}`;
+    setDisplayState('focused'); updateDisplay();
+    document.getElementById('feedback').textContent = '';
+    const card = document.getElementById('questionCard');
+    card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop');
+  }
+
+  function submitAnswer() {
+    if (answered || currentValue === '' || currentValue === '.') return;
+    answered = true;
+    const userAns = parseFloat(currentValue);
+    const q = questions[current];
+    const correct = Math.abs(userAns - q.answer) < 0.0001;
+    const u = window._i18n[lang] && window._i18n[lang].conversie;
+    results.push({ q, userAns, correct });
+    if (correct) {
+      score++;
+      setDisplayState('correct');
+      setFeedback(u ? u.correct : '✓', 'var(--good)');
+      updateDot(current, 'correct');
+    } else {
+      setDisplayState('wrong');
+      setFeedback(u ? tpl(u.wrong, fmtN(q.answer)) : '✗ ' + fmtN(q.answer), 'var(--bad)');
+      updateDot(current, 'wrong');
+    }
+    current++;
+    if (current >= settings.count) setTimeout(endQuiz, 500);
+    else setTimeout(showQuestion, 500);
+  }
+
+  function setFeedback(msg, color) {
+    const el = document.getElementById('feedback');
+    el.textContent = msg; el.style.color = color;
+  }
+
+  function startTimer() {
+    if (!settings.timerEnabled) {
+      document.getElementById('timerBar').style.width = '100%';
+      document.getElementById('timerNum').textContent = '∞';
+      document.getElementById('timerNum').className = 'timer-num';
+      return;
+    }
+    timeLeft = settings.timerSecs; updateTimerUI();
+    timerInterval = setInterval(() => {
+      timeLeft -= 0.1;
+      if (timeLeft <= 0) {
+        timeLeft = 0; updateTimerUI(); clearInterval(timerInterval);
+        while (results.length < settings.count)
+          results.push({ q: questions[results.length], userAns: null, correct: false });
+        document.body.classList.add('flash');
+        setTimeout(() => document.body.classList.remove('flash'), 400);
+        setTimeout(endQuiz, 400);
+      } else { updateTimerUI(); }
+    }, 100);
+  }
+
+  function updateTimerUI() {
+    const pct  = (timeLeft / settings.timerSecs) * 100;
+    const bar  = document.getElementById('timerBar');
+    const num  = document.getElementById('timerNum');
+    bar.style.width = pct + '%';
+    num.textContent = Math.ceil(timeLeft);
+    bar.className = 'timer-bar-fill'; num.className = 'timer-num';
+    const warn = settings.timerSecs / 3, danger = settings.timerSecs / 6;
+    if      (timeLeft <= danger) { bar.classList.add('danger');  num.classList.add('danger');  }
+    else if (timeLeft <= warn)   { bar.classList.add('warning'); num.classList.add('warning'); }
+  }
+
+  function startQuiz() {
+    readSettings();
+    questions = generateQuestions();
+    current = 0; score = 0; results = [];
+    showScreen('quizScreen');
+    buildDots(); showQuestion(); startTimer();
+  }
+
+  function endQuiz() {
+    clearInterval(timerInterval);
+    history.push({ score, total: settings.count, cats: settings.cats.join(','), date: Date.now() });
+    if (history.length > 10) history = history.slice(-10);
+    localStorage.setItem('conversie_history', JSON.stringify(history));
+
+    showScreen('resultScreen');
+    document.getElementById('resultScore').textContent = score;
+    const u = window._i18n[lang] && window._i18n[lang].conversie;
+    document.getElementById('resultLabel').textContent = u ? tpl(u.outOf, settings.count) : `/ ${settings.count}`;
+    document.getElementById('resultCats').textContent  = settings.cats.join(' · ');
+
+    const list = document.getElementById('resultList');
+    list.innerHTML = '';
+    results.forEach(r => {
+      const li = document.createElement('li');
+      li.className = 'result-item ' + (r.correct ? 'correct-row' : 'wrong-row');
+      const userTxt = r.userAns !== null ? fmtN(r.userAns) : '—';
+      const extra   = r.correct ? '' : `<span class="actual">✓ ${fmtN(r.q.answer)}</span>`;
+      li.innerHTML = `
+        <span class="sum">${fmtN(r.q.fromVal)} ${fmtU(r.q.fromUnit)} → ${fmtU(r.q.toUnit)}</span>
+        <span class="your" style="color:${r.correct ? 'var(--good)' : 'var(--bad)'}">${userTxt}</span>
+        ${extra}
+        <span class="chk">${r.correct ? '✓' : '✗'}</span>
+      `;
+      list.appendChild(li);
+    });
+  }
+
+  function stopQuiz()  { clearInterval(timerInterval); showScreen('startScreen'); renderHistory(); }
+  function resetQuiz() { showScreen('startScreen'); renderHistory(); }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function renderHistory() {
+    const strip = document.getElementById('historyStrip');
+    const bars  = document.getElementById('historyBars');
+    if (history.length === 0) { strip.style.display = 'none'; return; }
+    strip.style.display = 'block';
+    bars.innerHTML = '';
+    history.forEach(h => {
+      const pct   = (h.score / (h.total || 20)) * 100;
+      const color = pct >= 90 ? 'var(--good)' : pct >= 60 ? 'var(--accent)' : 'var(--bad)';
+      const wrap  = document.createElement('div');
+      wrap.className = 'h-bar-wrap';
+      wrap.innerHTML = `<div class="h-bar" style="height:${Math.max(4, pct * 0.36)}px;background:${color};"></div><div class="h-bar-label">${h.score}</div>`;
+      bars.appendChild(wrap);
+    });
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  const savedSettings = JSON.parse(localStorage.getItem('conversie_settings') || 'null');
+  if (savedSettings) Object.assign(settings, savedSettings);
+
+  (function () {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const favId  = params.get('fav');
+      if (!favId) return;
+      const favs = JSON.parse(localStorage.getItem('thuiswerk_favorites') || '[]');
+      const fav  = favs.find(f => f.id === favId && f.app === 'conversie');
+      if (fav && fav.settings) {
+        const s = fav.settings;
+        if (s.lang) lang = s.lang;
+        Object.assign(settings, s);
+        delete settings.lang;
+      }
+    } catch(e) {}
+  })();
+
+  window.APP_READY.then(function() {
+    applySettingsToUI();
+    applyLanguage(lang);
+    renderHistory();
+
+    window.addEventListener('thuiswerk:setLang', function (e) {
+      loadI18n(e.detail).then(() => applyLanguage(e.detail));
+    });
+
+    window.THUISWERK_APP.getSettings = function () {
+      readSettings();
+      return Object.assign({ lang }, settings);
+    };
+    window.THUISWERK_APP.applySettings = function (s) {
+      if (s.lang) applyLanguage(s.lang);
+      const ns = Object.assign({}, s); delete ns.lang;
+      Object.assign(settings, ns);
+      applySettingsToUI();
+      readSettings();
+    };
+  });
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+</script>
+<script src="sidebar.js"></script>
+</body>
+</html>
