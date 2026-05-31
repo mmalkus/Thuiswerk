@@ -1,17 +1,23 @@
 {
+  "_source": "david47k/top-english-wordlists (top_english_nouns/verbs/adjs_lower_10000.txt)",
   "noun": [
-    "dog", "cat", "house", "tree", "bike", "school", "child", "table", "book", "chair",
-    "water", "bread", "city", "sun", "moon", "star", "fish", "bird", "rain", "wind",
-    "door", "window", "garden", "car", "train", "flower", "letter", "mountain", "river", "sea"
+    "dog", "cat", "fish", "bird", "cow", "horse", "tree", "flower",
+    "garden", "sun", "house", "door", "window", "table", "chair", "bed",
+    "lamp", "bread", "milk", "apple", "school", "book", "car",
+    "bike", "train", "ball", "hand", "nose", "rain", "letter"
   ],
   "verb": [
-    "walk", "jump", "eat", "drink", "sleep", "play", "laugh", "read", "write", "run",
-    "swim", "sing", "dance", "cook", "drive", "fly", "build", "grow", "fall", "work",
-    "watch", "hear", "call", "pull", "push", "think", "talk", "help", "make", "grab"
+    "bake", "call", "break", "bring", "dance", "think",
+    "do", "drink", "push", "eat", "cycle", "go",
+    "give", "help", "hear", "watch", "cook", "laugh",
+    "walk", "listen", "make", "read", "run", "write",
+    "sleep", "play", "jump", "work", "sing", "swim"
   ],
   "adj": [
-    "big", "small", "beautiful", "fast", "slow", "warm", "cold", "old", "new", "happy",
-    "smart", "strong", "soft", "hard", "high", "low", "cheerful", "quiet", "thick", "thin",
-    "wet", "dry", "light", "dark", "clean", "tasty", "dangerous", "friendly", "funny", "calm"
+    "blue", "happy", "angry", "thick", "dark", "yellow",
+    "cheerful", "green", "big", "hard", "high", "small",
+    "cold", "low", "long", "slow", "tasty", "sweet",
+    "ugly", "beautiful", "new", "old", "red", "calm",
+    "clever", "fast", "warm", "white", "soft", "black"
   ]
 }

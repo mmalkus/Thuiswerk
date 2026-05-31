@@ -75,6 +75,8 @@ Register the data files in `sw.js`:
 
 If the app has **no language-specific word data** (e.g., a pure maths or conversion app), skip this step entirely.
 
+> **Use the `/add-wordlist` skill** to create the actual word list content — it has sourcing instructions and format rules for each app type (Dictee, Woordflits, Grammatica). Never generate word lists from memory.
+
 ### 4. Add i18n entries
 
 In **both** `i18n-nl.json` and `i18n-en.json`, add a top-level key `"{id}"` with at minimum:
