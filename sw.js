@@ -1,4 +1,4 @@
-const CACHE = 'thuiswerk-v10';
+const CACHE = 'thuiswerk-v11';
 const ASSETS = [
   '/Thuiswerk/',
   '/Thuiswerk/index.html',
@@ -7,6 +7,7 @@ const ASSETS = [
   '/Thuiswerk/topografie.html',
   '/Thuiswerk/woordflits.html',
   '/Thuiswerk/conversie.html',
+  '/Thuiswerk/grammatica.html',
   '/Thuiswerk/shared.css',
   '/Thuiswerk/sidebar.js',
   '/Thuiswerk/manifest.json',

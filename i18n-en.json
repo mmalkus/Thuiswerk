@@ -187,6 +187,27 @@
     "settingsBtn": "⚙ Settings",
     "retryBtn": "↩ Again"
   },
+  "grammatica": {
+    "appTitle": "📝 Grammar",
+    "settingsTitle": "Settings",
+    "nounName": "noun",
+    "verbName": "verb",
+    "adjName": "adjective",
+    "nounShort": "n.",
+    "verbShort": "v.",
+    "adjShort": "adj.",
+    "prompt": "Which word is the {type}?",
+    "countLabel": "Number of questions",
+    "nVragen": "{n} questions",
+    "lastAttempts": "Last attempts",
+    "startBtn": "Start practice →",
+    "stopBtn": "✕ stop",
+    "correct": "✓ Correct!",
+    "wrong": "✗ Wrong — it was: {ans}",
+    "outOf": "out of {n} correct",
+    "settingsBtn": "⚙ Settings",
+    "retryBtn": "↩ Again"
+  },
   "sidebar": {
     "home": "Back to Home",
     "language": "Language",
@@ -221,6 +242,9 @@
     "offline": "available offline",
     "conversieTitle": "Conversions",
     "conversieDesc": "Practice converting units of measurement: length, area, volume and mass.",
-    "favBadgeConversie": "Conversions"
+    "favBadgeConversie": "Conversions",
+    "grammaticaTitle": "Grammar",
+    "grammaticaDesc": "Which word is a noun, verb or adjective? Practise the parts of speech!",
+    "favBadgeGrammatica": "Grammar"
   }
 }
