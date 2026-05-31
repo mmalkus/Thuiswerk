@@ -197,6 +197,7 @@
     "verbShort": "v.",
     "adjShort": "adj.",
     "prompt": "Which word is the {type}?",
+    "typesLabel": "Word types",
     "countLabel": "Number of questions",
     "nVragen": "{n} questions",
     "lastAttempts": "Last attempts",
