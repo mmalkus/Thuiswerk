@@ -1,0 +1,23 @@
+{
+  "_source": "bzdgn/dutch-vocabulary (01_WOORDEN.txt, 02_WERKWOORDEN.txt, 03_ADJ_ADVB.txt)",
+  "noun": [
+    "hond", "kat", "vis", "vogel", "koe", "paard", "boom", "bloem",
+    "tuin", "zon", "huis", "deur", "raam", "tafel", "stoel", "bed",
+    "lamp", "brood", "melk", "appel", "school", "boek", "auto",
+    "fiets", "trein", "bal", "hand", "neus", "regen", "brief"
+  ],
+  "verb": [
+    "bakken", "bellen", "breken", "brengen", "dansen", "denken",
+    "doen", "drinken", "duwen", "eten", "fietsen", "gaan",
+    "geven", "helpen", "horen", "kijken", "koken", "lachen",
+    "lopen", "luisteren", "maken", "lezen", "rennen", "schrijven",
+    "slapen", "spelen", "springen", "werken", "zingen", "zwemmen"
+  ],
+  "adj": [
+    "blauw", "blij", "boos", "dik", "donker", "geel",
+    "gelukkig", "groen", "groot", "hard", "hoog", "klein",
+    "koud", "laag", "lang", "langzaam", "lekker", "lief",
+    "lelijk", "mooi", "nieuw", "oud", "rood", "rustig",
+    "slim", "snel", "warm", "wit", "zacht", "zwart"
+  ]
+}

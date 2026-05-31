@@ -1,0 +1,23 @@
+{
+  "_source": "david47k/top-english-wordlists (top_english_nouns/verbs/adjs_lower_10000.txt)",
+  "noun": [
+    "dog", "cat", "fish", "bird", "cow", "horse", "tree", "flower",
+    "garden", "sun", "house", "door", "window", "table", "chair", "bed",
+    "lamp", "bread", "milk", "apple", "school", "book", "car",
+    "bike", "train", "ball", "hand", "nose", "rain", "letter"
+  ],
+  "verb": [
+    "bake", "call", "break", "bring", "dance", "think",
+    "do", "drink", "push", "eat", "cycle", "go",
+    "give", "help", "hear", "watch", "cook", "laugh",
+    "walk", "listen", "make", "read", "run", "write",
+    "sleep", "play", "jump", "work", "sing", "swim"
+  ],
+  "adj": [
+    "blue", "happy", "angry", "thick", "dark", "yellow",
+    "cheerful", "green", "big", "hard", "high", "small",
+    "cold", "low", "long", "slow", "tasty", "sweet",
+    "ugly", "beautiful", "new", "old", "red", "calm",
+    "clever", "fast", "warm", "white", "soft", "black"
+  ]
+}

@@ -187,6 +187,27 @@
     "settingsBtn": "⚙ Instellingen",
     "retryBtn": "↩ Opnieuw"
   },
+  "grammatica": {
+    "appTitle": "📝 Grammatica",
+    "settingsTitle": "Instellingen",
+    "nounName": "zelfstandig naamwoord",
+    "verbName": "werkwoord",
+    "adjName": "bijvoeglijk naamwoord",
+    "nounShort": "zn.",
+    "verbShort": "ww.",
+    "adjShort": "bn.",
+    "prompt": "Welk woord is het {type}?",
+    "countLabel": "Aantal vragen",
+    "nVragen": "{n} vragen",
+    "lastAttempts": "Laatste pogingen",
+    "startBtn": "Start oefening →",
+    "stopBtn": "✕ stop",
+    "correct": "✓ Goed!",
+    "wrong": "✗ Fout — het was: {ans}",
+    "outOf": "van de {n} goed",
+    "settingsBtn": "⚙ Instellingen",
+    "retryBtn": "↩ Opnieuw"
+  },
   "sidebar": {
     "home": "Terug naar Home",
     "language": "Taal",
@@ -221,6 +242,9 @@
     "offline": "offline beschikbaar",
     "conversieTitle": "Conversie",
     "conversieDesc": "Oefen omrekenen van maateenheden: lengte, oppervlakte, inhoud en gewicht.",
-    "favBadgeConversie": "Conversie"
+    "favBadgeConversie": "Conversie",
+    "grammaticaTitle": "Grammatica",
+    "grammaticaDesc": "Welk woord is een zelfstandig naamwoord, werkwoord of bijvoeglijk naamwoord? Oefen de woordsoorten!",
+    "favBadgeGrammatica": "Grammatica"
   }
 }

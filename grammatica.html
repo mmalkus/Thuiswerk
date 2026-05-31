@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="nl" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grammatica</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#c084fc">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Grammatica">
+<link rel="stylesheet" href="shared.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Unbounded:wght@400;700;900&display=swap');
+
+  :root {
+    --bg:       #0a0612;
+    --surface:  #130e24;
+    --surface2: #1a1530;
+    --border:   #2d2548;
+    --accent:   #c084fc;
+    --accent2:  #f472b6;
+    --text:     #f0f0f0;
+    --muted:    #9080a8;
+    --good:     #47ff8a;
+    --bad:      #ff4747;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 16px 0 40px;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 50% 0%, #1a0a2e 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .container {
+    width: 100%; max-width: 440px;
+    padding: 20px;
+    position: relative; z-index: 1;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    position: relative; overflow: hidden;
+  }
+  .card::after {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.4;
+  }
+
+  /* ── START SCREEN ── */
+  #startScreen .card { padding: 36px 28px 28px; }
+
+  .start-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 24px; padding-left: 28px;
+  }
+  .start-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 22px; font-weight: 900; line-height: 1.2;
+  }
+  .start-title span { color: var(--accent); }
+
+  .settings-toggle {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--muted);
+    font-size: 18px; cursor: pointer;
+    padding: 8px 12px;
+    transition: color 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+  .settings-toggle:hover { color: var(--accent); border-color: var(--accent); }
+  .settings-toggle.active { color: var(--accent); border-color: var(--accent); background: #1e1040; }
+
+  .settings-panel {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.35s ease;
+  }
+  .settings-panel.open { max-height: 300px; }
+
+  .settings-inner {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface2);
+    padding: 18px;
+    margin-bottom: 18px;
+  }
+
+  .settings-row { margin-bottom: 16px; }
+  .settings-row:last-child { margin-bottom: 0; }
+
+  .settings-label {
+    font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .op-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .op-chip {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--muted);
+    font-family: 'Unbounded', sans-serif; font-size: 13px; font-weight: 700;
+    padding: 8px 16px; cursor: pointer;
+    transition: all 0.15s; user-select: none;
+  }
+  .op-chip:hover { border-color: #504070; color: var(--text); }
+  .op-chip.selected { background: #1e1040; border-color: var(--accent); color: var(--accent); }
+
+  .history-strip { margin-bottom: 18px; }
+  .history-label {
+    font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 8px;
+  }
+  .history-bars { display: flex; gap: 5px; align-items: flex-end; height: 44px; }
+  .h-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .h-bar { width: 100%; border-radius: 3px 3px 0 0; min-height: 4px; transition: height 0.4s ease; }
+  .h-bar-label { font-size: 9px; color: var(--muted); text-align: center; }
+
+  .start-btn {
+    background: var(--accent); color: #000;
+    border: none; border-radius: 7px;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 14px; font-weight: 700;
+    padding: 16px; cursor: pointer;
+    width: 100%; letter-spacing: 0.04em;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .start-btn:hover  { opacity: 0.85; }
+  .start-btn:active { transform: scale(0.97); }
+
+  /* ── QUIZ SCREEN ── */
+  .quiz-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 16px; padding-left: 52px;
+  }
+  .quiz-title {
+    font-family: 'Unbounded', sans-serif; font-size: 10px;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted);
+  }
+  .progress-label { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; }
+
+  .question-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 28px 20px 24px;
+    margin-bottom: 12px; position: relative; overflow: hidden;
+  }
+  .question-card::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.4;
+  }
+
+  .word-prompt {
+    font-family: 'Unbounded', sans-serif; font-size: 13px; font-weight: 700;
+    text-align: center; color: var(--text); margin-bottom: 22px; line-height: 1.5;
+  }
+  .word-prompt .target-type { color: var(--accent); }
+
+  .word-choices { display: flex; flex-direction: column; gap: 10px; }
+
+  .word-btn {
+    background: var(--surface2); border: 2px solid var(--border);
+    border-radius: 10px; color: var(--text);
+    font-family: 'Unbounded', sans-serif; font-size: 20px; font-weight: 700;
+    padding: 18px; cursor: pointer; text-align: center;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s, opacity 0.2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .word-btn:hover:not(:disabled) { border-color: var(--accent); background: #1e1040; }
+  .word-btn:active:not(:disabled) { transform: scale(0.97); }
+  .word-btn.correct { border-color: var(--good); background: #0a1f10; color: var(--good); }
+  .word-btn.wrong   { border-color: var(--bad);  background: #1f0a0a; color: var(--bad);  }
+  .word-btn.dimmed  { opacity: 0.3; }
+  .word-btn:disabled { pointer-events: none; }
+
+  .feedback {
+    text-align: center; font-size: 12px; font-weight: 500;
+    height: 16px; color: var(--muted);
+    letter-spacing: 0.05em; transition: color 0.2s; margin-bottom: 12px;
+  }
+
+  .dots { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
+  .dot {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--border);
+    transition: background 0.3s;
+  }
+  .dot.correct { background: var(--good); }
+  .dot.wrong   { background: var(--bad); }
+  .dot.active  { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+
+  /* ── RESULT SCREEN ── */
+  .result-card { padding: 32px 24px; }
+  .result-top {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .result-score {
+    font-family: 'Unbounded', sans-serif; font-size: 64px; font-weight: 900;
+    color: var(--accent); line-height: 1;
+  }
+  .result-meta { text-align: right; }
+  .result-label {
+    color: var(--muted); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+
+  .result-list {
+    list-style: none; max-height: 280px;
+    overflow-y: auto; margin-bottom: 20px;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  }
+  .result-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 10px; border-radius: 4px; margin-bottom: 4px; font-size: 12px;
+  }
+  .result-item.correct-row { background: #0a1f10; }
+  .result-item.wrong-row   { background: #1f0a0a; }
+  .ri-type {
+    color: var(--muted); font-size: 10px; text-transform: uppercase;
+    letter-spacing: 0.08em; min-width: 28px; flex-shrink: 0;
+  }
+  .ri-word { font-weight: 700; flex: 1; }
+  .ri-correct { color: var(--muted); font-size: 11px; }
+  .ri-icon { flex-shrink: 0; }
+
+  .result-btns { display: flex; gap: 8px; }
+  .btn-outline {
+    flex: 1; background: transparent; color: var(--accent);
+    border: 2px solid var(--accent); border-radius: 6px;
+    font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 700;
+    padding: 14px 8px; cursor: pointer; letter-spacing: 0.04em;
+    transition: background 0.15s, color 0.15s;
+  }
+  .btn-outline:hover { background: var(--accent); color: #000; }
+  .btn-solid {
+    flex: 1; background: var(--accent); color: #000;
+    border: 2px solid var(--accent); border-radius: 6px;
+    font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 700;
+    padding: 14px 8px; cursor: pointer; letter-spacing: 0.04em;
+    transition: opacity 0.15s;
+  }
+  .btn-solid:hover { opacity: 0.85; }
+
+  @keyframes pop-in {
+    0%   { transform: scale(0.93); opacity: 0; }
+    100% { transform: scale(1);    opacity: 1; }
+  }
+  .pop { animation: pop-in 0.2s ease-out; }
+
+  html[data-theme="light"] {
+    --bg:      #faf5ff;
+    --surface: #ffffff;
+    --surface2: #f3e8ff;
+    --border:  #e9d5ff;
+    --accent:  #9333ea;
+    --accent2: #db2777;
+    --text:    #1e0a3c;
+    --muted:   #7c3aed;
+    --good:    #16a34a;
+    --bad:     #dc2626;
+  }
+  html[data-theme="light"] body::before {
+    background: radial-gradient(ellipse 60% 50% at 50% 0%, #ede9fe 0%, transparent 70%);
+  }
+  html[data-theme="light"] .op-chip.selected { background: #f3e8ff; }
+  html[data-theme="light"] .settings-toggle.active { background: #f3e8ff; }
+  html[data-theme="light"] .word-btn:hover:not(:disabled) { background: #f3e8ff; }
+  html[data-theme="light"] .word-btn.correct { background: #f0fdf4; }
+  html[data-theme="light"] .word-btn.wrong   { background: #fef2f2; }
+  html[data-theme="light"] .result-item.correct-row { background: #f0fdf4; }
+  html[data-theme="light"] .result-item.wrong-row   { background: #fef2f2; }
+</style>
+<script>(function(){var t=localStorage.getItem('thuiswerk_theme');if(t)document.documentElement.dataset.theme=t;})();</script>
+</head>
+<body>
+<script>
+  window.THUISWERK_APP = {
+    id: 'grammatica',
+    theme: localStorage.getItem('thuiswerk_theme') || 'dark',
+    primaryColor: '#c084fc',
+    bgColor: '#0a0612',
+    textColor: '#f0f0f0',
+  };
+
+  window._i18n  = window._i18n  || {};
+  window._words = window._words || {};
+
+  window._initLang = (function () {
+    try {
+      var favId = new URLSearchParams(location.search).get('fav');
+      if (favId) {
+        var favs = JSON.parse(localStorage.getItem('thuiswerk_favorites') || '[]');
+        var fav  = favs.find(function (f) { return f.id === favId && f.app === 'grammatica'; });
+        if (fav && fav.settings && fav.settings.lang) return fav.settings.lang;
+      }
+    } catch (e) {}
+    return localStorage.getItem('thuiswerk_lang') || 'nl';
+  }());
+
+  function loadI18n(lc) {
+    return window._i18n[lc]
+      ? Promise.resolve(window._i18n[lc])
+      : fetch('i18n-' + lc + '.json').then(function (r) { return r.json(); })
+          .then(function (d) { window._i18n[lc] = d; return d; });
+  }
+
+  function loadWords(lc) {
+    return window._words[lc]
+      ? Promise.resolve(window._words[lc])
+      : fetch('grammatica-' + lc + '.json').then(function (r) { return r.json(); })
+          .then(function (d) { window._words[lc] = d; return d; });
+  }
+
+  window.APP_READY = Promise.all([loadI18n(window._initLang), loadWords(window._initLang)]);
+</script>
+
+<div class="container">
+
+  <!-- ══ START SCREEN ══ -->
+  <div class="screen active" id="startScreen">
+    <div class="card" style="padding:28px 24px 24px;">
+
+      <div class="start-top">
+        <div class="start-title">
+          <span id="startTitleText">📝 Grammatica</span><br>
+          <span id="startSubtitle" style="color:var(--muted);font-family:'DM Mono',monospace;font-size:13px;font-weight:400;">10 vragen</span>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+          <div class="lang-toggle-wrap" style="display:flex; gap:6px;">
+            <button class="lang-chip op-chip selected" data-lc="nl" onclick="switchLang('nl')" style="padding:6px 12px; font-size:12px;">NL</button>
+            <button class="lang-chip op-chip" data-lc="en" onclick="switchLang('en')" style="padding:6px 12px; font-size:12px;">EN</button>
+          </div>
+          <button class="settings-toggle" id="settingsToggle" onclick="toggleSettings()" title="Instellingen">⚙</button>
+        </div>
+      </div>
+
+      <div class="settings-panel" id="settingsPanel">
+        <div class="settings-inner">
+          <div class="settings-row">
+            <div class="settings-label" id="labelCount">Aantal vragen</div>
+            <div class="op-group">
+              <div class="op-chip" data-count="5"  onclick="setCount(5)">5</div>
+              <div class="op-chip selected" data-count="10" onclick="setCount(10)">10</div>
+              <div class="op-chip" data-count="15" onclick="setCount(15)">15</div>
+              <div class="op-chip" data-count="20" onclick="setCount(20)">20</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="history-strip" id="historyStrip" style="display:none;">
+        <div class="history-label" id="historyLabel">Laatste pogingen</div>
+        <div class="history-bars" id="historyBars"></div>
+      </div>
+
+      <button class="start-btn" id="startBtn" onclick="startQuiz()">Start oefening →</button>
+    </div>
+  </div>
+
+  <!-- ══ QUIZ SCREEN ══ -->
+  <div class="screen" id="quizScreen">
+    <div class="quiz-header">
+      <span class="quiz-title" id="quizTitleText">Grammatica</span>
+      <span class="progress-label" id="progressLabel">1 / 10</span>
+      <button id="stopBtn" onclick="stopQuiz()"
+        style="background:transparent;border:1px solid var(--border);border-radius:5px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;padding:4px 10px;cursor:pointer;transition:color .15s,border-color .15s;"
+        onmouseover="this.style.color='var(--bad)';this.style.borderColor='var(--bad)'"
+        onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--border)'">✕ stop</button>
+    </div>
+
+    <div class="question-card" id="questionCard">
+      <div class="word-prompt" id="wordPrompt"></div>
+      <div class="word-choices" id="wordChoices"></div>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+    <div class="dots" id="dots"></div>
+  </div>
+
+  <!-- ══ RESULT SCREEN ══ -->
+  <div class="screen" id="resultScreen">
+    <div class="card result-card">
+      <div class="result-top">
+        <div class="result-score" id="resultScore"></div>
+        <div class="result-meta">
+          <div class="result-label" id="resultLabel">van de 10 goed</div>
+        </div>
+      </div>
+      <ul class="result-list" id="resultList"></ul>
+      <div class="result-btns">
+        <button class="btn-outline" id="settingsResultBtn" onclick="resetQuiz()">⚙ Instellingen</button>
+        <button class="btn-solid"   id="retryBtn"          onclick="startQuiz()">↩ Opnieuw</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <a href="https://github.com/mmalkus/Thuiswerk" target="_blank">GitHub</a>
+    · MIT License © 2026 Maurits Malkus
+  </div>
+
+</div>
+
+<script>
+  // ── State ─────────────────────────────────────────────────────────────────────
+  let settings = { total: 10 };
+  let lang = window._initLang;
+  let questions = [], current = 0, score = 0, results = [];
+  let quizHistory = JSON.parse(localStorage.getItem('grammatica_history') || '[]');
+
+  // ── Helpers ───────────────────────────────────────────────────────────────────
+  function t(str, val) { return String(str).replace(/\{[^}]+\}/, val); }
+  function switchLang(lc) {
+    Promise.all([loadI18n(lc), loadWords(lc)]).then(function() { applyLanguage(lc); });
+  }
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // ── Settings ──────────────────────────────────────────────────────────────────
+  function setCount(n) {
+    settings.total = n;
+    document.querySelectorAll('.op-chip[data-count]').forEach(el => {
+      el.classList.toggle('selected', parseInt(el.dataset.count) === n);
+    });
+    updateStartSubtitle();
+  }
+
+  function toggleSettings() {
+    document.getElementById('settingsPanel').classList.toggle('open');
+    document.getElementById('settingsToggle').classList.toggle('active');
+  }
+
+  function updateStartSubtitle() {
+    const u = window._i18n[lang] && window._i18n[lang].grammatica;
+    if (!u) return;
+    document.getElementById('startSubtitle').textContent = t(u.nVragen, settings.total);
+  }
+
+  // ── Language ──────────────────────────────────────────────────────────────────
+  function applyLanguage(lc) {
+    lang = lc;
+    localStorage.setItem('thuiswerk_lang', lc);
+    document.getElementById('htmlRoot').lang = lc;
+    document.querySelectorAll('.lang-chip').forEach(c =>
+      c.classList.toggle('selected', c.dataset.lc === lc));
+    const u = window._i18n[lc] && window._i18n[lc].grammatica;
+    if (!u) return;
+    document.title = u.appTitle;
+    document.getElementById('startTitleText').textContent = u.appTitle;
+    document.getElementById('settingsToggle').title = u.settingsTitle;
+    document.getElementById('labelCount').textContent = u.countLabel;
+    document.getElementById('historyLabel').textContent = u.lastAttempts;
+    document.getElementById('startBtn').textContent = u.startBtn;
+    document.getElementById('quizTitleText').textContent = u.appTitle;
+    document.getElementById('stopBtn').textContent = u.stopBtn;
+    document.getElementById('settingsResultBtn').textContent = u.settingsBtn;
+    document.getElementById('retryBtn').textContent = u.retryBtn;
+    updateStartSubtitle();
+    if (questions.length > 0 && document.getElementById('quizScreen').classList.contains('active')) {
+      renderQuestion();
+    }
+  }
+
+  // ── Question generation ───────────────────────────────────────────────────────
+  function generateQuestions() {
+    const w = window._words[lang] || window._words.nl || {};
+    const nouns = shuffle([...w.noun]);
+    const verbs = shuffle([...w.verb]);
+    const adjs  = shuffle([...w.adj]);
+    const types = ['noun', 'verb', 'adj'];
+    return Array.from({ length: settings.total }, (_, i) => {
+      const targetType = types[Math.floor(Math.random() * 3)];
+      const noun = nouns[i % nouns.length];
+      const verb = verbs[i % verbs.length];
+      const adj  = adjs[i % adjs.length];
+      return {
+        targetType,
+        wordMap: { noun, verb, adj },
+        display: shuffle([
+          { word: noun, type: 'noun' },
+          { word: verb, type: 'verb' },
+          { word: adj,  type: 'adj'  }
+        ])
+      };
+    });
+  }
+
+  // ── Quiz rendering ────────────────────────────────────────────────────────────
+  function buildDots() {
+    const wrap = document.getElementById('dots');
+    wrap.innerHTML = '';
+    for (let i = 0; i < settings.total; i++) {
+      const d = document.createElement('div');
+      d.className = 'dot' + (i === 0 ? ' active' : '');
+      d.id = 'dot-' + i;
+      wrap.appendChild(d);
+    }
+  }
+
+  function updateDot(idx, cls) {
+    const d = document.getElementById('dot-' + idx);
+    if (d) d.className = 'dot ' + cls;
+    const next = document.getElementById('dot-' + (idx + 1));
+    if (next) next.classList.add('active');
+  }
+
+  function renderQuestion() {
+    const q = questions[current];
+    const u = window._i18n[lang] && window._i18n[lang].grammatica;
+    if (!u) return;
+
+    const typeNames = { noun: u.nounName, verb: u.verbName, adj: u.adjName };
+    document.getElementById('wordPrompt').innerHTML =
+      u.prompt.replace('{type}', `<span class="target-type">${typeNames[q.targetType]}</span>`);
+    document.getElementById('progressLabel').textContent = `${current + 1} / ${settings.total}`;
+    document.getElementById('feedback').textContent = '';
+
+    const choices = document.getElementById('wordChoices');
+    choices.innerHTML = '';
+    q.display.forEach(item => {
+      const btn = document.createElement('button');
+      btn.className = 'word-btn';
+      btn.textContent = item.word;
+      btn.dataset.type = item.type;
+      btn.onclick = () => handleAnswer(item.type, item.word);
+      choices.appendChild(btn);
+    });
+
+    const card = document.getElementById('questionCard');
+    card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop');
+  }
+
+  function handleAnswer(chosenType, chosenWord) {
+    const q = questions[current];
+    const correct = chosenType === q.targetType;
+    const u = window._i18n[lang] && window._i18n[lang].grammatica;
+
+    document.querySelectorAll('.word-btn').forEach(btn => {
+      btn.disabled = true;
+      if (btn.dataset.type === q.targetType)                  btn.classList.add('correct');
+      else if (btn.dataset.type === chosenType && !correct)   btn.classList.add('wrong');
+      else                                                     btn.classList.add('dimmed');
+    });
+
+    results.push({ targetType: q.targetType, targetWord: q.wordMap[q.targetType], userWord: chosenWord, correct });
+
+    if (correct) {
+      score++;
+      setFeedback(u.correct, 'var(--good)');
+      updateDot(current, 'correct');
+    } else {
+      setFeedback(t(u.wrong, q.wordMap[q.targetType]), 'var(--bad)');
+      updateDot(current, 'wrong');
+    }
+
+    current++;
+    if (current >= settings.total) setTimeout(endQuiz, 700);
+    else setTimeout(renderQuestion, 700);
+  }
+
+  function setFeedback(msg, color) {
+    const el = document.getElementById('feedback');
+    el.textContent = msg; el.style.color = color;
+  }
+
+  // ── Quiz flow ─────────────────────────────────────────────────────────────────
+  function startQuiz() {
+    questions = generateQuestions();
+    current = 0; score = 0; results = [];
+    showScreen('quizScreen');
+    buildDots();
+    renderQuestion();
+  }
+
+  function endQuiz() {
+    quizHistory.push({ score, total: settings.total, date: Date.now() });
+    if (quizHistory.length > 10) quizHistory = quizHistory.slice(-10);
+    localStorage.setItem('grammatica_history', JSON.stringify(quizHistory));
+
+    showScreen('resultScreen');
+    const u = window._i18n[lang] && window._i18n[lang].grammatica;
+    document.getElementById('resultScore').textContent = score;
+    document.getElementById('resultLabel').textContent = t(u.outOf, settings.total);
+
+    const typeShorts = { noun: u.nounShort, verb: u.verbShort, adj: u.adjShort };
+    const list = document.getElementById('resultList');
+    list.innerHTML = '';
+    results.forEach(r => {
+      const li = document.createElement('li');
+      li.className = 'result-item ' + (r.correct ? 'correct-row' : 'wrong-row');
+      const extra = r.correct ? '' : `<span class="ri-correct">→ ${r.targetWord}</span>`;
+      li.innerHTML = `
+        <span class="ri-type">${typeShorts[r.targetType]}</span>
+        <span class="ri-word" style="color:${r.correct ? 'var(--good)' : 'var(--bad)'}">${r.userWord}</span>
+        ${extra}
+        <span class="ri-icon">${r.correct ? '✓' : '✗'}</span>
+      `;
+      list.appendChild(li);
+    });
+  }
+
+  function stopQuiz()  { showScreen('startScreen'); renderHistory(); }
+  function resetQuiz() { showScreen('startScreen'); renderHistory(); }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // ── History chart ─────────────────────────────────────────────────────────────
+  function renderHistory() {
+    const strip = document.getElementById('historyStrip');
+    const bars  = document.getElementById('historyBars');
+    if (quizHistory.length === 0) { strip.style.display = 'none'; return; }
+    strip.style.display = 'block';
+    bars.innerHTML = '';
+    quizHistory.forEach(h => {
+      const pct = (h.score / (h.total || 10)) * 100;
+      const color = pct >= 90 ? 'var(--good)' : pct >= 60 ? 'var(--accent)' : 'var(--bad)';
+      const wrap = document.createElement('div');
+      wrap.className = 'h-bar-wrap';
+      wrap.innerHTML = `
+        <div class="h-bar" style="height:${Math.max(4, pct * 0.36)}px; background:${color};"></div>
+        <div class="h-bar-label">${h.score}</div>
+      `;
+      bars.appendChild(wrap);
+    });
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────────
+  const savedSettings = JSON.parse(localStorage.getItem('grammatica_settings') || 'null');
+  if (savedSettings) Object.assign(settings, savedSettings);
+
+  (function () {
+    try {
+      const favId = new URLSearchParams(window.location.search).get('fav');
+      if (!favId) return;
+      const favs = JSON.parse(localStorage.getItem('thuiswerk_favorites') || '[]');
+      const fav = favs.find(f => f.id === favId && f.app === 'grammatica');
+      if (fav && fav.settings) {
+        const s = fav.settings;
+        if (s.lang) lang = s.lang;
+        Object.assign(settings, s);
+        delete settings.lang;
+      }
+    } catch(e) {}
+  })();
+
+  window.APP_READY.then(function() {
+    document.querySelectorAll('.op-chip[data-count]').forEach(el => {
+      el.classList.toggle('selected', parseInt(el.dataset.count) === settings.total);
+    });
+    applyLanguage(lang);
+    renderHistory();
+
+    window.addEventListener('thuiswerk:setLang', function (e) {
+      Promise.all([loadI18n(e.detail), loadWords(e.detail)]).then(function() { applyLanguage(e.detail); });
+    });
+
+    window.THUISWERK_APP.getSettings = function () {
+      localStorage.setItem('grammatica_settings', JSON.stringify(settings));
+      return Object.assign({ lang }, settings);
+    };
+    window.THUISWERK_APP.applySettings = function (s) {
+      if (s.lang) applyLanguage(s.lang);
+      const ns = Object.assign({}, s); delete ns.lang;
+      Object.assign(settings, ns);
+      if (s.total) setCount(s.total);
+      localStorage.setItem('grammatica_settings', JSON.stringify(settings));
+    };
+  });
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+</script>
+<script src="sidebar.js"></script>
+</body>
+</html>

@@ -40,6 +40,10 @@
     --conv-card:     #0c1e28;
     --conv-accent:   #47e8ff;
     --conv-text:     #d0f8ff;
+    --gram-bg:       #0a0612;
+    --gram-card:     #130e24;
+    --gram-accent:   #c084fc;
+    --gram-text:     #e9d5ff;
   }
 
   html, body {
@@ -416,6 +420,32 @@
     border-bottom: 1px solid #ffd0a0;
   }
 
+  /* Grammatica card — purple */
+  .card-gram {
+    background: var(--gram-bg);
+    color: var(--gram-text);
+  }
+  .card-gram .card-header {
+    background: var(--gram-card);
+    border-bottom: 1px solid #2d2548;
+  }
+  .card-gram .tag {
+    background: var(--gram-accent);
+    color: #000;
+  }
+  .card-gram .arrow {
+    color: var(--gram-accent);
+  }
+
+  html[data-theme="light"] .card-gram {
+    background: #faf5ff;
+    color: #2e1065;
+  }
+  html[data-theme="light"] .card-gram .card-header {
+    background: #f3e8ff;
+    border-bottom: 1px solid #e9d5ff;
+  }
+
   html[data-theme="light"] .card-conversie {
     background: #e0f9ff;
     color: #042029;
@@ -492,6 +522,20 @@
     </div>
   </a>
 
+  <a href="grammatica.html" class="card card-gram">
+    <div class="card-header">
+      <span class="emoji">📝</span>
+      <span class="card-title" id="home-gram-title">Grammatica</span>
+    </div>
+    <div class="card-body">
+      <p class="card-desc" id="home-gram-desc">Welk woord is een zelfstandig naamwoord, werkwoord of bijvoeglijk naamwoord? Oefen de woordsoorten!</p>
+      <div class="card-footer">
+        <span class="tag">NL · EN</span>
+        <span class="arrow">→</span>
+      </div>
+    </div>
+  </a>
+
   <a href="woordflits.html" class="card card-flash">
     <div class="card-header">
       <span class="emoji">⚡</span>
@@ -560,6 +604,8 @@
     document.getElementById('home-flash-desc').textContent       = h.flashDesc;
     document.getElementById('home-conversie-title').textContent  = h.conversieTitle;
     document.getElementById('home-conversie-desc').textContent   = h.conversieDesc;
+    document.getElementById('home-gram-title').textContent       = h.grammaticaTitle;
+    document.getElementById('home-gram-desc').textContent        = h.grammaticaDesc;
     document.getElementById('fav-heading').textContent        = '⭐ ' + h.favsHeading;
     document.getElementById('install-btn').textContent        = h.installBtn;
     document.getElementById('home-offline').textContent       = h.offline;
@@ -591,8 +637,8 @@
     if (favs.length === 0) { section.style.display = 'none'; return; }
     section.style.display = 'flex';
     list.innerHTML = favs.map(f => {
-      const icon  = f.app === 'dictee' ? '📝' : f.app === 'topo' ? '🗺️' : f.app === 'woordflits' ? '⚡' : f.app === 'conversie' ? '📐' : '🔢';
-      const page  = f.app === 'dictee' ? 'dictee.html' : f.app === 'topo' ? 'topografie.html' : f.app === 'woordflits' ? 'woordflits.html' : f.app === 'conversie' ? 'conversie.html' : 'rekentoets.html';
+      const icon  = f.app === 'dictee' ? '📝' : f.app === 'topo' ? '🗺️' : f.app === 'woordflits' ? '⚡' : f.app === 'conversie' ? '📐' : f.app === 'grammatica' ? '📝' : '🔢';
+      const page  = f.app === 'dictee' ? 'dictee.html' : f.app === 'topo' ? 'topografie.html' : f.app === 'woordflits' ? 'woordflits.html' : f.app === 'conversie' ? 'conversie.html' : f.app === 'grammatica' ? 'grammatica.html' : 'rekentoets.html';
       const url   = page + '?fav=' + f.id;
       const delTitle = h ? h.favDelete : 'Verwijder';
       const badge = f.app === 'dictee'
@@ -603,6 +649,8 @@
         ? `<span class="fav-badge" style="background:#ff8c42;color:#000">${h ? h.favBadgeFlits : 'Flits'}</span>`
         : f.app === 'conversie'
         ? `<span class="fav-badge" style="background:#47e8ff;color:#000">${h ? h.favBadgeConversie : 'Conversie'}</span>`
+        : f.app === 'grammatica'
+        ? `<span class="fav-badge" style="background:#c084fc;color:#000">${h ? h.favBadgeGrammatica : 'Grammatica'}</span>`
         : `<span class="fav-badge" style="background:#e8ff47;color:#000">${h ? h.favBadgeReken : 'Rekenen'}</span>`;
       return `<div class="fav-item">
         <a href="${url}" class="fav-link">
