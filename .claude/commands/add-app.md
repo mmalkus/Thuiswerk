@@ -38,7 +38,44 @@ window.THUISWERK_APP = {
 
 Add sidebar clearance padding to the quiz header (`padding-left`) — see the sidebar button layout section in CLAUDE.md.
 
-### 2. Add i18n entries
+### 2. Create word/data list files (if the app uses word or item data)
+
+If the app draws on a set of words or items (vocabulary, grammar words, quiz content, etc.), store that data in **separate JSON files** — one per language — rather than inlining it in the HTML. Follow the Woordflits / Grammatica pattern:
+
+**File naming:** `{id}-nl.json`, `{id}-en.json` (or a single `{id}-data.json` for language-agnostic data)
+
+**Loading:** add a `loadWords` function alongside `loadI18n`, cache in `window._words[lc]`, and fetch both in parallel before the app starts:
+
+```javascript
+window._words = window._words || {};
+
+function loadWords(lc) {
+  return window._words[lc]
+    ? Promise.resolve(window._words[lc])
+    : fetch('{id}-' + lc + '.json').then(r => r.json())
+        .then(d => { window._words[lc] = d; return d; });
+}
+
+window.APP_READY = Promise.all([loadI18n(window._initLang), loadWords(window._initLang)]);
+```
+
+Also call `loadWords` whenever the language switches:
+```javascript
+function switchLang(lc) {
+  Promise.all([loadI18n(lc), loadWords(lc)]).then(() => applyLanguage(lc));
+}
+// and in the thuiswerk:setLang event listener
+```
+
+Register the data files in `sw.js`:
+```
+'/Thuiswerk/{id}-nl.json',
+'/Thuiswerk/{id}-en.json',
+```
+
+If the app has **no language-specific word data** (e.g., a pure maths or conversion app), skip this step entirely.
+
+### 4. Add i18n entries
 
 In **both** `i18n-nl.json` and `i18n-en.json`, add a top-level key `"{id}"` with at minimum:
 ```json
@@ -48,19 +85,19 @@ In **both** `i18n-nl.json` and `i18n-en.json`, add a top-level key `"{id}"` with
 ```
 Add any further strings the app needs (button labels, instructions, etc.).
 
-### 3. Register in `sw.js`
+### 5. Register in `sw.js`
 
-Add `'/Thuiswerk/{id}.html'` to the `ASSETS` array.
+Add `'/Thuiswerk/{id}.html'` to the `ASSETS` array (word list files are handled in step 2 if applicable).
 
-### 4. Add a launcher card in `index.html`
+### 6. Add a launcher card in `index.html`
 
 Follow the pattern of existing cards. Include a link to `{id}.html` and a short description.
 
-### 5. Update `manifest.json` (optional)
+### 7. Update `manifest.json` (optional)
 
 Add a shortcut entry if the app should be launchable directly from the PWA icon.
 
-### 6. Update `README.md`
+### 8. Update `README.md`
 
 Add an entry for the new app under the **Apps** section, following the pattern of the existing entries:
 
@@ -69,7 +106,7 @@ Add an entry for the new app under the **Apps** section, following the pattern o
 One or two sentences describing what the app practises, what settings are available, and any notable features.
 ```
 
-### 7. Verify
+### 9. Verify
 
 - Open the app in a browser and check the setup screen renders correctly.
 - Toggle dark/light theme via the sidebar and confirm colors update.

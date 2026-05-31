@@ -22,6 +22,8 @@ const ASSETS = [
   '/Thuiswerk/topo-physical.json',
   '/Thuiswerk/wordflits-nl.json',
   '/Thuiswerk/wordflits-en.json',
+  '/Thuiswerk/grammatica-nl.json',
+  '/Thuiswerk/grammatica-en.json',
 ];
 
 self.addEventListener('install', e => {

@@ -302,7 +302,8 @@
     textColor: '#f0f0f0',
   };
 
-  window._i18n = window._i18n || {};
+  window._i18n  = window._i18n  || {};
+  window._words = window._words || {};
 
   window._initLang = (function () {
     try {
@@ -323,7 +324,14 @@
           .then(function (d) { window._i18n[lc] = d; return d; });
   }
 
-  window.APP_READY = loadI18n(window._initLang);
+  function loadWords(lc) {
+    return window._words[lc]
+      ? Promise.resolve(window._words[lc])
+      : fetch('grammatica-' + lc + '.json').then(function (r) { return r.json(); })
+          .then(function (d) { window._words[lc] = d; return d; });
+  }
+
+  window.APP_READY = Promise.all([loadI18n(window._initLang), loadWords(window._initLang)]);
 </script>
 
 <div class="container">
@@ -414,20 +422,6 @@
 </div>
 
 <script>
-  // ── Word lists ────────────────────────────────────────────────────────────────
-  const WORDS = {
-    nl: {
-      noun: ['hond','kat','huis','boom','fiets','school','kind','tafel','boek','stoel','water','brood','stad','zon','maan','ster','vis','vogel','regen','wind','deur','raam','tuin','auto','trein'],
-      verb: ['lopen','springen','eten','drinken','slapen','spelen','lachen','lezen','schrijven','rennen','zwemmen','zingen','dansen','koken','rijden','vliegen','bouwen','groeien','vallen','werken','kijken','horen','roepen','trekken','duwen'],
-      adj:  ['groot','klein','mooi','snel','langzaam','warm','koud','oud','nieuw','blij','slim','sterk','zacht','hard','hoog','laag','vrolijk','stil','dik','dun','nat','droog','licht','donker','schoon']
-    },
-    en: {
-      noun: ['dog','cat','house','tree','bike','school','child','table','book','chair','water','bread','city','sun','moon','star','fish','bird','rain','wind','door','window','garden','car','train'],
-      verb: ['walk','jump','eat','drink','sleep','play','laugh','read','write','run','swim','sing','dance','cook','drive','fly','build','grow','fall','work','watch','hear','call','pull','push'],
-      adj:  ['big','small','beautiful','fast','slow','warm','cold','old','new','happy','smart','strong','soft','hard','high','low','cheerful','quiet','thick','thin','wet','dry','light','dark','clean']
-    }
-  };
-
   // ── State ─────────────────────────────────────────────────────────────────────
   let settings = { total: 10 };
   let lang = window._initLang;
@@ -436,7 +430,9 @@
 
   // ── Helpers ───────────────────────────────────────────────────────────────────
   function t(str, val) { return String(str).replace(/\{[^}]+\}/, val); }
-  function switchLang(lc) { loadI18n(lc).then(function() { applyLanguage(lc); }); }
+  function switchLang(lc) {
+    Promise.all([loadI18n(lc), loadWords(lc)]).then(function() { applyLanguage(lc); });
+  }
 
   function shuffle(arr) {
     const a = [...arr];
@@ -494,7 +490,7 @@
 
   // ── Question generation ───────────────────────────────────────────────────────
   function generateQuestions() {
-    const w = WORDS[lang] || WORDS.nl;
+    const w = window._words[lang] || window._words.nl || {};
     const nouns = shuffle([...w.noun]);
     const verbs = shuffle([...w.verb]);
     const adjs  = shuffle([...w.adj]);
@@ -685,7 +681,7 @@
     renderHistory();
 
     window.addEventListener('thuiswerk:setLang', function (e) {
-      loadI18n(e.detail).then(function() { applyLanguage(e.detail); });
+      Promise.all([loadI18n(e.detail), loadWords(e.detail)]).then(function() { applyLanguage(e.detail); });
     });
 
     window.THUISWERK_APP.getSettings = function () {
