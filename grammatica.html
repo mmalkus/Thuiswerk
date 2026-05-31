@@ -96,7 +96,7 @@
     max-height: 0;
     transition: max-height 0.35s ease;
   }
-  .settings-panel.open { max-height: 300px; }
+  .settings-panel.open { max-height: 400px; }
 
   .settings-inner {
     border: 1px solid var(--border);
@@ -357,6 +357,14 @@
       <div class="settings-panel" id="settingsPanel">
         <div class="settings-inner">
           <div class="settings-row">
+            <div class="settings-label" id="labelTypes">Woordsoorten</div>
+            <div class="op-group">
+              <div class="op-chip selected" data-type="noun" id="chipNoun" onclick="toggleType(this)">zn.</div>
+              <div class="op-chip selected" data-type="verb" id="chipVerb" onclick="toggleType(this)">ww.</div>
+              <div class="op-chip selected" data-type="adj"  id="chipAdj"  onclick="toggleType(this)">bn.</div>
+            </div>
+          </div>
+          <div class="settings-row">
             <div class="settings-label" id="labelCount">Aantal vragen</div>
             <div class="op-group">
               <div class="op-chip" data-count="5"  onclick="setCount(5)">5</div>
@@ -423,7 +431,7 @@
 
 <script>
   // ── State ─────────────────────────────────────────────────────────────────────
-  let settings = { total: 10 };
+  let settings = { total: 10, types: ['noun', 'verb', 'adj'] };
   let lang = window._initLang;
   let questions = [], current = 0, score = 0, results = [];
   let quizHistory = JSON.parse(localStorage.getItem('grammatica_history') || '[]');
@@ -452,6 +460,17 @@
     updateStartSubtitle();
   }
 
+  function toggleType(el) {
+    const type = el.dataset.type;
+    const isOn = settings.types.includes(type);
+    if (isOn && settings.types.length <= 1) return;
+    settings.types = isOn
+      ? settings.types.filter(t => t !== type)
+      : [...settings.types, type];
+    el.classList.toggle('selected', !isOn);
+    updateStartSubtitle();
+  }
+
   function toggleSettings() {
     document.getElementById('settingsPanel').classList.toggle('open');
     document.getElementById('settingsToggle').classList.toggle('active');
@@ -460,7 +479,10 @@
   function updateStartSubtitle() {
     const u = window._i18n[lang] && window._i18n[lang].grammatica;
     if (!u) return;
-    document.getElementById('startSubtitle').textContent = t(u.nVragen, settings.total);
+    const types = settings.types && settings.types.length ? settings.types : ['noun', 'verb', 'adj'];
+    const shorts = { noun: u.nounShort, verb: u.verbShort, adj: u.adjShort };
+    const typesStr = types.map(tp => shorts[tp]).join(' · ');
+    document.getElementById('startSubtitle').textContent = t(u.nVragen, settings.total) + '  ·  ' + typesStr;
   }
 
   // ── Language ──────────────────────────────────────────────────────────────────
@@ -475,6 +497,10 @@
     document.title = u.appTitle;
     document.getElementById('startTitleText').textContent = u.appTitle;
     document.getElementById('settingsToggle').title = u.settingsTitle;
+    document.getElementById('labelTypes').textContent = u.typesLabel;
+    document.getElementById('chipNoun').textContent = u.nounShort;
+    document.getElementById('chipVerb').textContent = u.verbShort;
+    document.getElementById('chipAdj').textContent  = u.adjShort;
     document.getElementById('labelCount').textContent = u.countLabel;
     document.getElementById('historyLabel').textContent = u.lastAttempts;
     document.getElementById('startBtn').textContent = u.startBtn;
@@ -494,9 +520,9 @@
     const nouns = shuffle([...w.noun]);
     const verbs = shuffle([...w.verb]);
     const adjs  = shuffle([...w.adj]);
-    const types = ['noun', 'verb', 'adj'];
+    const types = settings.types && settings.types.length ? settings.types : ['noun', 'verb', 'adj'];
     return Array.from({ length: settings.total }, (_, i) => {
-      const targetType = types[Math.floor(Math.random() * 3)];
+      const targetType = types[Math.floor(Math.random() * types.length)];
       const noun = nouns[i % nouns.length];
       const verb = verbs[i % verbs.length];
       const adj  = adjs[i % adjs.length];
@@ -677,6 +703,9 @@
     document.querySelectorAll('.op-chip[data-count]').forEach(el => {
       el.classList.toggle('selected', parseInt(el.dataset.count) === settings.total);
     });
+    document.querySelectorAll('.op-chip[data-type]').forEach(el => {
+      el.classList.toggle('selected', settings.types.includes(el.dataset.type));
+    });
     applyLanguage(lang);
     renderHistory();
 
@@ -693,6 +722,11 @@
       const ns = Object.assign({}, s); delete ns.lang;
       Object.assign(settings, ns);
       if (s.total) setCount(s.total);
+      if (s.types) {
+        document.querySelectorAll('.op-chip[data-type]').forEach(el => {
+          el.classList.toggle('selected', s.types.includes(el.dataset.type));
+        });
+      }
       localStorage.setItem('grammatica_settings', JSON.stringify(settings));
     };
   });

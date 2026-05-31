@@ -197,6 +197,7 @@
     "verbShort": "ww.",
     "adjShort": "bn.",
     "prompt": "Welk woord is het {type}?",
+    "typesLabel": "Woordsoorten",
     "countLabel": "Aantal vragen",
     "nVragen": "{n} vragen",
     "lastAttempts": "Laatste pogingen",
