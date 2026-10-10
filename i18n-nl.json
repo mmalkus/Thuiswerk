@@ -209,6 +209,40 @@
     "settingsBtn": "⚙ Instellingen",
     "retryBtn": "↩ Opnieuw"
   },
+  "sudoku": {
+    "appTitle": "🧩 Sudoku",
+    "subtitle": "Elk cijfer één keer per rij, kolom en blok",
+    "sizeLabel": "Formaat",
+    "size9": "9×9 Normaal",
+    "size6": "6×6 Mini",
+    "diffLabel": "Moeilijkheid",
+    "easy": "🙂 Makkelijk",
+    "medium": "😐 Gemiddeld",
+    "hard": "😈 Moeilijk",
+    "errorsLabel": "Fouten direct tonen",
+    "on": "✓ Aan",
+    "off": "✗ Uit",
+    "bestLabel": "Beste tijden (zonder hints)",
+    "startBtn": "Nieuwe puzzel →",
+    "continueBtn": "▶ Verder spelen",
+    "generating": "Puzzel maken…",
+    "gameTitle": "Sudoku",
+    "stopBtn": "✕ stop",
+    "undo": "Terug",
+    "erase": "Wissen",
+    "notes": "Notities",
+    "hint": "Hint",
+    "mistakes": "Fouten: {n}",
+    "selectCell": "Kies eerst een vakje",
+    "notSolved": "Nog niet goed — rode vakjes kloppen niet",
+    "solvedTitle": "🎉 Opgelost!",
+    "timeLabel": "Tijd",
+    "mistakesLabel": "Fouten",
+    "hintsLabel": "Hints",
+    "newRecord": "🏆 Nieuw record!",
+    "menuBtn": "⚙ Menu",
+    "againBtn": "↻ Nog een"
+  },
   "sidebar": {
     "home": "Terug naar Home",
     "language": "Taal",
@@ -246,6 +280,9 @@
     "favBadgeConversie": "Conversie",
     "grammaticaTitle": "Grammatica",
     "grammaticaDesc": "Welk woord is een zelfstandig naamwoord, werkwoord of bijvoeglijk naamwoord? Oefen de woordsoorten!",
-    "favBadgeGrammatica": "Grammatica"
+    "favBadgeGrammatica": "Grammatica",
+    "sudokuTitle": "Sudoku",
+    "sudokuDesc": "Logisch puzzelen: normale 9×9 sudoku of mini 6×6 met cijfers 1–6. Kies je moeilijkheid.",
+    "favBadgeSudoku": "Sudoku"
   }
 }

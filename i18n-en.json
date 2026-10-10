@@ -209,6 +209,40 @@
     "settingsBtn": "⚙ Settings",
     "retryBtn": "↩ Again"
   },
+  "sudoku": {
+    "appTitle": "🧩 Sudoku",
+    "subtitle": "Each number once per row, column and box",
+    "sizeLabel": "Size",
+    "size9": "9×9 Classic",
+    "size6": "6×6 Mini",
+    "diffLabel": "Difficulty",
+    "easy": "🙂 Easy",
+    "medium": "😐 Medium",
+    "hard": "😈 Hard",
+    "errorsLabel": "Show mistakes instantly",
+    "on": "✓ On",
+    "off": "✗ Off",
+    "bestLabel": "Best times (no hints)",
+    "startBtn": "New puzzle →",
+    "continueBtn": "▶ Continue",
+    "generating": "Making puzzle…",
+    "gameTitle": "Sudoku",
+    "stopBtn": "✕ stop",
+    "undo": "Undo",
+    "erase": "Erase",
+    "notes": "Notes",
+    "hint": "Hint",
+    "mistakes": "Mistakes: {n}",
+    "selectCell": "Pick a square first",
+    "notSolved": "Not quite — the red squares are wrong",
+    "solvedTitle": "🎉 Solved!",
+    "timeLabel": "Time",
+    "mistakesLabel": "Mistakes",
+    "hintsLabel": "Hints",
+    "newRecord": "🏆 New record!",
+    "menuBtn": "⚙ Menu",
+    "againBtn": "↻ Another"
+  },
   "sidebar": {
     "home": "Back to Home",
     "language": "Language",
@@ -246,6 +280,9 @@
     "favBadgeConversie": "Conversions",
     "grammaticaTitle": "Grammar",
     "grammaticaDesc": "Which word is a noun, verb or adjective? Practise the parts of speech!",
-    "favBadgeGrammatica": "Grammar"
+    "favBadgeGrammatica": "Grammar",
+    "sudokuTitle": "Sudoku",
+    "sudokuDesc": "Logic puzzles: classic 9×9 sudoku or mini 6×6 with numbers 1–6. Pick your difficulty.",
+    "favBadgeSudoku": "Sudoku"
   }
 }

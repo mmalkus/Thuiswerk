@@ -20,6 +20,7 @@ Thuiswerk/
 ├── dictee.html             # Spelling practice app
 ├── rekentoets.html         # Maths quiz app
 ├── topografie.html         # Geography game with SVG maps
+├── sudoku.html             # Sudoku (9×9 and 6×6 mini), puzzles generated client-side
 ├── sidebar.js              # Shared navigation, theme, language, favorites UI
 ├── shared.css              # Sidebar structural CSS + sidebar button positioning
 ├── sw.js                   # Service worker for offline caching
@@ -255,10 +256,14 @@ Outputs the four `topo-*.json` files from Natural Earth (world-atlas npm + Mapbo
 | `thuiswerk_theme` | `"dark" \| "light"` | All apps; set by sidebar |
 | `thuiswerk_favorites` | `[{ id, app, name, settings }, …]` | Sidebar; launched via `?fav={id}` |
 | `dictee_history` | `{ word: { correct, wrong }, … }` | Dictee only |
+| `sudoku_settings` | `{ size, difficulty, showErrors }` | Sudoku only |
+| `sudoku_game` | in-progress puzzle `{ size, puzzle, solution, values, notes, … }` | Sudoku only |
+| `sudoku_best` | `{ "9-easy": seconds, … }` (hint-free solves only) | Sudoku only |
 
 **Settings objects per app:**
 - **Rekentoets**: `{ min, max, ops: […], timerEnabled, timerSecs, answerCheckEnabled }`
 - **Topografie**: `{ mapId, mode: 'click'|'type', types: […], timerEnabled, timerSecs, questionCount }`
+- **Sudoku**: `{ size: 9|6, difficulty: 'easy'|'medium'|'hard', showErrors }`
 
 ---
 
