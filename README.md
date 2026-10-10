@@ -21,6 +21,9 @@ Arithmetic quiz with configurable number ranges, operators (+, −, ×, ÷), and
 ### 📐 Conversie (Unit Conversions)
 Metric unit conversion practice across four categories: distance (mm/cm/m/km), area (mm²/cm²/m²/ha/km²), volume (ml/cl/dl/l), and mass (mg/g/kg/t). Questions always have clean integer or simple decimal answers. Includes a decimal-point numpad key, configurable question count, optional timer, and score history.
 
+### 🧩 Sudoku
+Logic puzzle practice with freshly generated puzzles that always have exactly one solution. Choose classic 9×9 or mini 6×6 (numbers 1–6, boxes of 2×3) and easy, medium or hard. Includes pencil notes, undo, hints, optional instant mistake highlighting, an in-progress game you can continue later, and best times per size and difficulty.
+
 ---
 
 ## Install as app (PWA)

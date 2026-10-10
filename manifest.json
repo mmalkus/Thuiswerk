@@ -40,6 +40,13 @@
       "description": "Snel lezen oefenen",
       "url": "/Thuiswerk/woordflits.html",
       "icons": [{ "src": "icons/icon.png", "sizes": "1024x1024" }]
+    },
+    {
+      "name": "Sudoku",
+      "short_name": "Sudoku",
+      "description": "Sudoku puzzelen (9×9 of mini 6×6)",
+      "url": "/Thuiswerk/sudoku.html",
+      "icons": [{ "src": "icons/icon.png", "sizes": "1024x1024" }]
     }
   ]
 }

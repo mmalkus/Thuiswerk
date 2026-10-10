@@ -44,6 +44,10 @@
     --gram-card:     #130e24;
     --gram-accent:   #c084fc;
     --gram-text:     #e9d5ff;
+    --sudoku-bg:     #10060b;
+    --sudoku-card:   #1c0c15;
+    --sudoku-accent: #f472b6;
+    --sudoku-text:   #fce7f3;
   }
 
   html, body {
@@ -182,6 +186,23 @@
   }
   .card-conversie .arrow {
     color: var(--conv-accent);
+  }
+
+  /* Sudoku card — pink */
+  .card-sudoku {
+    background: var(--sudoku-bg);
+    color: var(--sudoku-text);
+  }
+  .card-sudoku .card-header {
+    background: var(--sudoku-card);
+    border-bottom: 1px solid #432036;
+  }
+  .card-sudoku .tag {
+    background: var(--sudoku-accent);
+    color: #000;
+  }
+  .card-sudoku .arrow {
+    color: var(--sudoku-accent);
   }
 
   /* Rekentoets card — dark */
@@ -454,6 +475,15 @@
     background: #c8f3ff;
     border-bottom: 1px solid #7dd8e8;
   }
+
+  html[data-theme="light"] .card-sudoku {
+    background: #fff0f6;
+    color: #3b0a20;
+  }
+  html[data-theme="light"] .card-sudoku .card-header {
+    background: #ffe4ef;
+    border-bottom: 1px solid #f6c4da;
+  }
 </style>
 <script>(function(){var t=localStorage.getItem('thuiswerk_theme');if(t)document.documentElement.dataset.theme=t;})();</script>
 </head>
@@ -536,6 +566,20 @@
     </div>
   </a>
 
+  <a href="sudoku.html" class="card card-sudoku">
+    <div class="card-header">
+      <span class="emoji">🧩</span>
+      <span class="card-title" id="home-sudoku-title">Sudoku</span>
+    </div>
+    <div class="card-body">
+      <p class="card-desc" id="home-sudoku-desc">Logisch puzzelen: normale 9×9 sudoku of mini 6×6 met cijfers 1–6. Kies je moeilijkheid.</p>
+      <div class="card-footer">
+        <span class="tag">9×9 · 6×6</span>
+        <span class="arrow">→</span>
+      </div>
+    </div>
+  </a>
+
   <a href="woordflits.html" class="card card-flash">
     <div class="card-header">
       <span class="emoji">⚡</span>
@@ -606,6 +650,8 @@
     document.getElementById('home-conversie-desc').textContent   = h.conversieDesc;
     document.getElementById('home-gram-title').textContent       = h.grammaticaTitle;
     document.getElementById('home-gram-desc').textContent        = h.grammaticaDesc;
+    document.getElementById('home-sudoku-title').textContent     = h.sudokuTitle;
+    document.getElementById('home-sudoku-desc').textContent      = h.sudokuDesc;
     document.getElementById('fav-heading').textContent        = '⭐ ' + h.favsHeading;
     document.getElementById('install-btn').textContent        = h.installBtn;
     document.getElementById('home-offline').textContent       = h.offline;
@@ -637,8 +683,8 @@
     if (favs.length === 0) { section.style.display = 'none'; return; }
     section.style.display = 'flex';
     list.innerHTML = favs.map(f => {
-      const icon  = f.app === 'dictee' ? '📝' : f.app === 'topo' ? '🗺️' : f.app === 'woordflits' ? '⚡' : f.app === 'conversie' ? '📐' : f.app === 'grammatica' ? '📝' : '🔢';
-      const page  = f.app === 'dictee' ? 'dictee.html' : f.app === 'topo' ? 'topografie.html' : f.app === 'woordflits' ? 'woordflits.html' : f.app === 'conversie' ? 'conversie.html' : f.app === 'grammatica' ? 'grammatica.html' : 'rekentoets.html';
+      const icon  = f.app === 'dictee' ? '📝' : f.app === 'topo' ? '🗺️' : f.app === 'woordflits' ? '⚡' : f.app === 'conversie' ? '📐' : f.app === 'grammatica' ? '📝' : f.app === 'sudoku' ? '🧩' : '🔢';
+      const page  = f.app === 'dictee' ? 'dictee.html' : f.app === 'topo' ? 'topografie.html' : f.app === 'woordflits' ? 'woordflits.html' : f.app === 'conversie' ? 'conversie.html' : f.app === 'grammatica' ? 'grammatica.html' : f.app === 'sudoku' ? 'sudoku.html' : 'rekentoets.html';
       const url   = page + '?fav=' + f.id;
       const delTitle = h ? h.favDelete : 'Verwijder';
       const badge = f.app === 'dictee'
@@ -651,6 +697,8 @@
         ? `<span class="fav-badge" style="background:#47e8ff;color:#000">${h ? h.favBadgeConversie : 'Conversie'}</span>`
         : f.app === 'grammatica'
         ? `<span class="fav-badge" style="background:#c084fc;color:#000">${h ? h.favBadgeGrammatica : 'Grammatica'}</span>`
+        : f.app === 'sudoku'
+        ? `<span class="fav-badge" style="background:#f472b6;color:#000">${h ? h.favBadgeSudoku : 'Sudoku'}</span>`
         : `<span class="fav-badge" style="background:#e8ff47;color:#000">${h ? h.favBadgeReken : 'Rekenen'}</span>`;
       return `<div class="fav-item">
         <a href="${url}" class="fav-link">
