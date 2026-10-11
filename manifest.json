@@ -47,6 +47,13 @@
       "description": "Sudoku puzzelen (9×9 of mini 6×6)",
       "url": "/Thuiswerk/sudoku.html",
       "icons": [{ "src": "icons/icon.png", "sizes": "1024x1024" }]
+    },
+    {
+      "name": "Queens",
+      "short_name": "Queens",
+      "description": "Koninginnen-puzzel op een kleurenbord",
+      "url": "/Thuiswerk/queens.html",
+      "icons": [{ "src": "icons/icon.png", "sizes": "1024x1024" }]
     }
   ]
 }
