@@ -244,7 +244,7 @@
     "againBtn": "↻ Nog een"
   },
   "queens": {
-    "appTitle": "👑 Queens",
+    "appTitle": "👑 Koninginnen",
     "subtitle": "Zet in elke rij, kolom en kleur één koningin",
     "rule1": "Precies <b>één 👑</b> per rij, per kolom en per kleurvlak.",
     "rule2": "Koninginnen mogen elkaar <b>niet raken</b>, ook niet schuin.",
@@ -257,7 +257,7 @@
     "startBtn": "Nieuwe puzzel →",
     "continueBtn": "▶ Verder spelen",
     "generating": "Puzzel maken…",
-    "gameTitle": "Queens",
+    "gameTitle": "Koninginnen",
     "stopBtn": "✕ stop",
     "undo": "Terug",
     "clear": "Leegmaken",
@@ -313,8 +313,8 @@
     "sudokuTitle": "Sudoku",
     "sudokuDesc": "Logisch puzzelen: normale 9×9 sudoku of mini 6×6 met cijfers 1–6. Kies je moeilijkheid.",
     "favBadgeSudoku": "Sudoku",
-    "queensTitle": "Queens",
+    "queensTitle": "Koninginnen",
     "queensDesc": "Zet koninginnen op het kleurenbord: één per rij, kolom en kleur, en ze mogen elkaar niet raken.",
-    "favBadgeQueens": "Queens"
+    "favBadgeQueens": "Koninginnen"
   }
 }

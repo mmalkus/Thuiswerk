@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Queens</title>
+<title>Koninginnen</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#fbbf24">
 <meta name="mobile-web-app-capable" content="yes">
@@ -164,6 +164,9 @@
     background: var(--line); border: 3px solid var(--line);
     border-radius: 8px; overflow: hidden; margin-bottom: 8px;
   }
+  /* Double-tapping a cell (✕ → 👑) must never zoom the page; pinch-zoom stays. */
+  html, body { touch-action: manipulation; }
+
   .board {
     display: grid; width: 100%; aspect-ratio: 1 / 1;
     user-select: none; -webkit-user-select: none;
@@ -305,7 +308,7 @@
 
       <div class="start-top">
         <div class="start-title">
-          <span id="startTitleText">👑 Queens</span><br>
+          <span id="startTitleText">👑 Koninginnen</span><br>
           <span id="startSubtitle" style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace;">Zet in elke rij, kolom en kleur één koningin</span>
         </div>
         <div style="display:flex; gap:6px; flex-shrink:0;">
@@ -355,7 +358,7 @@
   <!-- ══ GAME SCREEN ══ -->
   <div class="screen" id="gameScreen">
     <div class="game-header">
-      <span class="game-title" id="gameTitle">Queens</span>
+      <span class="game-title" id="gameTitle">Koninginnen</span>
       <span class="game-timer" id="gameTimer">0:00</span>
       <button class="stop-btn" id="stopBtn" onclick="stopGame()">✕ stop</button>
     </div>
@@ -778,6 +781,12 @@
     afterMove();
   });
   window.addEventListener('pointercancel', () => { drag = null; });
+
+  // iOS Safari can still double-tap-zoom despite touch-action; cancelling the
+  // touch end only drops the emulated mouse/click events (the board uses
+  // pointer events), and dblclick is blocked for desktop/trackpad zoom.
+  boardEl.addEventListener('touchend', e => { e.preventDefault(); }, { passive: false });
+  document.addEventListener('dblclick', e => { e.preventDefault(); });
 
   function undo() {
     if (!game || game.done || !undoStack.length) return;
