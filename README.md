@@ -24,6 +24,9 @@ Metric unit conversion practice across four categories: distance (mm/cm/m/km), a
 ### 🧩 Sudoku
 Logic puzzle practice with freshly generated puzzles that always have exactly one solution. Choose classic 9×9 or mini 6×6 (numbers 1–6, boxes of 2×3) and easy, medium or hard. Includes pencil notes, undo, hints, optional instant mistake highlighting, an in-progress game you can continue later, and best times per size and difficulty.
 
+### 👑 Queens
+The colour-region logic puzzle known from LinkedIn: place exactly one queen in every row, column and colour region, with no two queens touching (not even diagonally). Puzzles from 5×5 to 9×9 are generated on the fly and always have exactly one solution. Tap once for a ✕ and twice for a queen, or drag to mark several cells. Includes optional auto-crosses, clash highlighting, undo, hints, an in-progress game you can continue later, and best times per size.
+
 ---
 
 ## Install as app (PWA)

@@ -48,6 +48,10 @@
     --sudoku-card:   #1c0c15;
     --sudoku-accent: #f472b6;
     --sudoku-text:   #fce7f3;
+    --queens-bg:     #0e0a02;
+    --queens-card:   #1a1405;
+    --queens-accent: #fbbf24;
+    --queens-text:   #fef3c7;
   }
 
   html, body {
@@ -203,6 +207,23 @@
   }
   .card-sudoku .arrow {
     color: var(--sudoku-accent);
+  }
+
+  /* Queens card — gold */
+  .card-queens {
+    background: var(--queens-bg);
+    color: var(--queens-text);
+  }
+  .card-queens .card-header {
+    background: var(--queens-card);
+    border-bottom: 1px solid #3d2f0f;
+  }
+  .card-queens .tag {
+    background: var(--queens-accent);
+    color: #000;
+  }
+  .card-queens .arrow {
+    color: var(--queens-accent);
   }
 
   /* Rekentoets card — dark */
@@ -484,6 +505,15 @@
     background: #ffe4ef;
     border-bottom: 1px solid #f6c4da;
   }
+
+  html[data-theme="light"] .card-queens {
+    background: #fffbeb;
+    color: #3b2405;
+  }
+  html[data-theme="light"] .card-queens .card-header {
+    background: #fef3c7;
+    border-bottom: 1px solid #fcd98a;
+  }
 </style>
 <script>(function(){var t=localStorage.getItem('thuiswerk_theme');if(t)document.documentElement.dataset.theme=t;})();</script>
 </head>
@@ -580,6 +610,20 @@
     </div>
   </a>
 
+  <a href="queens.html" class="card card-queens">
+    <div class="card-header">
+      <span class="emoji">👑</span>
+      <span class="card-title" id="home-queens-title">Queens</span>
+    </div>
+    <div class="card-body">
+      <p class="card-desc" id="home-queens-desc">Zet koninginnen op het kleurenbord: één per rij, kolom en kleur, en ze mogen elkaar niet raken.</p>
+      <div class="card-footer">
+        <span class="tag">5×5 – 9×9</span>
+        <span class="arrow">→</span>
+      </div>
+    </div>
+  </a>
+
   <a href="woordflits.html" class="card card-flash">
     <div class="card-header">
       <span class="emoji">⚡</span>
@@ -652,6 +696,8 @@
     document.getElementById('home-gram-desc').textContent        = h.grammaticaDesc;
     document.getElementById('home-sudoku-title').textContent     = h.sudokuTitle;
     document.getElementById('home-sudoku-desc').textContent      = h.sudokuDesc;
+    document.getElementById('home-queens-title').textContent     = h.queensTitle;
+    document.getElementById('home-queens-desc').textContent      = h.queensDesc;
     document.getElementById('fav-heading').textContent        = '⭐ ' + h.favsHeading;
     document.getElementById('install-btn').textContent        = h.installBtn;
     document.getElementById('home-offline').textContent       = h.offline;
@@ -683,8 +729,8 @@
     if (favs.length === 0) { section.style.display = 'none'; return; }
     section.style.display = 'flex';
     list.innerHTML = favs.map(f => {
-      const icon  = f.app === 'dictee' ? '📝' : f.app === 'topo' ? '🗺️' : f.app === 'woordflits' ? '⚡' : f.app === 'conversie' ? '📐' : f.app === 'grammatica' ? '📝' : f.app === 'sudoku' ? '🧩' : '🔢';
-      const page  = f.app === 'dictee' ? 'dictee.html' : f.app === 'topo' ? 'topografie.html' : f.app === 'woordflits' ? 'woordflits.html' : f.app === 'conversie' ? 'conversie.html' : f.app === 'grammatica' ? 'grammatica.html' : f.app === 'sudoku' ? 'sudoku.html' : 'rekentoets.html';
+      const icon  = f.app === 'dictee' ? '📝' : f.app === 'topo' ? '🗺️' : f.app === 'woordflits' ? '⚡' : f.app === 'conversie' ? '📐' : f.app === 'grammatica' ? '📝' : f.app === 'sudoku' ? '🧩' : f.app === 'queens' ? '👑' : '🔢';
+      const page  = f.app === 'dictee' ? 'dictee.html' : f.app === 'topo' ? 'topografie.html' : f.app === 'woordflits' ? 'woordflits.html' : f.app === 'conversie' ? 'conversie.html' : f.app === 'grammatica' ? 'grammatica.html' : f.app === 'sudoku' ? 'sudoku.html' : f.app === 'queens' ? 'queens.html' : 'rekentoets.html';
       const url   = page + '?fav=' + f.id;
       const delTitle = h ? h.favDelete : 'Verwijder';
       const badge = f.app === 'dictee'
@@ -699,6 +745,8 @@
         ? `<span class="fav-badge" style="background:#c084fc;color:#000">${h ? h.favBadgeGrammatica : 'Grammatica'}</span>`
         : f.app === 'sudoku'
         ? `<span class="fav-badge" style="background:#f472b6;color:#000">${h ? h.favBadgeSudoku : 'Sudoku'}</span>`
+        : f.app === 'queens'
+        ? `<span class="fav-badge" style="background:#fbbf24;color:#000">${h ? h.favBadgeQueens : 'Queens'}</span>`
         : `<span class="fav-badge" style="background:#e8ff47;color:#000">${h ? h.favBadgeReken : 'Rekenen'}</span>`;
       return `<div class="fav-item">
         <a href="${url}" class="fav-link">

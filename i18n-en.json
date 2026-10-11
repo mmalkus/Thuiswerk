@@ -243,6 +243,35 @@
     "menuBtn": "⚙ Menu",
     "againBtn": "↻ Another"
   },
+  "queens": {
+    "appTitle": "👑 Queens",
+    "subtitle": "One queen in every row, column and colour",
+    "rule1": "Exactly <b>one 👑</b> in each row, each column and each colour region.",
+    "rule2": "Queens may <b>not touch</b> each other, not even diagonally.",
+    "sizeLabel": "Size",
+    "autoXLabel": "Auto-place crosses",
+    "errorsLabel": "Show clashes instantly",
+    "on": "✓ On",
+    "off": "✗ Off",
+    "bestLabel": "Best times (no hints)",
+    "startBtn": "New puzzle →",
+    "continueBtn": "▶ Continue",
+    "generating": "Making puzzle…",
+    "gameTitle": "Queens",
+    "stopBtn": "✕ stop",
+    "undo": "Undo",
+    "clear": "Clear",
+    "hint": "Hint",
+    "howto": "Tap once for ✕, twice for 👑. Drag to place several ✕.",
+    "hintWrong": "That queen was in the wrong place",
+    "notSolved": "Not quite — the red queens clash",
+    "solvedTitle": "🎉 Solved!",
+    "timeLabel": "Time",
+    "hintsLabel": "Hints",
+    "newRecord": "🏆 New record!",
+    "menuBtn": "⚙ Menu",
+    "againBtn": "↻ Another"
+  },
   "sidebar": {
     "home": "Back to Home",
     "language": "Language",
@@ -283,6 +312,9 @@
     "favBadgeGrammatica": "Grammar",
     "sudokuTitle": "Sudoku",
     "sudokuDesc": "Logic puzzles: classic 9×9 sudoku or mini 6×6 with numbers 1–6. Pick your difficulty.",
-    "favBadgeSudoku": "Sudoku"
+    "favBadgeSudoku": "Sudoku",
+    "queensTitle": "Queens",
+    "queensDesc": "Place queens on the colour board: one per row, column and colour, and they may not touch.",
+    "favBadgeQueens": "Queens"
   }
 }

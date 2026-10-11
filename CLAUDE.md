@@ -21,6 +21,7 @@ Thuiswerk/
 ├── rekentoets.html         # Maths quiz app
 ├── topografie.html         # Geography game with SVG maps
 ├── sudoku.html             # Sudoku (9×9 and 6×6 mini), puzzles generated client-side
+├── queens.html             # Queens (LinkedIn-style colour-region puzzle), generated client-side
 ├── sidebar.js              # Shared navigation, theme, language, favorites UI
 ├── shared.css              # Sidebar structural CSS + sidebar button positioning
 ├── sw.js                   # Service worker for offline caching
@@ -259,11 +260,15 @@ Outputs the four `topo-*.json` files from Natural Earth (world-atlas npm + Mapbo
 | `sudoku_settings` | `{ size, difficulty, showErrors }` | Sudoku only |
 | `sudoku_game` | in-progress puzzle `{ size, puzzle, solution, values, notes, … }` | Sudoku only |
 | `sudoku_best` | `{ "9-easy": seconds, … }` (hint-free solves only) | Sudoku only |
+| `queens_settings` | `{ size, autoX, showErrors }` | Queens only |
+| `queens_game` | in-progress puzzle `{ size, regions, solution, cells, … }` | Queens only |
+| `queens_best` | `{ "7": seconds, … }` (hint-free solves only) | Queens only |
 
 **Settings objects per app:**
 - **Rekentoets**: `{ min, max, ops: […], timerEnabled, timerSecs, answerCheckEnabled }`
 - **Topografie**: `{ mapId, mode: 'click'|'type', types: […], timerEnabled, timerSecs, questionCount }`
 - **Sudoku**: `{ size: 9|6, difficulty: 'easy'|'medium'|'hard', showErrors }`
+- **Queens**: `{ size: 5–9, autoX, showErrors }`
 
 ---
 
