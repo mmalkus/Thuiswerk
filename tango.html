@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="nl" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tango</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#818cf8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tango">
+<link rel="stylesheet" href="shared.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Unbounded:wght@400;700;900&display=swap');
+
+  :root {
+    --bg:         #07081a;
+    --surface:    #10122b;
+    --surface2:   #171a3a;
+    --border:     #262a55;
+    --border-box: #5b61b8;
+    --accent:     #818cf8;
+    --accent-dim: #1e2150;
+    --text:       #f0f0f0;
+    --muted:      #8f94c4;
+    --good:       #47ff8a;
+    --bad:        #ff4747;
+    --line:       #07081a;
+    --cell:       #1f2347;
+    --cell-given: #2c3163;
+    --sign-bg:    #10122b;
+    --sign-text:  #c7cbff;
+    --sun-1:      #ffd76a;
+    --sun-2:      #f59e0b;
+    --sun-ring:   #b45309;
+    --moon:       #93c5fd;
+    --key-bg:     #141735;
+    --key-border: #262a55;
+    --key-hover:  #1d2148;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 16px 0 40px;
+    margin: 0;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 50% 0%, #1c1f5c 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .container {
+    width: 100%; max-width: 460px;
+    padding: 20px;
+    position: relative; z-index: 1;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    position: relative; overflow: hidden;
+  }
+  .card::after {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.4;
+  }
+
+  /* ── Sun / moon icons (also used inline in the rules) ── */
+  .sun, .moon { display: inline-block; width: 0.72em; height: 0.72em; border-radius: 50%; }
+  .sun {
+    background: radial-gradient(circle at 35% 35%, var(--sun-1), var(--sun-2));
+    box-shadow: inset 0 0 0 0.06em var(--sun-ring);
+  }
+  .moon {
+    background: transparent;
+    box-shadow: inset 0.2em -0.06em 0 0 var(--moon);
+    transform: rotate(-20deg);
+  }
+  i.sun, i.moon { font-size: 16px; vertical-align: -2px; margin: 0 1px; }
+
+  /* ── START SCREEN ── */
+  .start-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 20px; padding-left: 28px;
+  }
+  .start-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 22px; font-weight: 900; line-height: 1.2;
+  }
+  .start-title span { color: var(--accent); }
+
+  .rules {
+    margin: 0 0 18px; padding: 0 0 0 18px;
+    font-size: 12px; line-height: 1.7; color: var(--muted);
+  }
+  .rules b { color: var(--text); font-weight: 500; }
+
+  .settings-inner {
+    border: 1px solid var(--border); border-radius: 8px;
+    background: var(--surface2); padding: 18px; margin-bottom: 18px;
+  }
+  .settings-row { margin-bottom: 16px; }
+  .settings-row:last-child { margin-bottom: 0; }
+  .settings-label {
+    font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+  }
+
+  .op-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .op-chip {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; color: var(--muted);
+    font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 700;
+    padding: 8px 14px; cursor: pointer; transition: all 0.15s; user-select: none;
+  }
+  .op-chip:hover { border-color: var(--border-box); color: var(--text); }
+  .op-chip.selected { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+  .best-strip { margin-bottom: 18px; }
+  .best-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .best-item {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 5px;
+    padding: 5px 9px; font-size: 11px; color: var(--muted);
+  }
+  .best-item b { color: var(--accent); font-weight: 500; }
+
+  .start-btn {
+    background: var(--accent); color: #000;
+    border: none; border-radius: 7px;
+    font-family: 'Unbounded', sans-serif; font-size: 14px; font-weight: 700;
+    padding: 16px; cursor: pointer; width: 100%; letter-spacing: 0.04em;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .start-btn:hover  { opacity: 0.85; }
+  .start-btn:active { transform: scale(0.97); }
+  .start-btn:disabled { opacity: 0.5; cursor: wait; }
+  .continue-btn {
+    background: transparent; color: var(--accent);
+    border: 2px solid var(--accent); border-radius: 7px;
+    font-family: 'Unbounded', sans-serif; font-size: 13px; font-weight: 700;
+    padding: 13px; cursor: pointer; width: 100%; margin-bottom: 10px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .continue-btn:hover { background: var(--accent); color: #000; }
+
+  /* ── GAME SCREEN ── */
+  .game-header {
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: 8px; margin-bottom: 14px; padding-left: 52px;
+  }
+  .game-title {
+    font-family: 'Unbounded', sans-serif; font-size: 10px;
+    letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted);
+  }
+  .game-timer { font-family: 'Unbounded', sans-serif; font-size: 13px; color: var(--accent); }
+  .stop-btn {
+    background: transparent; border: 1px solid var(--border); border-radius: 5px;
+    color: var(--muted); font-family: 'DM Mono', monospace; font-size: 11px;
+    padding: 4px 10px; cursor: pointer; transition: color .15s, border-color .15s;
+  }
+  .stop-btn:hover { color: var(--bad); border-color: var(--bad); }
+
+  .board-wrap {
+    background: var(--line); border: 3px solid var(--line);
+    border-radius: 8px; margin-bottom: 8px;
+  }
+  /* Repeated taps on a cell must never zoom the page; pinch-zoom stays. */
+  html, body { touch-action: manipulation; }
+
+  .board {
+    display: grid; width: 100%; aspect-ratio: 1 / 1;
+    user-select: none; -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none;
+    border-radius: 5px; overflow: hidden;
+  }
+
+  .cell {
+    position: relative; min-width: 0; min-height: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--cell);
+    border-right: 2px solid var(--line); border-bottom: 2px solid var(--line);
+    cursor: pointer; line-height: 1;
+  }
+  .cell.last-c { border-right: none; }
+  .cell.last-r { border-bottom: none; }
+  .cell.given { background: var(--cell-given); cursor: default; }
+  .cell.err {
+    background-image: repeating-linear-gradient(45deg, rgba(220,38,38,0.45) 0 4px, transparent 4px 9px);
+  }
+  .cell.pop .sun, .cell.pop .moon { animation: pop-in 0.18s ease-out; }
+  .cell .moon { animation: none; }
+  .cell.pop .moon { animation: pop-in-moon 0.18s ease-out; }
+  .board.solved .cell { animation: glow 0.6s ease-out; }
+
+  /* Edge signs (= / ×) sit on the line between two cells. */
+  .sg {
+    position: absolute; z-index: 2; pointer-events: none;
+    width: 0.42em; height: 0.42em; border-radius: 50%;
+    background: var(--sign-bg); color: var(--sign-text);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace; font-weight: 500; font-size: 1em;
+    line-height: 1;
+  }
+  .sg span { font-size: 0.34em; }
+  .sg.r { right: 0; top: 50%; transform: translate(calc(50% + 1px), -50%); }
+  .sg.d { bottom: 0; left: 50%; transform: translate(-50%, calc(50% + 1px)); }
+  .sg.err { background: var(--bad); color: #fff; }
+
+  .status-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11px; color: var(--muted); min-height: 18px; margin-bottom: 10px;
+  }
+  .feedback { color: var(--bad); text-align: right; flex: 1; margin-left: 10px; }
+  .feedback.ok { color: var(--muted); }
+
+  .tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-bottom: 8px; }
+  .tool {
+    background: var(--key-bg); border: 1px solid var(--key-border); border-radius: 8px;
+    color: var(--text); font-family: 'DM Mono', monospace; font-size: 11px;
+    padding: 9px 4px; cursor: pointer; text-align: center; user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.1s, border-color 0.1s, transform 0.08s;
+  }
+  .tool .ti { display: block; font-size: 18px; margin-bottom: 2px; }
+  .tool:hover { background: var(--key-hover); }
+  .tool:active { transform: scale(0.94); }
+
+  .howto { font-size: 11px; color: var(--muted); text-align: center; line-height: 1.5; margin-top: 6px; }
+
+  /* ── WIN SCREEN ── */
+  .result-card { padding: 32px 24px; text-align: center; }
+  .result-title {
+    font-family: 'Unbounded', sans-serif; font-size: 26px; font-weight: 900;
+    color: var(--accent); margin-bottom: 6px;
+  }
+  .result-sub { color: var(--muted); font-size: 12px; margin-bottom: 24px; }
+  .result-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 18px; }
+  .stat { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 4px; }
+  .stat-val { font-family: 'Unbounded', sans-serif; font-size: 20px; font-weight: 700; color: var(--text); }
+  .stat-lbl { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+  .record { color: var(--good); font-size: 13px; min-height: 20px; margin-bottom: 18px; }
+
+  .result-btns { display: flex; gap: 8px; }
+  .btn-outline {
+    flex: 1; background: transparent; color: var(--accent);
+    border: 2px solid var(--accent); border-radius: 6px;
+    font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 700;
+    padding: 14px 8px; cursor: pointer; letter-spacing: 0.04em;
+    transition: background 0.15s, color 0.15s;
+  }
+  .btn-outline:hover { background: var(--accent); color: #000; }
+  .btn-solid {
+    flex: 1; background: var(--accent); color: #000;
+    border: 2px solid var(--accent); border-radius: 6px;
+    font-family: 'Unbounded', sans-serif; font-size: 12px; font-weight: 700;
+    padding: 14px 8px; cursor: pointer; letter-spacing: 0.04em;
+    transition: opacity 0.15s;
+  }
+  .btn-solid:hover { opacity: 0.85; }
+
+  @keyframes pop-in { 0% { transform: scale(0.4); } 100% { transform: scale(1); } }
+  @keyframes pop-in-moon { 0% { transform: rotate(-20deg) scale(0.4); } 100% { transform: rotate(-20deg) scale(1); } }
+  @keyframes glow { 0% { filter: brightness(1.5); } 100% { filter: none; } }
+
+  html[data-theme="light"] {
+    --bg: #f5f6ff; --surface: #ffffff; --surface2: #eef0ff;
+    --border: #c9cdf7; --border-box: #4f46e5; --accent: #4f46e5; --accent-dim: #e0e3ff;
+    --text: #1e1b4b; --muted: #6366a8;
+    --bad: #dc2626; --good: #16a34a;
+    --line: #c9cdf7;
+    --cell: #ffffff; --cell-given: #e6e8fb;
+    --sign-bg: #ffffff; --sign-text: #4338ca;
+    --moon: #2563eb;
+    --key-bg: #eef0ff; --key-border: #c9cdf7; --key-hover: #e0e3ff;
+  }
+  html[data-theme="light"] body::before { background: radial-gradient(ellipse 60% 50% at 50% 0%, #dfe2ff 0%, transparent 70%); }
+  html[data-theme="light"] .start-btn,
+  html[data-theme="light"] .btn-solid { color: #fff; }
+  html[data-theme="light"] .continue-btn:hover,
+  html[data-theme="light"] .btn-outline:hover { color: #fff; }
+  html[data-theme="light"] .sg { box-shadow: 0 0 0 1px var(--line); }
+</style>
+<script>(function(){var t=localStorage.getItem('thuiswerk_theme');if(t)document.documentElement.dataset.theme=t;})();</script>
+</head>
+<body>
+<script>
+  window.THUISWERK_APP = {
+    id: 'tango',
+    theme: localStorage.getItem('thuiswerk_theme') || 'dark',
+    primaryColor: '#818cf8',
+    bgColor: '#10122b',
+    textColor: '#f0f0f0',
+  };
+
+  window._i18n = window._i18n || {};
+
+  window._initLang = (function () {
+    try {
+      var favId = new URLSearchParams(location.search).get('fav');
+      if (favId) {
+        var favs = JSON.parse(localStorage.getItem('thuiswerk_favorites') || '[]');
+        var fav  = favs.find(function (f) { return f.id === favId && f.app === 'tango'; });
+        if (fav && fav.settings && fav.settings.lang) return fav.settings.lang;
+      }
+    } catch (e) {}
+    return localStorage.getItem('thuiswerk_lang') || 'nl';
+  }());
+
+  function loadI18n(lc) {
+    return window._i18n[lc]
+      ? Promise.resolve(window._i18n[lc])
+      : fetch('i18n-' + lc + '.json').then(function (r) { return r.json(); })
+          .then(function (d) { window._i18n[lc] = d; return d; });
+  }
+
+  window.APP_READY = loadI18n(window._initLang);
+</script>
+
+<div class="container">
+
+  <!-- ══ START SCREEN ══ -->
+  <div class="screen active" id="startScreen">
+    <div class="card" style="padding:28px 24px 24px;">
+
+      <div class="start-top">
+        <div class="start-title">
+          <span id="startTitleText">☀️ Tango</span><br>
+          <span id="startSubtitle" style="display:block;margin-top:6px;font-size:12px;line-height:1.4;color:var(--muted);font-weight:400;font-family:'DM Mono',monospace;">Vul het rooster met zonnen en manen</span>
+        </div>
+        <div style="display:flex; gap:6px; flex-shrink:0;">
+          <button class="lang-chip op-chip selected" data-lc="nl" onclick="switchLang('nl')" style="padding:6px 12px; font-size:12px;">NL</button>
+          <button class="lang-chip op-chip" data-lc="en" onclick="switchLang('en')" style="padding:6px 12px; font-size:12px;">EN</button>
+        </div>
+      </div>
+
+      <ul class="rules">
+        <li id="rule1">Elke rij en kolom heeft <b>evenveel</b> <i class="sun"></i> als <i class="moon"></i>.</li>
+        <li id="rule2">Nooit <b>meer dan 2</b> dezelfde naast of onder elkaar.</li>
+        <li id="rule3"><b>=</b> betekent: dezelfde. <b>×</b> betekent: verschillend.</li>
+      </ul>
+
+      <div class="settings-inner">
+        <div class="settings-row">
+          <div class="settings-label" id="labelSize">Formaat</div>
+          <div class="op-group" id="sizeChips"></div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-label" id="labelDiff">Moeilijkheid</div>
+          <div class="op-group">
+            <div class="op-chip" id="diffEasyChip" data-diff="easy" onclick="setDifficulty('easy')">Makkelijk</div>
+            <div class="op-chip" id="diffHardChip" data-diff="hard" onclick="setDifficulty('hard')">Moeilijk</div>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-label" id="labelErrors">Fouten direct tonen</div>
+          <div class="op-group">
+            <div class="op-chip" id="errOnChip"  onclick="setShowErrors(true)">✓ Aan</div>
+            <div class="op-chip" id="errOffChip" onclick="setShowErrors(false)">✗ Uit</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="best-strip" id="bestStrip" style="display:none;">
+        <div class="settings-label" id="bestLabel">Beste tijden</div>
+        <div class="best-list" id="bestList"></div>
+      </div>
+
+      <button class="continue-btn" id="continueBtn" onclick="continueGame()" style="display:none;">▶ Verder spelen</button>
+      <button class="start-btn" id="startBtn" onclick="newGame()">Nieuwe puzzel →</button>
+    </div>
+  </div>
+
+  <!-- ══ GAME SCREEN ══ -->
+  <div class="screen" id="gameScreen">
+    <div class="game-header">
+      <span class="game-title" id="gameTitle">Tango</span>
+      <span class="game-timer" id="gameTimer">0:00</span>
+      <button class="stop-btn" id="stopBtn" onclick="stopGame()">✕ stop</button>
+    </div>
+
+    <div class="board-wrap"><div class="board" id="board"></div></div>
+
+    <div class="status-row">
+      <span id="fillLabel">0 / 36</span>
+      <span class="feedback" id="feedback"></span>
+    </div>
+
+    <div class="tools">
+      <div class="tool" onclick="undo()"><span class="ti">↶</span><span id="toolUndoTxt">Terug</span></div>
+      <div class="tool" onclick="clearBoard()"><span class="ti">🧹</span><span id="toolClearTxt">Leegmaken</span></div>
+      <div class="tool" onclick="hint()"><span class="ti">💡</span><span id="toolHintTxt">Hint</span></div>
+    </div>
+
+    <div class="howto" id="howto">Tik 1× voor een zon, 2× voor een maan, 3× om te wissen.</div>
+  </div>
+
+  <!-- ══ WIN SCREEN ══ -->
+  <div class="screen" id="winScreen">
+    <div class="card result-card">
+      <div class="result-title" id="winTitle">🎉 Opgelost!</div>
+      <div class="result-sub" id="winSub"></div>
+      <div class="result-stats">
+        <div class="stat"><div class="stat-val" id="winTime">0:00</div><div class="stat-lbl" id="winTimeLbl">Tijd</div></div>
+        <div class="stat"><div class="stat-val" id="winHints">0</div><div class="stat-lbl" id="winHintsLbl">Hints</div></div>
+      </div>
+      <div class="record" id="winRecord"></div>
+      <div class="result-btns">
+        <button class="btn-outline" id="menuBtn" onclick="toMenu()">⚙ Menu</button>
+        <button class="btn-solid" id="againBtn" onclick="newGame()">↻ Nog een</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── Config ────────────────────────────────────────────────────────────────
+  const SIZES = [4, 6, 8];
+  const DIFFS = ['easy', 'hard'];
+  const EMPTY = 0, SUN = 1, MOON = 2;
+  const NONE = 0, SAME = 1, DIFF = 2;   // edge signs
+
+  let lang = window._initLang;
+  const settings = { size: 6, difficulty: 'easy', showErrors: true };
+
+  let game = null;        // current puzzle state (persisted)
+  let undoStack = [];
+  let timerInterval = null;
+  let revealErrors = false;
+  let lastPop = -1;
+
+  function u() { return (window._i18n[lang] && window._i18n[lang].tango) || {}; }
+  function fmtTime(sec) {
+    const m = Math.floor(sec / 60), s = sec % 60;
+    return m + ':' + String(s).padStart(2, '0');
+  }
+
+  // ── Generator / solver ────────────────────────────────────────────────────
+  // A puzzle is: givens (n*n, 0 = open), hEdges ((n-1) per row: sign between
+  // (r,c) and (r,c+1)) and vEdges (n per row for r < n-1: sign between (r,c)
+  // and (r+1,c)).
+  function shuffle(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function edgeOk(sign, a, b) {
+    return sign === NONE || (sign === SAME) === (a === b);
+  }
+
+  // Cell-by-cell backtracking in row-major order. Counts solutions up to
+  // `limit`; with `random` it tries values in random order and returns the
+  // first grid it finds.
+  function solve(n, givens, hE, vE, limit, random) {
+    const half = n / 2, g = new Array(n * n).fill(EMPTY);
+    const rowCnt = [], colCnt = [];
+    for (let i = 0; i < n; i++) { rowCnt.push([0, 0, 0]); colCnt.push([0, 0, 0]); }
+    let count = 0, first = null;
+
+    function ok(i, v) {
+      const r = Math.floor(i / n), c = i % n;
+      if (rowCnt[r][v] >= half || colCnt[c][v] >= half) return false;
+      if (c >= 2 && g[i - 1] === v && g[i - 2] === v) return false;
+      if (r >= 2 && g[i - n] === v && g[i - 2 * n] === v) return false;
+      if (c > 0 && !edgeOk(hE[r * (n - 1) + c - 1], g[i - 1], v)) return false;
+      if (r > 0 && !edgeOk(vE[(r - 1) * n + c], g[i - n], v)) return false;
+      // Look ahead at fixed neighbours to the right and below.
+      if (c < n - 1 && givens[i + 1] && !edgeOk(hE[r * (n - 1) + c], v, givens[i + 1])) return false;
+      if (r < n - 1 && givens[i + n] && !edgeOk(vE[r * n + c], v, givens[i + n])) return false;
+      if (c >= 1 && c < n - 1 && givens[i + 1] === v && g[i - 1] === v) return false;
+      if (r >= 1 && r < n - 1 && givens[i + n] === v && g[i - n] === v) return false;
+      return true;
+    }
+
+    (function rec(i) {
+      if (i === n * n) {
+        count++;
+        if (!first) first = g.slice();
+        return count >= limit;
+      }
+      const r = Math.floor(i / n), c = i % n;
+      const vals = givens[i] ? [givens[i]] : (random && Math.random() < 0.5 ? [MOON, SUN] : [SUN, MOON]);
+      for (const v of vals) {
+        if (!ok(i, v)) continue;
+        g[i] = v; rowCnt[r][v]++; colCnt[c][v]++;
+        const stop = rec(i + 1);
+        g[i] = EMPTY; rowCnt[r][v]--; colCnt[c][v]--;
+        if (stop) return true;
+      }
+      return false;
+    })(0);
+    return { count, first };
+  }
+
+  function generate(n, difficulty) {
+    const blank = new Array(n * n).fill(EMPTY);
+    const sol = solve(n, blank, new Array(n * (n - 1)).fill(NONE), new Array(n * (n - 1)).fill(NONE), 1, true).first;
+
+    // Start from every clue (all givens + every true edge sign) and remove
+    // clues in random order while the solution stays unique.
+    const givens = sol.slice();
+    const hE = [], vE = [];
+    for (let r = 0; r < n; r++) for (let c = 0; c < n - 1; c++) {
+      const i = r * n + c;
+      hE.push(sol[i] === sol[i + 1] ? SAME : DIFF);
+    }
+    for (let r = 0; r < n - 1; r++) for (let c = 0; c < n; c++) {
+      const i = r * n + c;
+      vE.push(sol[i] === sol[i + n] ? SAME : DIFF);
+    }
+    const clues = [];
+    givens.forEach((_, k) => clues.push(['g', k]));
+    hE.forEach((_, k) => clues.push(['h', k]));
+    vE.forEach((_, k) => clues.push(['v', k]));
+    shuffle(clues);
+
+    const arr = { g: givens, h: hE, v: vE };
+    const removed = [];
+    for (const [t, k] of clues) {
+      const old = arr[t][k];
+      arr[t][k] = t === 'g' ? EMPTY : NONE;
+      if (solve(n, givens, hE, vE, 2, false).count !== 1) arr[t][k] = old;
+      else removed.push([t, k, old]);
+    }
+
+    // Easy puzzles get some of the removed clues back.
+    if (difficulty === 'easy') {
+      const extra = Math.round(n * n / 6);
+      shuffle(removed).slice(0, extra).forEach(([t, k, old]) => { arr[t][k] = old; });
+    }
+    return { givens, hEdges: hE, vEdges: vE, solution: sol };
+  }
+
+  // ── Rules ─────────────────────────────────────────────────────────────────
+  // Returns { cells: Set of bad cell indices, h: Set of bad hEdge indices, v: … }.
+  function conflicts() {
+    const { size: n, cells, hEdges, vEdges } = game;
+    const bad = new Set(), badH = new Set(), badV = new Set();
+    const half = n / 2;
+    const at = (r, c) => cells[r * n + c];
+
+    for (let line = 0; line < n; line++) {
+      for (const horiz of [true, false]) {
+        const idx = k => horiz ? line * n + k : k * n + line;
+        const cnt = [0, 0, 0];
+        for (let k = 0; k < n; k++) cnt[cells[idx(k)]]++;
+        for (const v of [SUN, MOON]) {
+          if (cnt[v] > half) for (let k = 0; k < n; k++) if (cells[idx(k)] === v) bad.add(idx(k));
+        }
+        for (let k = 0; k + 2 < n; k++) {
+          const a = cells[idx(k)];
+          if (a && a === cells[idx(k + 1)] && a === cells[idx(k + 2)]) {
+            bad.add(idx(k)); bad.add(idx(k + 1)); bad.add(idx(k + 2));
+          }
+        }
+      }
+    }
+    for (let r = 0; r < n; r++) for (let c = 0; c < n - 1; c++) {
+      const k = r * (n - 1) + c, a = at(r, c), b = at(r, c + 1);
+      if (hEdges[k] && a && b && !edgeOk(hEdges[k], a, b)) { badH.add(k); bad.add(r * n + c); bad.add(r * n + c + 1); }
+    }
+    for (let r = 0; r < n - 1; r++) for (let c = 0; c < n; c++) {
+      const k = r * n + c, a = at(r, c), b = at(r + 1, c);
+      if (vEdges[k] && a && b && !edgeOk(vEdges[k], a, b)) { badV.add(k); bad.add(k); bad.add(k + n); }
+    }
+    return { cells: bad, h: badH, v: badV };
+  }
+
+  function filledCount() { return game.cells.filter(v => v !== EMPTY).length; }
+
+  function isSolved() {
+    if (filledCount() !== game.size * game.size) return false;
+    const c = conflicts();
+    return c.cells.size === 0;
+  }
+
+  // ── Game lifecycle ────────────────────────────────────────────────────────
+  function newGame() {
+    const btn = document.getElementById('startBtn');
+    btn.disabled = true;
+    btn.textContent = u().generating || '…';
+    // Let the button repaint before the generation work.
+    setTimeout(() => {
+      const size = settings.size, difficulty = settings.difficulty;
+      const p = generate(size, difficulty);
+      game = {
+        size, difficulty,
+        givens: p.givens, hEdges: p.hEdges, vEdges: p.vEdges, solution: p.solution,
+        cells: p.givens.slice(),
+        hints: 0, elapsed: 0, done: false,
+      };
+      btn.disabled = false;
+      btn.textContent = u().startBtn || 'Nieuwe puzzel →';
+      enterGame();
+    }, 20);
+  }
+
+  function continueGame() {
+    const saved = loadSavedGame();
+    if (!saved) return;
+    game = saved;
+    enterGame();
+  }
+
+  function enterGame() {
+    undoStack = []; revealErrors = false; lastPop = -1;
+    buildBoard();
+    setFeedback('');
+    showScreen('gameScreen');
+    renderAll();
+    saveGame();
+    startTimer();
+  }
+
+  function stopGame() {
+    clearInterval(timerInterval);
+    saveGame();
+    toMenu();
+  }
+
+  function toMenu() {
+    clearInterval(timerInterval);
+    showScreen('startScreen');
+    renderStart();
+  }
+
+  function startTimer() {
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      if (!game || game.done || document.hidden) return;
+      game.elapsed++;
+      document.getElementById('gameTimer').textContent = fmtTime(game.elapsed);
+      if (game.elapsed % 5 === 0) saveGame();
+    }, 1000);
+  }
+
+  function saveGame() {
+    try {
+      if (game && !game.done) localStorage.setItem('tango_game', JSON.stringify(game));
+      else localStorage.removeItem('tango_game');
+    } catch (e) {}
+  }
+
+  function loadSavedGame() {
+    try {
+      const g = JSON.parse(localStorage.getItem('tango_game') || 'null');
+      if (g && SIZES.includes(g.size) && DIFFS.includes(g.difficulty)) {
+        const n = g.size;
+        if ([g.cells, g.givens, g.solution].every(a => Array.isArray(a) && a.length === n * n) &&
+            [g.hEdges, g.vEdges].every(a => Array.isArray(a) && a.length === n * (n - 1))) return g;
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function bestKey(size, diff) { return size + '-' + diff; }
+
+  function finish() {
+    game.done = true;
+    clearInterval(timerInterval);
+    saveGame();
+
+    const key = bestKey(game.size, game.difficulty);
+    let best = {};
+    try { best = JSON.parse(localStorage.getItem('tango_best') || '{}'); } catch (e) {}
+    let record = false;
+    if (game.hints === 0 && (best[key] == null || game.elapsed < best[key])) {
+      record = best[key] != null;
+      best[key] = game.elapsed;
+      try { localStorage.setItem('tango_best', JSON.stringify(best)); } catch (e) {}
+    }
+
+    const board = document.getElementById('board');
+    board.classList.remove('solved'); void board.offsetWidth; board.classList.add('solved');
+
+    setTimeout(() => {
+      const t = u();
+      document.getElementById('winSub').textContent = game.size + '×' + game.size + ' · ' + (t[game.difficulty] || game.difficulty);
+      document.getElementById('winTime').textContent = fmtTime(game.elapsed);
+      document.getElementById('winHints').textContent = game.hints;
+      document.getElementById('winRecord').textContent = record ? (t.newRecord || '🏆') : '';
+      showScreen('winScreen');
+    }, 900);
+  }
+
+  // ── Board rendering ───────────────────────────────────────────────────────
+  function buildBoard() {
+    const { size: n, givens, hEdges, vEdges } = game;
+    const board = document.getElementById('board');
+    board.className = 'board';
+    board.style.gridTemplateColumns = `repeat(${n}, 1fr)`;
+    board.style.gridTemplateRows = `repeat(${n}, 1fr)`;
+    board.style.fontSize = `clamp(14px, ${Math.round(66 / n)}vw, ${Math.round(300 / n)}px)`;
+    board.innerHTML = '';
+    for (let i = 0; i < n * n; i++) {
+      const r = Math.floor(i / n), c = i % n;
+      const el = document.createElement('div');
+      el.className = 'cell';
+      if (givens[i]) el.classList.add('given');
+      if (c === n - 1) el.classList.add('last-c');
+      if (r === n - 1) el.classList.add('last-r');
+      el.dataset.i = i;
+      const icon = document.createElement('span');
+      icon.className = 'icon';
+      icon.style.display = 'contents';
+      el.appendChild(icon);
+      if (c < n - 1 && hEdges[r * (n - 1) + c]) {
+        const s = document.createElement('div');
+        s.className = 'sg r';
+        s.dataset.h = r * (n - 1) + c;
+        s.innerHTML = '<span>' + (hEdges[r * (n - 1) + c] === SAME ? '=' : '×') + '</span>';
+        el.appendChild(s);
+      }
+      if (r < n - 1 && vEdges[i]) {
+        const s = document.createElement('div');
+        s.className = 'sg d';
+        s.dataset.v = i;
+        s.innerHTML = '<span>' + (vEdges[i] === SAME ? '=' : '×') + '</span>';
+        el.appendChild(s);
+      }
+      board.appendChild(el);
+    }
+  }
+
+  function renderAll() {
+    const { size: n, cells } = game;
+    const board = document.getElementById('board');
+    const els = board.children;
+    const show = settings.showErrors || revealErrors;
+    const bad = show ? conflicts() : { cells: new Set(), h: new Set(), v: new Set() };
+
+    for (let i = 0; i < els.length; i++) {
+      const el = els[i], v = cells[i], icon = el.firstChild;
+      const html = v === SUN ? '<span class="sun"></span>' : v === MOON ? '<span class="moon"></span>' : '';
+      if (icon.innerHTML !== html) icon.innerHTML = html;
+      el.classList.toggle('err', bad.cells.has(i) && !game.givens[i]);
+      el.classList.toggle('pop', i === lastPop);
+    }
+    board.querySelectorAll('.sg').forEach(s => {
+      s.classList.toggle('err', s.dataset.h != null ? bad.h.has(+s.dataset.h) : bad.v.has(+s.dataset.v));
+    });
+    lastPop = -1;
+
+    document.getElementById('gameTimer').textContent = fmtTime(game.elapsed);
+    document.getElementById('fillLabel').textContent = filledCount() + ' / ' + (n * n);
+  }
+
+  function setFeedback(msg, ok) {
+    const f = document.getElementById('feedback');
+    f.textContent = msg;
+    f.classList.toggle('ok', !!ok);
+  }
+
+  // ── Interaction ───────────────────────────────────────────────────────────
+  // Tap cycles empty → sun → moon → empty. Given cells are locked.
+  function pushUndo() {
+    undoStack.push(game.cells.slice());
+    if (undoStack.length > 300) undoStack.shift();
+  }
+
+  const boardEl = document.getElementById('board');
+  boardEl.addEventListener('pointerdown', e => {
+    if (!game || game.done) return;
+    const el = e.target.closest ? e.target.closest('.cell') : null;
+    if (!el) return;
+    e.preventDefault();
+    const i = +el.dataset.i;
+    if (game.givens[i]) return;
+    pushUndo();
+    const v = game.cells[i];
+    game.cells[i] = v === EMPTY ? SUN : v === SUN ? MOON : EMPTY;
+    if (game.cells[i]) lastPop = i;
+    afterMove();
+  });
+
+  // iOS Safari can still double-tap-zoom despite touch-action; cancelling the
+  // touch end only drops the emulated mouse/click events (the board uses
+  // pointer events), and dblclick is blocked for desktop/trackpad zoom.
+  boardEl.addEventListener('touchend', e => { e.preventDefault(); }, { passive: false });
+  document.addEventListener('dblclick', e => { e.preventDefault(); });
+
+  function undo() {
+    if (!game || game.done || !undoStack.length) return;
+    game.cells = undoStack.pop();
+    afterMove();
+  }
+
+  function clearBoard() {
+    if (!game || game.done || game.cells.every((v, i) => v === game.givens[i])) return;
+    pushUndo();
+    game.cells = game.givens.slice();
+    afterMove();
+  }
+
+  // A hint first clears a wrongly filled cell; otherwise it fills one empty
+  // cell from the solution.
+  function hint() {
+    if (!game || game.done) return;
+    const { cells, solution } = game;
+    const wrong = [], open = [];
+    cells.forEach((v, i) => {
+      if (v && v !== solution[i]) wrong.push(i);
+      else if (!v) open.push(i);
+    });
+    if (!wrong.length && !open.length) return;
+    pushUndo();
+    if (wrong.length) {
+      cells[wrong[Math.floor(Math.random() * wrong.length)]] = EMPTY;
+      setFeedback(u().hintWrong || '', true);
+    } else {
+      const i = open[Math.floor(Math.random() * open.length)];
+      cells[i] = solution[i];
+      lastPop = i;
+      setFeedback('');
+    }
+    game.hints++;
+    afterMove(true);
+  }
+
+  function afterMove(keepFeedback) {
+    revealErrors = false;
+    if (!keepFeedback) setFeedback('');
+    const solved = isSolved();
+    if (filledCount() === game.size * game.size && !solved) {
+      revealErrors = true;
+      setFeedback(u().notSolved || '');
+    }
+    renderAll();
+    saveGame();
+    if (solved) finish();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (!document.getElementById('gameScreen').classList.contains('active') || !game) return;
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); undo(); }
+  });
+
+  // ── Settings UI ───────────────────────────────────────────────────────────
+  function setSize(n) { settings.size = n; syncChips(); persistSettings(); }
+  function setDifficulty(d) { settings.difficulty = d; syncChips(); persistSettings(); }
+  function setShowErrors(b) { settings.showErrors = b; syncChips(); persistSettings(); }
+
+  function buildSizeChips() {
+    document.getElementById('sizeChips').innerHTML = SIZES.map(n =>
+      `<div class="op-chip" data-size="${n}" onclick="setSize(${n})">${n}×${n}</div>`).join('');
+  }
+
+  function syncChips() {
+    document.querySelectorAll('[data-size]').forEach(c => c.classList.toggle('selected', +c.dataset.size === settings.size));
+    document.querySelectorAll('[data-diff]').forEach(c => c.classList.toggle('selected', c.dataset.diff === settings.difficulty));
+    document.getElementById('errOnChip').classList.toggle('selected', settings.showErrors);
+    document.getElementById('errOffChip').classList.toggle('selected', !settings.showErrors);
+  }
+
+  function persistSettings() {
+    try { localStorage.setItem('tango_settings', JSON.stringify(settings)); } catch (e) {}
+  }
+
+  function sanitizeSettings() {
+    settings.size = SIZES.includes(+settings.size) ? +settings.size : 6;
+    settings.difficulty = DIFFS.includes(settings.difficulty) ? settings.difficulty : 'easy';
+    settings.showErrors = settings.showErrors !== false;
+  }
+
+  function renderStart() {
+    syncChips();
+    const t = u();
+    const saved = loadSavedGame();
+    const cont = document.getElementById('continueBtn');
+    cont.style.display = saved ? 'block' : 'none';
+    if (saved) {
+      cont.textContent = (t.continueBtn || '▶') + ' · ' + saved.size + '×' + saved.size + ' · ' + fmtTime(saved.elapsed);
+    }
+
+    let best = {};
+    try { best = JSON.parse(localStorage.getItem('tango_best') || '{}'); } catch (e) {}
+    const items = [];
+    for (const n of SIZES) for (const d of DIFFS) {
+      const v = best[bestKey(n, d)];
+      if (v != null) items.push(`<span class="best-item">${n}×${n} ${t[d] || d} <b>${fmtTime(v)}</b></span>`);
+    }
+    document.getElementById('bestStrip').style.display = items.length ? 'block' : 'none';
+    document.getElementById('bestList').innerHTML = items.join('');
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // ── i18n ──────────────────────────────────────────────────────────────────
+  function switchLang(lc) {
+    loadI18n(lc).then(() => applyLanguage(lc));
+  }
+
+  function applyLanguage(lc) {
+    lang = lc;
+    localStorage.setItem('thuiswerk_lang', lc);
+    document.getElementById('htmlRoot').lang = lc;
+    document.querySelectorAll('.lang-chip').forEach(c => c.classList.toggle('selected', c.dataset.lc === lc));
+    const t = window._i18n[lc] && window._i18n[lc].tango;
+    if (!t) return;
+    const set = (id, txt) => { const el = document.getElementById(id); if (el && txt !== undefined) el.textContent = txt; };
+    const setHtml = (id, h) => { const el = document.getElementById(id); if (el && h !== undefined) el.innerHTML = h; };
+    document.title = t.gameTitle;
+    set('startTitleText', t.appTitle);
+    set('startSubtitle', t.subtitle);
+    setHtml('rule1', t.rule1);
+    setHtml('rule2', t.rule2);
+    setHtml('rule3', t.rule3);
+    set('labelSize', t.sizeLabel);
+    set('labelDiff', t.diffLabel);
+    set('diffEasyChip', t.easy);
+    set('diffHardChip', t.hard);
+    set('labelErrors', t.errorsLabel);
+    set('errOnChip', t.on);
+    set('errOffChip', t.off);
+    set('bestLabel', t.bestLabel);
+    if (!document.getElementById('startBtn').disabled) set('startBtn', t.startBtn);
+    set('gameTitle', t.gameTitle);
+    set('stopBtn', t.stopBtn);
+    set('toolUndoTxt', t.undo);
+    set('toolClearTxt', t.clear);
+    set('toolHintTxt', t.hint);
+    set('howto', t.howto);
+    set('winTitle', t.solvedTitle);
+    set('winTimeLbl', t.timeLabel);
+    set('winHintsLbl', t.hintsLabel);
+    set('menuBtn', t.menuBtn);
+    set('againBtn', t.againBtn);
+    renderStart();
+    if (game && document.getElementById('gameScreen').classList.contains('active')) renderAll();
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  try {
+    const saved = JSON.parse(localStorage.getItem('tango_settings') || 'null');
+    if (saved) Object.assign(settings, saved);
+  } catch (e) {}
+
+  (function () {
+    try {
+      const favId = new URLSearchParams(window.location.search).get('fav');
+      if (!favId) return;
+      const favs = JSON.parse(localStorage.getItem('thuiswerk_favorites') || '[]');
+      const fav  = favs.find(f => f.id === favId && f.app === 'tango');
+      if (fav && fav.settings) {
+        const s = Object.assign({}, fav.settings);
+        if (s.lang) lang = s.lang;
+        delete s.lang;
+        Object.assign(settings, s);
+      }
+    } catch (e) {}
+  })();
+  sanitizeSettings();
+  buildSizeChips();
+
+  window.APP_READY.then(function () {
+    applyLanguage(lang);
+    renderStart();
+
+    window.addEventListener('thuiswerk:setLang', function (e) {
+      loadI18n(e.detail).then(() => applyLanguage(e.detail));
+    });
+
+    window.THUISWERK_APP.getSettings = function () {
+      return Object.assign({ lang }, settings);
+    };
+    window.THUISWERK_APP.applySettings = function (s) {
+      if (s.lang) switchLang(s.lang);
+      const ns = Object.assign({}, s); delete ns.lang;
+      Object.assign(settings, ns);
+      sanitizeSettings();
+      persistSettings();
+      syncChips();
+      if (game && document.getElementById('gameScreen').classList.contains('active')) renderAll();
+    };
+  });
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+</script>
+<script src="sidebar.js"></script>
+</body>
+</html>

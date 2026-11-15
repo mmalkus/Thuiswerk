@@ -54,6 +54,13 @@
       "description": "Koninginnen-puzzel op een kleurenbord",
       "url": "/Thuiswerk/queens.html",
       "icons": [{ "src": "icons/icon.png", "sizes": "1024x1024" }]
+    },
+    {
+      "name": "Tango",
+      "short_name": "Tango",
+      "description": "Zonnen-en-manen-puzzel",
+      "url": "/Thuiswerk/tango.html",
+      "icons": [{ "src": "icons/icon.png", "sizes": "1024x1024" }]
     }
   ]
 }

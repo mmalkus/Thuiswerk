@@ -22,6 +22,7 @@ Thuiswerk/
 ├── topografie.html         # Geography game with SVG maps
 ├── sudoku.html             # Sudoku (9×9 and 6×6 mini), puzzles generated client-side
 ├── queens.html             # Queens (LinkedIn-style colour-region puzzle), generated client-side
+├── tango.html              # Tango (sun/moon binary puzzle with = / × clues), generated client-side
 ├── sidebar.js              # Shared navigation, theme, language, favorites UI
 ├── shared.css              # Sidebar structural CSS + sidebar button positioning
 ├── sw.js                   # Service worker for offline caching
@@ -263,12 +264,16 @@ Outputs the four `topo-*.json` files from Natural Earth (world-atlas npm + Mapbo
 | `queens_settings` | `{ size, autoX, showErrors }` | Queens only |
 | `queens_game` | in-progress puzzle `{ size, regions, solution, cells, … }` | Queens only |
 | `queens_best` | `{ "7": seconds, … }` (hint-free solves only) | Queens only |
+| `tango_settings` | `{ size, difficulty, showErrors }` | Tango only |
+| `tango_game` | in-progress puzzle `{ size, difficulty, givens, hEdges, vEdges, solution, cells, … }` | Tango only |
+| `tango_best` | `{ "6-easy": seconds, … }` (hint-free solves only) | Tango only |
 
 **Settings objects per app:**
 - **Rekentoets**: `{ min, max, ops: […], timerEnabled, timerSecs, answerCheckEnabled }`
 - **Topografie**: `{ mapId, mode: 'click'|'type', types: […], timerEnabled, timerSecs, questionCount }`
 - **Sudoku**: `{ size: 9|6, difficulty: 'easy'|'medium'|'hard', showErrors }`
 - **Queens**: `{ size: 5–9, autoX, showErrors }`
+- **Tango**: `{ size: 4|6|8, difficulty: 'easy'|'hard', showErrors }`
 
 ---
 
