@@ -272,6 +272,38 @@
     "menuBtn": "⚙ Menu",
     "againBtn": "↻ Nog een"
   },
+  "tango": {
+    "appTitle": "☀️ Tango",
+    "subtitle": "Vul het rooster met zonnen en manen",
+    "rule1": "Elke rij en kolom heeft <b>evenveel</b> <i class=\"sun\"></i> als <i class=\"moon\"></i>.",
+    "rule2": "Nooit <b>meer dan 2</b> dezelfde naast of onder elkaar.",
+    "rule3": "<b>=</b> betekent: dezelfde. <b>×</b> betekent: verschillend.",
+    "sizeLabel": "Formaat",
+    "diffLabel": "Moeilijkheid",
+    "easy": "Makkelijk",
+    "hard": "Moeilijk",
+    "errorsLabel": "Fouten direct tonen",
+    "on": "✓ Aan",
+    "off": "✗ Uit",
+    "bestLabel": "Beste tijden (zonder hints)",
+    "startBtn": "Nieuwe puzzel →",
+    "continueBtn": "▶ Verder spelen",
+    "generating": "Puzzel maken…",
+    "gameTitle": "Tango",
+    "stopBtn": "✕ stop",
+    "undo": "Terug",
+    "clear": "Leegmaken",
+    "hint": "Hint",
+    "howto": "Tik 1× voor een zon, 2× voor een maan, 3× om te wissen.",
+    "hintWrong": "Dat vakje was fout — weggehaald",
+    "notSolved": "Nog niet goed — kijk naar de rode vakjes",
+    "solvedTitle": "🎉 Opgelost!",
+    "timeLabel": "Tijd",
+    "hintsLabel": "Hints",
+    "newRecord": "🏆 Nieuw record!",
+    "menuBtn": "⚙ Menu",
+    "againBtn": "↻ Nog een"
+  },
   "sidebar": {
     "home": "Terug naar Home",
     "language": "Taal",
@@ -315,6 +347,9 @@
     "favBadgeSudoku": "Sudoku",
     "queensTitle": "Koninginnen",
     "queensDesc": "Zet koninginnen op het kleurenbord: één per rij, kolom en kleur, en ze mogen elkaar niet raken.",
-    "favBadgeQueens": "Koninginnen"
+    "favBadgeQueens": "Koninginnen",
+    "tangoTitle": "Tango",
+    "tangoDesc": "Vul het rooster met zonnen en manen: evenveel per rij en kolom, nooit drie op een rij, en let op = en ×.",
+    "favBadgeTango": "Tango"
   }
 }

@@ -27,6 +27,9 @@ Logic puzzle practice with freshly generated puzzles that always have exactly on
 ### 👑 Queens
 The colour-region logic puzzle known from LinkedIn: place exactly one queen in every row, column and colour region, with no two queens touching (not even diagonally). Puzzles from 5×5 to 9×9 are generated on the fly and always have exactly one solution. Tap once for a ✕ and twice for a queen, or drag to mark several cells. Includes optional auto-crosses, clash highlighting, undo, hints, an in-progress game you can continue later, and best times per size.
 
+### ☀️ Tango
+The sun-and-moon logic puzzle known from LinkedIn: fill the grid so every row and column has as many suns as moons, never more than two of the same next to each other, and cells joined by **=** match while cells joined by **×** differ. Puzzles of 4×4, 6×6 or 8×8 (easy or hard) are generated on the fly and always have exactly one solution. Tap once for a sun, twice for a moon, three times to clear. Includes optional instant mistake highlighting, undo, hints, an in-progress game you can continue later, and best times per size and difficulty.
+
 ---
 
 ## Install as app (PWA)

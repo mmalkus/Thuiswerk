@@ -52,6 +52,10 @@
     --queens-card:   #1a1405;
     --queens-accent: #fbbf24;
     --queens-text:   #fef3c7;
+    --tango-bg:      #07081a;
+    --tango-card:    #10122b;
+    --tango-accent:  #818cf8;
+    --tango-text:    #e0e7ff;
   }
 
   html, body {
@@ -224,6 +228,23 @@
   }
   .card-queens .arrow {
     color: var(--queens-accent);
+  }
+
+  /* Tango card — indigo */
+  .card-tango {
+    background: var(--tango-bg);
+    color: var(--tango-text);
+  }
+  .card-tango .card-header {
+    background: var(--tango-card);
+    border-bottom: 1px solid #262a55;
+  }
+  .card-tango .tag {
+    background: var(--tango-accent);
+    color: #000;
+  }
+  .card-tango .arrow {
+    color: var(--tango-accent);
   }
 
   /* Rekentoets card — dark */
@@ -514,6 +535,15 @@
     background: #fef3c7;
     border-bottom: 1px solid #fcd98a;
   }
+
+  html[data-theme="light"] .card-tango {
+    background: #f5f6ff;
+    color: #1e1b4b;
+  }
+  html[data-theme="light"] .card-tango .card-header {
+    background: #e0e3ff;
+    border-bottom: 1px solid #c9cdf7;
+  }
 </style>
 <script>(function(){var t=localStorage.getItem('thuiswerk_theme');if(t)document.documentElement.dataset.theme=t;})();</script>
 </head>
@@ -624,6 +654,20 @@
     </div>
   </a>
 
+  <a href="tango.html" class="card card-tango">
+    <div class="card-header">
+      <span class="emoji">☀️</span>
+      <span class="card-title" id="home-tango-title">Tango</span>
+    </div>
+    <div class="card-body">
+      <p class="card-desc" id="home-tango-desc">Vul het rooster met zonnen en manen: evenveel per rij en kolom, nooit drie op een rij, en let op = en ×.</p>
+      <div class="card-footer">
+        <span class="tag">4×4 · 6×6 · 8×8</span>
+        <span class="arrow">→</span>
+      </div>
+    </div>
+  </a>
+
   <a href="woordflits.html" class="card card-flash">
     <div class="card-header">
       <span class="emoji">⚡</span>
@@ -698,6 +742,8 @@
     document.getElementById('home-sudoku-desc').textContent      = h.sudokuDesc;
     document.getElementById('home-queens-title').textContent     = h.queensTitle;
     document.getElementById('home-queens-desc').textContent      = h.queensDesc;
+    document.getElementById('home-tango-title').textContent      = h.tangoTitle;
+    document.getElementById('home-tango-desc').textContent       = h.tangoDesc;
     document.getElementById('fav-heading').textContent        = '⭐ ' + h.favsHeading;
     document.getElementById('install-btn').textContent        = h.installBtn;
     document.getElementById('home-offline').textContent       = h.offline;
@@ -729,8 +775,8 @@
     if (favs.length === 0) { section.style.display = 'none'; return; }
     section.style.display = 'flex';
     list.innerHTML = favs.map(f => {
-      const icon  = f.app === 'dictee' ? '📝' : f.app === 'topo' ? '🗺️' : f.app === 'woordflits' ? '⚡' : f.app === 'conversie' ? '📐' : f.app === 'grammatica' ? '📝' : f.app === 'sudoku' ? '🧩' : f.app === 'queens' ? '👑' : '🔢';
-      const page  = f.app === 'dictee' ? 'dictee.html' : f.app === 'topo' ? 'topografie.html' : f.app === 'woordflits' ? 'woordflits.html' : f.app === 'conversie' ? 'conversie.html' : f.app === 'grammatica' ? 'grammatica.html' : f.app === 'sudoku' ? 'sudoku.html' : f.app === 'queens' ? 'queens.html' : 'rekentoets.html';
+      const icon  = f.app === 'dictee' ? '📝' : f.app === 'topo' ? '🗺️' : f.app === 'woordflits' ? '⚡' : f.app === 'conversie' ? '📐' : f.app === 'grammatica' ? '📝' : f.app === 'sudoku' ? '🧩' : f.app === 'queens' ? '👑' : f.app === 'tango' ? '☀️' : '🔢';
+      const page  = f.app === 'dictee' ? 'dictee.html' : f.app === 'topo' ? 'topografie.html' : f.app === 'woordflits' ? 'woordflits.html' : f.app === 'conversie' ? 'conversie.html' : f.app === 'grammatica' ? 'grammatica.html' : f.app === 'sudoku' ? 'sudoku.html' : f.app === 'queens' ? 'queens.html' : f.app === 'tango' ? 'tango.html' : 'rekentoets.html';
       const url   = page + '?fav=' + f.id;
       const delTitle = h ? h.favDelete : 'Verwijder';
       const badge = f.app === 'dictee'
@@ -747,6 +793,8 @@
         ? `<span class="fav-badge" style="background:#f472b6;color:#000">${h ? h.favBadgeSudoku : 'Sudoku'}</span>`
         : f.app === 'queens'
         ? `<span class="fav-badge" style="background:#fbbf24;color:#000">${h ? h.favBadgeQueens : 'Queens'}</span>`
+        : f.app === 'tango'
+        ? `<span class="fav-badge" style="background:#818cf8;color:#000">${h ? h.favBadgeTango : 'Tango'}</span>`
         : `<span class="fav-badge" style="background:#e8ff47;color:#000">${h ? h.favBadgeReken : 'Rekenen'}</span>`;
       return `<div class="fav-item">
         <a href="${url}" class="fav-link">

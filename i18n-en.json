@@ -272,6 +272,38 @@
     "menuBtn": "⚙ Menu",
     "againBtn": "↻ Another"
   },
+  "tango": {
+    "appTitle": "☀️ Tango",
+    "subtitle": "Fill the grid with suns and moons",
+    "rule1": "Every row and column has <b>as many</b> <i class=\"sun\"></i> as <i class=\"moon\"></i>.",
+    "rule2": "Never <b>more than 2</b> of the same next to or above each other.",
+    "rule3": "<b>=</b> means: the same. <b>×</b> means: different.",
+    "sizeLabel": "Size",
+    "diffLabel": "Difficulty",
+    "easy": "Easy",
+    "hard": "Hard",
+    "errorsLabel": "Show mistakes instantly",
+    "on": "✓ On",
+    "off": "✗ Off",
+    "bestLabel": "Best times (no hints)",
+    "startBtn": "New puzzle →",
+    "continueBtn": "▶ Continue",
+    "generating": "Making puzzle…",
+    "gameTitle": "Tango",
+    "stopBtn": "✕ stop",
+    "undo": "Undo",
+    "clear": "Clear",
+    "hint": "Hint",
+    "howto": "Tap once for a sun, twice for a moon, three times to clear.",
+    "hintWrong": "That cell was wrong — cleared",
+    "notSolved": "Not quite — check the red cells",
+    "solvedTitle": "🎉 Solved!",
+    "timeLabel": "Time",
+    "hintsLabel": "Hints",
+    "newRecord": "🏆 New record!",
+    "menuBtn": "⚙ Menu",
+    "againBtn": "↻ Another"
+  },
   "sidebar": {
     "home": "Back to Home",
     "language": "Language",
@@ -315,6 +347,9 @@
     "favBadgeSudoku": "Sudoku",
     "queensTitle": "Queens",
     "queensDesc": "Place queens on the colour board: one per row, column and colour, and they may not touch.",
-    "favBadgeQueens": "Queens"
+    "favBadgeQueens": "Queens",
+    "tangoTitle": "Tango",
+    "tangoDesc": "Fill the grid with suns and moons: equal in every row and column, never three in a row, and mind the = and ×.",
+    "favBadgeTango": "Tango"
   }
 }
